@@ -9,15 +9,17 @@
 
 | Ext. | Integrante | Dispositivo | Aplicación | Conexión | VLAN |
 |---|---|---|---|---|---|
-| 1000 | | Laptop | MicroSIP | Cable ether4 | 30 ADMIN |
-| 1001 | | Celular | Linphone | Wi-Fi CMH-Voz-5G | 20 VOZ |
-| 2001 | | Celular | Linphone / Zoiper | Wi-Fi CMH-Voz-5G | 20 VOZ |
-| 2002 | | Laptop | MicroSIP | Wi-Fi CMH-Admin | 30 ADMIN |
-| 3001 | | Celular | Zoiper | Wi-Fi CMH-Voz | 20 VOZ |
-| 3002 | | Laptop | MicroSIP / Linphone | Cable ether5 | 30 ADMIN |
-| 4001 | | PC / laptop | MicroSIP | Wi-Fi CMH-Admin-5G | 30 ADMIN |
-| 5001 | | Laptop | Linphone | Cable ether3 | 10 GESTION |
-| 5002 | | Celular (datos móviles) | Linphone + Tailscale | Internet | E1 |
+| 1000 | Isaac Sarceño | Laptop | MicroSIP | Cable ether4 | 30 ADMIN |
+| 1001 | José Arnaldo | Celular | Linphone | Wi-Fi CMH-Voz-5G | 20 VOZ |
+| 2001 | Leonardo Zepeda | Celular | Linphone / Zoiper | Wi-Fi CMH-Voz-5G | 20 VOZ |
+| 2002 | Omar Godoy | Celular (Android) | Linphone | Wi-Fi CMH-Voz | 20 VOZ |
+| 3001 | Ernesto Grijalva | Celular | Zoiper | Wi-Fi CMH-Voz | 20 VOZ |
+| 3002 | Reginaldo | Celular | Linphone | Wi-Fi del AP | 20 VOZ |
+| 4001 | Anthony | Celular | Linphone | Wi-Fi del AP | 20 VOZ |
+| 5001 | Romeo | Celular | Linphone | Wi-Fi del AP | 20 VOZ |
+| 5002 | Isaac Sarceño | Celular (datos móviles) | Linphone + Tailscale | Internet | E1 |
+
+> **19/10.** Asignación por integrante, configuración remota por Tailscale y pruebas por persona en `GUIA-CELULARES.md`. Las columnas *Conexión* y *VLAN* aplican el día de la integración con el router y se ajustan al RB750Gr3 y al AP Mercusys MW325R (un solo Wi-Fi, en la VLAN de Voz). Hasta entonces, todos se conectan por Tailscale con el dominio `100.91.176.16`. Las llamadas entre VLAN (TER-05) se hacen entre los celulares (VLAN 20) y las laptops conectadas por cable a Gestión (VLAN 10) o Administrativa (VLAN 30).
 
 Datos comunes para todos: **Servidor/Dominio:** `192.168.20.10` · **Puerto:** 5060 · **Transporte:** UDP · **Usuario y autenticación:** el número de extensión · **Contraseña:** la del gestor de contraseñas.
 
