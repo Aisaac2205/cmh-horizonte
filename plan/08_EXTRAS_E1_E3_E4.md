@@ -4,7 +4,7 @@
 **E2 (SDN): no se implementa** por decisión del grupo; en la trazabilidad RN-09 queda como "no implementado" con su justificación.
 
 **Se puede adelantar YA (cuentas y materiales):**
-- [ ] Cuenta de **Tailscale** del proyecto (con Google o GitHub del grupo) **con 2FA**.
+- [ ] Cuenta de **Tailscale** del proyecto (con Google o GitHub del grupo) **con 2FA**. *(cuenta creada el 19/10 con el Google del proyecto. Confirmar que tenga verificación en dos pasos)*
 - [ ] **Dos** cuentas en **sip2sip.info** (una para la troncal y otra para el "teléfono externo" de prueba).
 - [ ] Cuenta **Gmail** del proyecto con 2FA y **contraseña de aplicación** (para el buzón por correo).
 - [x] 1–2 pistas de **música libre de derechos** (por ejemplo, de la biblioteca de audio de YouTube) en MP3/WAV. *(hecho 17/10)*
@@ -17,7 +17,7 @@
 **Mecanismo:** VPN de usuario hacia el servidor (admitido en §6.1). Tailscale crea un túnel WireGuard cifrado entre el celular y la VM de FreePBX. **No se abren puertos en el router** y funciona aunque el proveedor de internet use CGNAT.
 
 ### Paso 1. Activar Tailscale en la VM de FreePBX
-Tailscale **ya viene instalado** en la VM (`CONFIG.md`, Paso 4), así que no hace falta el `curl` de instalación. Solo se activa:
+Tailscale **ya viene instalado** en la VM, así que no hace falta el `curl` de instalación. Solo se activa:
 ```bash
 sudo tailscale up
 ```
@@ -28,8 +28,8 @@ sudo tailscale up
 
 ### Paso 2. Ajustes en FreePBX
 - [x] **Asterisk SIP Settings → Local Networks** incluye `100.64.0.0/10` (hecho en el archivo 03). *(hecho 17/10)*
-- [ ] **Firewall → Interfaces**: `tailscale0` en zona **Local** (puede usar SIP, **no** la administración web).
-- [ ] Apply Config.
+- [x] **Firewall → Interfaces**: `tailscale0` en zona **Local** (puede usar SIP, **no** la administración web). *(hecho 19/10)*
+- [x] Apply Config. *(hecho 19/10, el firewall aplica solo)*
 
 ### Paso 3. Restringir con la política de Tailscale (endurecimiento)
 Consola de Tailscale → **Access Controls**. Reemplazar la política por:
@@ -63,9 +63,9 @@ Resultado: los dispositivos remotos **solo** pueden hablar SIP y RTP con la PBX 
 
 ### Evidencias E1
 - [ ] Captura del celular con datos móviles (sin Wi-Fi) en llamada.
-- [ ] `tailscale status` en la VM (muestra el celular conectado).
-- [ ] `asterisk -rx "pjsip show contacts"` → 5002 con dirección `100.x.y.z`.
-- [ ] CDR de las llamadas 5002 ↔ 1000.
+- [x] `tailscale status` en la VM (muestra el celular conectado). *(hecho 19/10, ver `GUIA-DEMO.md` sección 7 y `CONFIG.md` sección 6)*
+- [x] `asterisk -rx "pjsip show contacts"` → 5002 con dirección `100.x.y.z`. *(hecho 19/10, la 5002 se registró desde 100.68.20.81, ver `GUIA-DEMO.md` sección 7)*
+- [ ] CDR de las llamadas 5002 ↔ 1000. *(19/10: 5002 → 1000 hecha, captura 24. Falta 1000 → 5002)*
 - [ ] Captura de la política de acceso de Tailscale.
 
 ### Análisis de riesgos E1 (requisito de documentación)
