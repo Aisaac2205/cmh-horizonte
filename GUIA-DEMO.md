@@ -1,335 +1,269 @@
-# GUÍA DEMO · Arrancar la PBX y mostrar lo realizado
+# GUÍA DEMO · Documentación de lo realizado
 **Centro Médico Horizonte, S.A. · PF-TEL-001-2026**
 Última actualización: 19/10/2026
 
-Esta guía sirve para **encender la máquina virtual, entrar a FreePBX y recorrer todo lo que ya está configurado**. Sirve para revisar el trabajo en grupo y para la demostración ante el catedrático. Cómo se hizo cada cosa está en `CONFIG.md`. Las contraseñas están en `CREDENCIALES-ACTUALES.md`.
+Registro visual de todo lo configurado en el proyecto, para el equipo y para la defensa. Cada captura indica su ruta dentro del sistema y explica qué se hizo y por qué. El avance se agrega por componente.
 
-> Los nombres de menú de esta guía se tomaron del propio FreePBX instalado (17.0.33), así que coinciden con lo que se ve en pantalla.
->
-> Las **capturas** de la sección 4 están en la carpeta `capturas\` (tomadas el 17/10/2026, sin contraseñas visibles). Para verlas dentro de la guía, abre este archivo con un visor de Markdown, por ejemplo VS Code con **Ctrl+Shift+V**.
-
----
-
-## 1. Antes de empezar
-
-| Necesitas | Dónde está o para qué |
-|---|---|
-| La laptop host con VirtualBox 7.2.20 | Ya instalado |
-| La VM `CMH-FreePBX` | Lista en VirtualBox |
-| La contraseña del usuario web `cmh-ti` | `CREDENCIALES-ACTUALES.md` (empieza con **Z mayúscula**) |
-| La laptop conectada por **Wi-Fi** (casa u hotspot) | Solo para que los teléfonos lleguen a la PBX. La administración funciona igual sin red |
-| MicroSIP abierto en la laptop (ext. 1000) y Linphone en el celular (ext. 2001) | Solo para las pruebas con llamadas |
-
-> La VM usa el **Wi-Fi** de la laptop (adaptador en puente). Si la laptop está solo por cable, los teléfonos no se registran hasta el día del router, cuando el puente pasa a la tarjeta Ethernet (`CONFIG.md`, Paso 16).
-
----
-
-## 2. Encender la máquina virtual
-
-1. Abre **VirtualBox**.
-2. Selecciona **CMH-FreePBX** y haz clic en **Start** (flecha verde). Si no quieres ver la ventana negra, usa la flechita junto a Start y elige **Headless Start**.
-3. Espera **unos 2 minutos**. Si abriste la ventana, al final aparece `cmh-pbx login:`. No hace falta iniciar sesión ahí.
-4. Abre el navegador en **http://127.0.0.1:18080/admin**. Si todavía no carga, espera otro minuto.
-
-Lo mismo desde PowerShell:
-```powershell
-& "$env:ProgramFiles\Oracle\VirtualBox\VBoxManage.exe" startvm CMH-FreePBX --type headless
-```
-
-> **Modo seguro del firewall.** Durante los **primeros 5 minutos** después de encender, el firewall de FreePBX todavía no aplica sus reglas. Es una protección normal contra bloqueos. Si vas a mostrar que el firewall bloquea la web, espera a que pasen.
-
-**IP de la PBX para los teléfonos.** Cambia según la red de la laptop. En el hotspot del iPhone ha sido `172.20.10.7`. Para verla en cualquier momento:
-```powershell
-ssh -i "$env:USERPROFILE\.ssh\cmh_pbx_ed25519" -p 2222 cmhadmin@127.0.0.1 "ip -br -4 addr show enp0s3"
-```
-Si la IP cambió, hay que ponerla como servidor y dominio en MicroSIP y en Linphone.
-
----
-
-## 3. Entrar a FreePBX
-
-1. En **http://127.0.0.1:18080/admin**, clic en **FreePBX Administration**.
-2. Usuario **`cmh-ti`** y su contraseña.
-3. Se abre el **Dashboard**.
-
-**Por qué `127.0.0.1:18080` y no la IP de la PBX.** La administración solo se permite desde la red de Gestión (VLAN 10) o desde el **puerto interno de gestión** de la VM, que solo existe dentro de la laptop host. Desde la red de los teléfonos la web está **bloqueada a propósito** por el firewall (requisito 5.3 del PDF).
-
-> Si aparece *"Potential Security Breach"*, es porque se escribió a mano una dirección con `&action=...`. Navegando con los menús y botones de FreePBX no pasa.
-
-**Menús principales:**
-
-| Menú | Qué hay ahí |
-|---|---|
-| **Applications** | IVR, grupos de timbrado, colas, horarios y el número 7000 (Misc Applications) |
-| **Connectivity** | Extensiones y firewall |
-| **Admin** | Grabaciones del sistema, idiomas, respaldos, códigos de servicio y la consola de Asterisk |
-| **Reports** | Registro de llamadas (CDR), grabaciones, estado de Asterisk, registros del sistema y contraseñas débiles |
-| **Settings** | Ajustes SIP, música en espera y configuración avanzada |
-
----
-
-## 4. Recorrido para mostrar lo realizado
-
-Orden sugerido para la demostración, unos 8 a 10 minutos. Cada fila dice **dónde ir**, **qué mostrar** y **qué explicar**.
-
-### 4.1 La plataforma (criterio C)
-| Dónde | Qué mostrar | Qué explicar |
+| Componente | Estado | Sección |
 |---|---|---|
-| **Dashboard** | Versión de FreePBX y servicios en verde | FreePBX 17.0.33 con Asterisk 22.11 sobre Debian 12.15, en una VM local (modalidad Stand-alone) |
-| **Connectivity → Extensions** | Las 9 extensiones, de la 1000 a la 5002 | Plan de 4 dígitos por área. 1xxx Recepción, 2xxx Consulta Externa, 3xxx Enfermería y Emergencias, 4xxx Administración, 5xxx TI |
-| Abrir la **1000**, pestaña **Advanced** | *Direct Media* en No y *Call Waiting* activo | El audio pasa por la PBX para atravesar la QoS del router y funcionar con NAT |
-| La misma 1000, pestaña **General** | El campo *Secret* (sin mostrar el valor) | Contraseñas aleatorias de 32 caracteres, una distinta por extensión |
-| **Settings → Asterisk SIP Settings** | Códecs ulaw, alaw, g722 y opus, redes locales, RTP 10000 a 20000 | G.711 usa unos 87 kbps por sentido con Ethernet (cálculo en el archivo 01 del plan, §5) |
+| PBX FreePBX en máquina virtual | Configurada y probada con llamadas reales | 2 a 7 |
+| Router MikroTik RB750Gr3 (hEX) | Pendiente de configurar | 8 |
+| Punto de acceso Mercusys MW325R | Pendiente de configurar | 9 |
 
-**Figura 1.** Dashboard con la versión de FreePBX y los servicios en verde
+> Las capturas están en la carpeta `capturas/` y no muestran contraseñas. Para verlas dentro de este documento se recomienda un visor de Markdown, por ejemplo GitHub o VS Code (**Ctrl+Shift+V**). Las extensiones de cada integrante y las pruebas por persona están en `GUIA-CELULARES.md`.
+
+---
+
+## 1. La solución en breve
+
+| Elemento | Valor |
+|---|---|
+| Plataforma | FreePBX 17.0.33 y Asterisk 22.11 sobre Debian 12.15, en VirtualBox |
+| Nombre del sistema | `CMH-PBX Centro Medico Horizonte` |
+| Extensiones | 9, de 4 dígitos, numeradas por área (1xxx Recepción, 2xxx Consulta Externa, 3xxx Enfermería y Emergencias, 4xxx Administración, 5xxx TI) |
+| Números especiales | 7000 IVR, 8000 grupo de Recepción, 8010 cola de Consulta Externa |
+| IP de la PBX con el router | 192.168.20.10 (VLAN 20, Voz) |
+| IP de la PBX por Tailscale | 100.91.176.16, fija desde cualquier red |
+| Idioma | Español latino (`es_419`), con respaldo en español estándar |
+
+---
+
+## 2. Plataforma de la PBX (criterio C)
+
+**Figura 1. Panel principal.** Ruta: *Dashboard*
 
 ![Dashboard con la versión de FreePBX y los servicios en verde](capturas/01-dashboard.png)
 
-> **Qué se hizo.** Es la pantalla de inicio después de entrar. Arriba a la izquierda se ve el nombre que le pusimos al sistema (*CMH-PBX Centro Medico Horizonte*) y la versión, FreePBX 17.0.33.2. En la lista de servicios, Asterisk, la base de datos, el servidor web, fail2ban y el firewall están en verde, o sea que la PBX está funcionando. A la izquierda abajo se ve el tráfico de las dos tarjetas de red de la VM (`enp0s3` para teléfonos y `enp0s8` para administración).
+> **Qué se hizo.** Es la pantalla de inicio después de entrar. Arriba se ve el nombre asignado al sistema (*CMH-PBX Centro Medico Horizonte*) y la versión, FreePBX 17.0.33.2. En la lista de servicios, Asterisk, la base de datos, el servidor web, fail2ban y el firewall están en verde, es decir, la PBX está en funcionamiento. Abajo se ve el tráfico de las dos tarjetas de red de la VM (`enp0s3` para teléfonos y `enp0s8` para administración).
 
-**Figura 2.** Connectivity → Extensions con las 9 extensiones
+**Figura 2. Extensiones.** Ruta: *Connectivity → Extensions*
 
-![Connectivity → Extensions con las 9 extensiones](capturas/02-extensiones.png)
+![Lista de las 9 extensiones](capturas/02-extensiones.png)
 
-> **Qué se hizo.** Aquí se crearon las 9 extensiones del plan de numeración, una por puesto de trabajo. El primer dígito indica el área: 1 Recepción, 2 Consulta Externa, 3 Enfermería y Emergencias, 4 Administración y 5 TI. Todas son de tipo **pjsip** (el protocolo SIP moderno de Asterisk) y tienen la llamada en espera activa (columna CW marcada).
+> **Qué se hizo.** Se crearon las 9 extensiones del plan de numeración, una por puesto de trabajo. El primer dígito indica el área. Todas son de tipo **pjsip**, el protocolo SIP actual de Asterisk, y tienen la llamada en espera activa (columna CW). Cada una tiene una contraseña aleatoria de 32 caracteres, distinta de las demás.
 
-**Figura 3.** Extensión 1000, pestaña Advanced, con Direct Media en No
+**Figura 3. Opciones avanzadas de una extensión.** Ruta: *Connectivity → Extensions → 1000 → Advanced*
 
-![Extensión 1000, pestaña Advanced, con Direct Media en No](capturas/03-ext1000-avanzado.png)
+![Extensión 1000 con Direct Media en No](capturas/03-ext1000-avanzado.png)
 
-> **Qué se hizo.** Dentro de la extensión 1000, en la pestaña *Advanced*, se puso **Direct Media en No**. Así el audio de las llamadas siempre pasa por la PBX en lugar de ir directo entre teléfonos. Lo hicimos para que el audio cruce el router y le aplique la QoS, y para que funcione aunque haya NAT de por medio. Se hizo igual en las 9 extensiones.
+> **Qué se hizo.** Se configuró **Direct Media en No** en las 9 extensiones. Así el audio de las llamadas siempre pasa por la PBX en lugar de ir directo entre teléfonos. Esto permite que el audio cruce el router y reciba la prioridad de QoS, y que las llamadas funcionen aunque haya NAT de por medio.
 
-**Figura 4.** Asterisk SIP Settings con las redes locales y el rango RTP
+**Figura 4. Ajustes SIP.** Ruta: *Settings → Asterisk SIP Settings*
 
-![Asterisk SIP Settings con las redes locales y el rango RTP](capturas/04-ajustes-sip.png)
+![Ajustes SIP con redes locales y rango RTP](capturas/04-ajustes-sip.png)
 
-> **Qué se hizo.** Son los ajustes SIP generales. Arriba se dejaron en **No** las llamadas anónimas y los invitados, para que nadie use la PBX sin usuario y contraseña. En *Local Networks* se agregaron las redes del proyecto (192.168.0.0/16 para las VLAN, 100.64.0.0/10 para Tailscale y 172.16.0.0/12 para pruebas con hotspot), así Asterisk sabe qué teléfonos están en la red interna. Abajo está el rango de puertos del audio (RTP 10000 a 20000), el mismo que usan las reglas del router.
-
-### 4.2 Funcionalidades obligatorias (criterio D, el de más peso)
-| Dónde | Qué mostrar | Qué explicar |
-|---|---|---|
-| **Admin → Feature Codes** | \*97, \*98, \*43, ## (transferencia ciega), \*2 (atendida), \*70 y \*71 | Los códigos de servicio empiezan con `*`, así no chocan con las extensiones |
-| **Admin → System Recordings** | Las 4 grabaciones | Locución en español generada con la voz de Windows. Se puede reemplazar por voz humana con los mismos nombres |
-| **Applications → IVR → IVR-Principal** | Bienvenida, opciones 1 a 4 y 0, 2 reintentos, sin respuesta a la operadora | Cumple §5.4 del PDF. Tres o más opciones, operadora, opción inválida y falta de respuesta |
-| **Applications → Misc Applications** | 7000 apunta a TC-Horario | Número interno para llegar al IVR |
-| Extensión **1000**, pestaña **Voicemail** | Buzón activo con PIN | Hay buzón en 1000, 2001, 3001 y 4001, cada uno con su PIN |
-| **Admin → Sound Languages** | Español latino (`es_419`) por defecto | Si al paquete latino le falta un audio (por ejemplo los números), Asterisk lo toma del español estándar |
-
-**Figura 5.** Feature Codes, sección Core: ## transferencia ciega y *2 atendida (abajo) y llamada en espera *70 y *71
-
-![Feature Codes, sección Core: ## transferencia ciega y *2 atendida (abajo) y llamada en espera *70 y *71](capturas/05a-codigos-transferencia.png)
-
-> **Qué se hizo.** Son los *códigos de servicio*, números que empiezan con `*` o `#` y activan funciones desde el teléfono. Aquí se revisó que estén activos los de llamada en espera (**\*70** activa y **\*71** desactiva) y, en la sección *Core*, los de transferencia: **##** para la transferencia ciega y **\*2** para la atendida. Empiezan con símbolos para que no choquen con las extensiones de 4 dígitos.
-
-**Figura 6.** Feature Codes: *43 prueba de eco y 7000 del IVR
-
-![Feature Codes: *43 prueba de eco y 7000 del IVR](capturas/05b-codigos-eco-y-servicios.png)
-
-> **Qué se hizo.** Sigue la lista de códigos. Aquí se ven **\*43**, la prueba de eco (uno habla y se escucha a sí mismo, sirve para revisar el audio), y el **7000**, que es el número interno para entrar al IVR.
-
-**Figura 7.** Feature Codes: *271 del horario y *97 y *98 del buzón
-
-![Feature Codes: *271 del horario y *97 y *98 del buzón](capturas/05c-codigos-horario-y-buzon.png)
-
-> **Qué se hizo.** Final de la lista de códigos. **\*271** cambia a mano el modo de horario (normal o fuera de horario), y sirve para la demostración. **\*97** entra al buzón de la propia extensión y **\*98** a cualquier buzón, pidiendo el número y su PIN.
-
-**Figura 8.** Admin → System Recordings con las 4 grabaciones en español
-
-![Admin → System Recordings con las 4 grabaciones en español](capturas/06-grabaciones-sistema.png)
-
-> **Qué se hizo.** Son los 4 audios que se subieron a FreePBX: la bienvenida del IVR, el aviso de opción no válida, el mensaje de fuera de horario y el aviso de que la llamada puede ser grabada. Se generaron en español con la voz de Windows y están en idioma *Spanish*. Si el grupo prefiere voz humana, se pueden regrabar desde un teléfono con los mismos nombres.
-
-**Figura 9.** Applications → IVR → IVR-Principal
-
-![Applications → IVR → IVR-Principal](capturas/07-ivr-principal.png)
-
-> **Qué se hizo.** Es el menú de voz principal. Se eligió la grabación de bienvenida como anuncio, se dejan **7 segundos** para marcar y hasta **2 intentos** si se marca una opción no válida. Si la persona se equivoca dos veces o no marca nada, la llamada pasa a la **extensión 1000 (Operadora)**. Más abajo en la misma página están las opciones: 1 Recepción, 2 Consulta Externa, 3 Enfermería, 4 Administración y 0 Operadora.
-
-**Figura 10.** Applications → Misc Applications con el número 7000
-
-![Applications → Misc Applications con el número 7000](capturas/12-numero-7000.png)
-
-> **Qué se hizo.** Aquí se creó el número **7000** para entrar al IVR desde cualquier extensión. Apunta a la condición de horario (figura 15), que decide qué IVR contesta según la hora.
-
-**Figura 11.** Admin → Sound Languages con español (es) y español latino (es_419)
-
-![Admin → Sound Languages con español (es) y español latino (es_419)](capturas/14-idiomas.png)
-
-> **Qué se hizo.** Se instalaron los sonidos del sistema en español, que son los mensajes que dice la PBX por su cuenta ("deje su mensaje después del tono", los números, etc.). Quedó **español latino (es_419)** como idioma principal y el español estándar (es) como respaldo, porque al paquete latino le faltan algunos audios, como los números. El inglés viene de fábrica.
-
-### 4.3 Extras E4
-| Dónde | Qué mostrar | Qué explicar |
-|---|---|---|
-| **Applications → Ring Groups → 8000** | 1000 y 1001, estrategia ringall, buzón si nadie contesta | Recepción. Suenan todos a la vez |
-| **Applications → Queues → 8010** | 2001 y 2002, rrmemory, aviso de grabación, posición y música CMH | Consulta Externa. Reparte las llamadas por turnos |
-| **Applications → Time Groups** y **Time Conditions** | `Horario-Atencion` y `TC-Horario` | Lunes a viernes de 7:00 a 19:00 y sábado de 7:00 a 12:00. Fuera de horario contesta otro IVR |
-| **Settings → Music on Hold → CMH** | La pista propia | Compuesta con código, así que es original y sin derechos de autor |
-| Extensión **1000**, pestaña **Advanced**, *Recording Options* | Force en todo | Se graban todas sus llamadas |
-| **Reports → Call Recordings** o **CDR Reports** | Grabaciones y registros de las llamadas de prueba | Auditoría y registro de eventos (§5.3). Solo se ven desde la administración |
-
-**Figura 12.** Grupo de timbrado 8000 (Recepción)
-
-![Grupo de timbrado 8000 (Recepción)](capturas/08-grupo-8000.png)
-
-> **Qué se hizo.** Se creó el grupo de timbrado **8000 (Recepción)** con las extensiones **1000 y 1001**. La estrategia *ringall* hace que suenen las dos al mismo tiempo, y la primera que contesta se queda con la llamada. Si nadie contesta en **20 segundos**, la llamada va al buzón de la 1000. Es la opción 1 del IVR.
-
-**Figura 13.** Cola 8010 (Consulta Externa) con rrmemory, música CMH y aviso de grabación
-
-![Cola 8010 (Consulta Externa) con rrmemory, música CMH y aviso de grabación](capturas/09-cola-8010.png)
-
-> **Qué se hizo.** Se creó la cola **8010 (Consulta Externa)** con las extensiones 2001 y 2002 como agentes. La estrategia **rrmemory** reparte las llamadas por turnos y recuerda a quién le tocó la última, así la carga queda pareja entre las dos clínicas. Al entrar se escucha el aviso de grabación, y mientras se espera suena nuestra música (**CMH**). Es la opción 2 del IVR.
-
-**Figura 14.** Time Groups: Horario-Atencion
-
-![Time Groups: Horario-Atencion](capturas/10-grupo-horario.png)
-
-> **Qué se hizo.** Se definió el horario de atención del centro médico: **lunes a viernes de 7:00 a 19:00** y **sábado de 7:00 a 12:00**. Este grupo de horario lo usa la condición de la figura siguiente.
-
-**Figura 15.** Time Conditions: TC-Horario (*271)
-
-![Time Conditions: TC-Horario (*271)](capturas/11-condicion-horaria.png)
-
-> **Qué se hizo.** Es la condición de horario **TC-Horario**, con zona horaria de Guatemala. Si la llamada entra **dentro** del horario de la figura 14, contesta el **IVR-Principal**. Si entra **fuera** de ese horario, contesta el **IVR-FueraHorario**, que solo ofrece Emergencias (3) o dejar un mensaje (1). El título muestra el código **\*271** para cambiar el modo a mano en la demostración.
-
-**Figura 16.** Music on Hold: categoría CMH con la pista propia
-
-![Music on Hold: categoría CMH con la pista propia](capturas/13-musica-cmh.png)
-
-> **Qué se hizo.** Se creó la categoría de música en espera **CMH** y se subió la pista `moh-cmh-tema1`. La compusimos con código, así que es original y no tiene problemas de derechos de autor. Es la que suena en la cola 8010.
-
-**Figura 17.** Extensión 1000, Recording Options en Force
-
-![Extensión 1000, Recording Options en Force](capturas/03b-ext1000-grabacion.png)
-
-> **Qué se hizo.** En la extensión 1000 (Recepción) se puso la grabación en **Force** para todas las llamadas, entrantes y salientes, internas y externas. Las grabaciones solo se pueden escuchar desde la administración web, que está restringida a la red de Gestión (requisito de acceso restringido de E4).
-
-**Figura 18.** Reports → CDR Reports con las llamadas de prueba del 17/10
-
-![Reports → CDR Reports con las llamadas de prueba del 17/10](capturas/21-cdr-tabla.png)
-
-> **Qué se hizo.** Es el registro de llamadas (CDR). Cada fila es una llamada con fecha, hora, quién llamó (CallerID), a dónde fue (*App* y *Destination*), si se contestó (*ANSWERED*) y cuánto duró. Aquí se ven las primeras llamadas de prueba del 17/10 desde el iPhone (extensión 2001) al IVR. Sirve como evidencia para el informe y para la matriz de pruebas.
-
-### 4.4 Seguridad (§5.8)
-| Dónde | Qué mostrar | Qué explicar |
-|---|---|---|
-| **Connectivity → Firewall → Main → Networks** | Trusted: 10.0.2.2 y 192.168.10.0/24. Local: VOZ, ADMIN, Tailscale y hotspot | Zonas de confianza |
-| **Connectivity → Firewall → Services** | Web y SSH sin zonas (solo Trusted). SIP solo en Local | Solo se exponen los servicios necesarios |
-| **Connectivity → Firewall → Main → Responsive Firewall** | Activado en general, con *SIP Protocol (pjsip)* en Disabled | El SIP que llega de redes no confiables se rechaza por completo. Solo las redes Local (voz, ADMIN y Tailscale) pueden registrar teléfonos, y fail2ban bloquea los intentos repetidos |
-| **Reports → Weak Password Detection** | Sin contraseñas débiles | Credenciales robustas |
-| **Admin → Backup & Restore** | Tarea `CMH-diario` (2:00, guarda 7) | Respaldos automáticos |
-| En vivo (opcional) | Abrir `http://<IP de la PBX>` desde el celular | No abre. La administración está protegida |
-
-**Figura 19.** Firewall → Networks con las zonas Trusted y Local
-
-![Firewall → Networks con las zonas Trusted y Local](capturas/15-firewall-redes.png)
-
-> **Qué se hizo.** Se activó el firewall de FreePBX y se definieron las redes de confianza. En **Trusted** (acceso total) quedaron la laptop que administra la VM (10.0.2.2) y la VLAN 10 de Gestión. En **Local** (solo teléfonos) quedaron la VLAN 20 de Voz, la VLAN 30 Administrativa, Tailscale para E1 y la red de pruebas del hotspot. Cualquier otra red cae en la zona *Internet*, que no tiene acceso.
-
-**Figura 20.** Firewall → Services: SSH y web sin zonas, SIP solo en Local
-
-![Firewall → Services: SSH y web sin zonas, SIP solo en Local](capturas/17-firewall-servicios.png)
-
-> **Qué se hizo.** Aquí se decide qué servicio puede usar cada zona. **SSH** y la **web de administración** no tienen ninguna zona marcada, así que solo se pueden usar desde las redes *Trusted* (Gestión y la laptop que administra). **SIP** está marcado solo en **Local**, para que los teléfonos de las VLAN puedan registrarse. Los demás servicios quedaron cerrados porque no se usan.
-
-**Figura 21.** Firewall → Responsive Firewall activo, con SIP (pjsip) en Disabled
-
-![Firewall → Responsive Firewall activo, con SIP (pjsip) en Disabled](capturas/16-firewall-responsive.png)
-
-> **Qué se hizo.** El *Responsive Firewall* está activo, pero con **SIP (pjsip) en Disabled**. Eso significa que el SIP que llega desde redes que no son de confianza se rechaza siempre, sin darle intentos. Es la opción más estricta, y los teléfonos no se ven afectados porque todos entran por redes *Local*. Contra intentos repetidos de contraseña sigue trabajando fail2ban.
-
-**Figura 22.** Reports → Weak Password Detection sin contraseñas débiles
-
-![Reports → Weak Password Detection sin contraseñas débiles](capturas/19-claves-debiles.png)
-
-> **Qué se hizo.** Es el revisor de contraseñas de FreePBX. Dice *No weak secrets detected*, o sea que ninguna extensión tiene una contraseña débil. Las contraseñas SIP son aleatorias de 32 caracteres y distintas en cada extensión.
-
-**Figura 23.** Admin → Backup & Restore con la tarea CMH-diario
-
-![Admin → Backup & Restore con la tarea CMH-diario](capturas/18-respaldos.png)
-
-> **Qué se hizo.** Se creó la tarea de respaldo **CMH-diario**. Guarda toda la configuración de FreePBX todos los días a las 2:00 y conserva los últimos 7. Con el botón ▶ se puede ejecutar a mano antes de un cambio grande.
-
-### 4.5 Estado de los teléfonos (criterio E)
-| Dónde | Qué mostrar |
-|---|---|
-| **Reports → Asterisk Info** | Las líneas *Contact* de las extensiones registradas, en estado **Avail** y con su IP |
-| **Admin → Asterisk CLI** | Escribir `pjsip show contacts` y ejecutar. Muestra lo mismo en texto |
-
-**Figura 24.** Reports → Asterisk Info, sección PJSIP. La 1000 aparece Avail. Las demás salen Unavailable hasta que se registra su teléfono
-
-![Reports → Asterisk Info, sección PJSIP. La 1000 aparece Avail. Las demás salen Unavailable hasta que se registra su teléfono](capturas/20-telefonos-registrados.png)
-
-> **Qué se hizo.** Es el estado de los teléfonos visto desde Asterisk. Cada *Endpoint* es una extensión. Cuando un teléfono está conectado aparece una línea *Contact* con su IP y el estado **Avail** (disponible), como la 1000 de esta captura, que es MicroSIP en la laptop. Las que dicen *Unavailable* todavía no tienen un teléfono registrado. En la demostración hay que mostrar al menos 4 en *Avail*, con una laptop y un celular.
+> **Qué se hizo.** Se dejaron en **No** las llamadas anónimas y los invitados, para que nadie use la PBX sin usuario y contraseña. En *Local Networks* se declararon las redes del proyecto (192.168.0.0/16 para las VLAN, 100.64.0.0/10 para Tailscale y 172.16.0.0/12 para pruebas), así Asterisk identifica qué teléfonos están en la red interna. Abajo está el rango de puertos del audio (RTP 10000 a 20000), el mismo que usan las reglas del router. Los códecs habilitados son ulaw, alaw, g722 y opus.
 
 ---
 
-## 5. Demostración con llamadas
+## 3. Funcionalidades de telefonía (criterio D)
 
-Con MicroSIP (1000) y Linphone (2001) registrados. **Linphone debe estar abierto en pantalla**, porque en iOS no recibe llamadas en segundo plano con un servidor propio.
+**Figura 5. Códigos de transferencia y llamada en espera.** Ruta: *Admin → Feature Codes*
 
-| # | Desde | Marcar | Qué debe pasar |
+![Códigos de servicio de transferencia y llamada en espera](capturas/05a-codigos-transferencia.png)
+
+> **Qué se hizo.** Se verificó que estén activos los códigos de servicio, que son números que empiezan con `*` o `#` y activan funciones desde el teléfono. Llamada en espera **\*70** (activar) y **\*71** (desactivar). En la sección *Core*, **##** para la transferencia ciega y **\*2** para la atendida. Empiezan con símbolos para no chocar con las extensiones de 4 dígitos.
+
+**Figura 6. Prueba de eco y acceso al IVR.** Ruta: *Admin → Feature Codes*
+
+![Códigos de eco y del número 7000](capturas/05b-codigos-eco-y-servicios.png)
+
+> **Qué se hizo.** **\*43** es la prueba de eco, donde quien llama escucha su propia voz y se comprueba el audio. **7000** es el número interno para entrar al IVR.
+
+**Figura 7. Códigos de horario y buzón.** Ruta: *Admin → Feature Codes*
+
+![Códigos del horario y del buzón](capturas/05c-codigos-horario-y-buzon.png)
+
+> **Qué se hizo.** **\*271** cambia a mano el modo de horario (normal o fuera de horario) y se usa en la demostración. **\*97** entra al buzón de la propia extensión y **\*98** a cualquier buzón, con su número y su PIN.
+
+**Figura 8. Grabaciones del sistema.** Ruta: *Admin → System Recordings*
+
+![Las 4 grabaciones en español](capturas/06-grabaciones-sistema.png)
+
+> **Qué se hizo.** Se cargaron 4 locuciones en español: bienvenida del IVR, opción no válida, mensaje de fuera de horario y aviso de grabación de la llamada. Se generaron con la voz de Windows *Sabina* (español de México), en formato telefónico de 8 kHz. Pueden reemplazarse por voz humana grabando desde un teléfono con los mismos nombres.
+
+**Figura 9. Menú de voz principal.** Ruta: *Applications → IVR → IVR-Principal*
+
+![Configuración del IVR principal](capturas/07-ivr-principal.png)
+
+> **Qué se hizo.** Se creó el IVR con la bienvenida como anuncio, **7 segundos** para marcar y hasta **2 intentos** ante una opción no válida. Si la persona se equivoca dos veces o no marca, la llamada pasa a la **operadora (1000)**. Opciones: 1 Recepción (grupo 8000), 2 Consulta Externa (cola 8010), 3 Enfermería (3001), 4 Administración (4001) y 0 operadora. Cumple §5.4 del PDF: tres o más opciones, operadora, opción inválida y falta de respuesta.
+
+**Figura 10. Número interno del IVR.** Ruta: *Applications → Misc Applications*
+
+![Número 7000](capturas/12-numero-7000.png)
+
+> **Qué se hizo.** Se creó el número **7000** para llegar al IVR desde cualquier extensión. Apunta a la condición de horario (figura 15), que decide qué IVR contesta según la hora.
+
+**Figura 11. Idiomas del sistema.** Ruta: *Admin → Sound Languages*
+
+![Paquetes de idioma instalados](capturas/14-idiomas.png)
+
+> **Qué se hizo.** Se instalaron los sonidos del sistema en español, que son los mensajes que la PBX dice por su cuenta (por ejemplo "deje su mensaje después del tono" y los números). Quedó **español latino (es_419)** como idioma principal y el español estándar (es) como respaldo, porque al paquete latino le faltan algunos audios.
+
+**Buzones de voz (sin captura).** Las extensiones 1000, 2001, 3001 y 4001 tienen buzón con PIN propio y **saludo personalizado** de no disponible, de ocupado y de nombre, en la misma voz del IVR. Si nadie contesta en 20 segundos, o la extensión está ocupada, la llamada pasa al buzón. Los mensajes se escuchan con \*97.
+
+---
+
+## 4. Funciones avanzadas, extra E4
+
+**Figura 12. Grupo de timbrado de Recepción.** Ruta: *Applications → Ring Groups → 8000*
+
+![Grupo de timbrado 8000](capturas/08-grupo-8000.png)
+
+> **Qué se hizo.** Se creó el grupo **8000 (Recepción)** con las extensiones **1000 y 1001**. La estrategia *ringall* hace que suenen las dos a la vez y la primera que contesta toma la llamada. Si nadie contesta en **20 segundos**, la llamada va al buzón de la 1000. Es la opción 1 del IVR.
+
+**Figura 13. Cola de Consulta Externa.** Ruta: *Applications → Queues → 8010*
+
+![Cola 8010](capturas/09-cola-8010.png)
+
+> **Qué se hizo.** Se creó la cola **8010 (Consulta Externa)** con las extensiones 2001 y 2002 como agentes. La estrategia **rrmemory** reparte las llamadas por turnos y recuerda a quién le tocó la última, así la carga queda pareja entre las dos clínicas. Al entrar se escucha el aviso de grabación, se anuncia la posición en la fila cada 30 segundos y suena la música propia (**CMH**). Después de 2 minutos sin respuesta, la llamada pasa al buzón. Es la opción 2 del IVR.
+
+**Figura 14. Horario de atención.** Ruta: *Applications → Time Groups → Horario-Atencion*
+
+![Grupo horario](capturas/10-grupo-horario.png)
+
+> **Qué se hizo.** Se definió el horario de atención del centro médico, **lunes a viernes de 7:00 a 19:00** y **sábado de 7:00 a 12:00**.
+
+**Figura 15. Condición de horario.** Ruta: *Applications → Time Conditions → TC-Horario*
+
+![Condición de horario TC-Horario](capturas/11-condicion-horaria.png)
+
+> **Qué se hizo.** Se creó la condición **TC-Horario**, con zona horaria de Guatemala. Dentro del horario de la figura 14 contesta el **IVR-Principal**. Fuera de ese horario contesta el **IVR-FueraHorario**, que solo ofrece Emergencias (3, Enfermería) o dejar un mensaje (1). El código **\*271** cambia el modo a mano para la demostración.
+
+**Figura 16. Música en espera propia.** Ruta: *Settings → Music on Hold → CMH*
+
+![Categoría de música CMH](capturas/13-musica-cmh.png)
+
+> **Qué se hizo.** Se creó la categoría **CMH** con la pista `moh-cmh-tema1`, compuesta con código para el proyecto. Es original, así que no tiene problemas de derechos de autor. Suena en la cola 8010.
+
+**Figura 17. Grabación de llamadas.** Ruta: *Connectivity → Extensions → 1000 → Advanced → Recording Options*
+
+![Grabación forzada en la extensión 1000](capturas/03b-ext1000-grabacion.png)
+
+> **Qué se hizo.** En la extensión 1000 (Recepción) se configuró la grabación en **Force** para todas las llamadas, entrantes y salientes, internas y externas. Las grabaciones solo se escuchan desde la administración web, que está restringida a la red de Gestión. Así se cumple el acceso restringido que pide E4.
+
+**Figura 18. Registro de llamadas.** Ruta: *Reports → CDR Reports*
+
+![Registro de llamadas de prueba](capturas/21-cdr-tabla.png)
+
+> **Qué se hizo.** El CDR registra cada llamada con fecha, hora, origen (*CallerID*), destino (*App* y *Destination*), si se contestó (*ANSWERED*) y su duración. Aquí se ven las primeras llamadas de prueba del 17/10 desde un celular (extensión 2001) al IVR. Es la evidencia de llamadas para el informe y la matriz de pruebas. Las llamadas de la 1000 incluyen el botón para escuchar la grabación.
+
+**Pendiente de E4.** Notificación de mensajes de buzón por correo, con la cuenta de Google del proyecto.
+
+---
+
+## 5. Seguridad de la PBX (§5.8)
+
+**Figura 19. Redes de confianza del firewall.** Ruta: *Connectivity → Firewall → Networks*
+
+![Redes Trusted y Local](capturas/15-firewall-redes.png)
+
+> **Qué se hizo.** Se activó el firewall de FreePBX y se definieron las redes de confianza. En **Trusted** (acceso total) quedaron la laptop que administra la VM (10.0.2.2) y la VLAN 10 de Gestión. En **Local** (solo teléfonos) quedaron la VLAN 20 de Voz, la VLAN 30 Administrativa, Tailscale y las redes de prueba. Cualquier otra red cae en la zona *Internet*, sin acceso.
+
+**Figura 20. Servicios permitidos por zona.** Ruta: *Connectivity → Firewall → Services*
+
+![Servicios por zona](capturas/17-firewall-servicios.png)
+
+> **Qué se hizo.** **SSH** y la **web de administración** no tienen ninguna zona marcada, así que solo se usan desde las redes *Trusted*. **SIP** está marcado solo en **Local**, para que los teléfonos puedan registrarse. Los demás servicios quedaron cerrados porque no se usan.
+
+**Figura 21. Responsive Firewall.** Ruta: *Connectivity → Firewall → Responsive Firewall*
+
+![Responsive Firewall activo con SIP en Disabled](capturas/16-firewall-responsive.png)
+
+> **Qué se hizo.** El *Responsive Firewall* está activo, con **SIP (pjsip) en Disabled**. El SIP que llega desde redes no confiables se rechaza siempre, sin darle intentos. Es la opción más estricta y no afecta a los teléfonos, porque todos entran por redes *Local*. Contra intentos repetidos de contraseña actúa **fail2ban**, que bloquea 30 minutos al equipo que falla 5 veces en 10 minutos.
+
+**Figura 22. Contraseñas débiles.** Ruta: *Reports → Weak Password Detection*
+
+![Sin contraseñas débiles](capturas/19-claves-debiles.png)
+
+> **Qué se hizo.** El revisor de FreePBX indica *No weak secrets detected*. Ninguna extensión tiene una contraseña débil. Además, el administrador web no se llama `admin` y las contraseñas de Linux que traía la VM base se cambiaron.
+
+**Figura 23. Respaldos automáticos.** Ruta: *Admin → Backup & Restore*
+
+![Tarea de respaldo diaria](capturas/18-respaldos.png)
+
+> **Qué se hizo.** Se creó la tarea **CMH-diario**, que guarda toda la configuración de FreePBX cada día a las 2:00 y conserva los últimos 7. Además se exportó la VM completa en un archivo `.ova` como respaldo para la demostración.
+
+---
+
+## 6. Teléfonos registrados (criterio E)
+
+**Figura 24. Estado de las extensiones.** Ruta: *Reports → Asterisk Info → PJSIP*
+
+![Estado de los teléfonos en Asterisk](capturas/20-telefonos-registrados.png)
+
+> **Qué se hizo.** Es el estado de los teléfonos visto desde Asterisk. Cada *Endpoint* es una extensión. Un teléfono conectado aparece con una línea *Contact*, su IP y el estado **Avail**, como la 1000 de esta captura (MicroSIP en la laptop). Las que dicen *Unavailable* no tienen un teléfono registrado en ese momento. En la demostración se muestran al menos 4 en *Avail*, con una laptop y un celular.
+
+Los teléfonos usados son **MicroSIP** en laptop y **Linphone** en celulares. La asignación por integrante está en `GUIA-CELULARES.md`.
+
+---
+
+## 7. Acceso desde una red pública, extra E1
+
+**Cómo funciona.** El PDF pide que un teléfono **fuera de la red del centro médico** pueda llamar a la PBX (§6.1). Se usó **Tailscale**, una VPN que crea un túnel cifrado (WireGuard) entre el celular y la PBX. No requiere abrir puertos en el router y funciona aunque el proveedor de internet use CGNAT.
+
+| Equipo | IP en Tailscale |
+|---|---|
+| PBX (`cmh-pbx`) | 100.91.176.16 |
+| iPhone de prueba (extensión 5002) | 100.68.20.81 |
+
+**Figura 25. Interfaz de Tailscale en el firewall.** Ruta: *Connectivity → Firewall → Interfaces*
+
+![tailscale0 en zona Local](capturas/22-e1-firewall-interfaces.png)
+
+> **Qué se hizo.** Al activar Tailscale apareció en la VM la tarjeta `tailscale0`, con la IP 100.91.176.16. Se le asignó la zona **Local**. Los teléfonos que llegan por el túnel pueden usar **SIP**, pero no la web de administración ni el SSH.
+
+**Figura 26. Redes con Tailscale y pruebas.** Ruta: *Connectivity → Firewall → Networks*
+
+![Redes de Tailscale y de prueba](capturas/23-e1-firewall-redes.png)
+
+> **Qué se hizo.** La red de Tailscale (**100.64.0.0/10**) está en zona Local. Se agregó también la red **192.168.1.0/24** para pruebas fuera del router. Con el router instalado, los teléfonos entran por las VLAN 20 y 30, que ya están en la lista.
+
+**Figura 27. Llamada de prueba desde datos móviles.** Ruta: *Reports → CDR Reports*
+
+![Llamada desde la 5002 por Tailscale](capturas/24-e1-cdr-5002.png)
+
+> **Qué se hizo.** La primera fila es la prueba de E1 del 19/10 a las 9:54. El iPhone, **solo con datos móviles** y con Tailscale activo, se registró como la extensión **5002 (TI Remoto)** y llamó a la **1000** (MicroSIP en la laptop). La llamada se contestó y duró 40 segundos con audio en los dos sentidos. El retardo medido fue de 157 a 201 ms, propio de la red celular más el túnel.
+
+---
+
+## 8. Router MikroTik RB750Gr3 (hEX)
+
+*Pendiente.* Esta sección documentará, con capturas de Winbox, las VLAN 10, 20, 30 y 40, el direccionamiento y DHCP por VLAN, la matriz de reglas entre VLAN, el NAT con SIP ALG desactivado y la QoS con sus mediciones con y sin priorización.
+
+## 9. Punto de acceso Mercusys MW325R
+
+*Pendiente.* Esta sección documentará la configuración del Wi-Fi para los celulares en la VLAN de Voz.
+
+---
+
+## 10. Cumplimiento del PDF
+
+| Sección del PDF | Requisito | Cómo se cumple | Figuras |
 |---|---|---|---|
-| 1 | Laptop (1000) | **2001** | Suena el celular y se escucha en los dos sentidos |
-| 2 | Celular (2001) | **7000** | IVR en español. Marcar **1** lleva al grupo 8000 y suena la laptop |
-| 3 | Laptop | **\*271**, luego **7000** | Contesta el IVR de fuera de horario. Marcar \*271 otra vez para regresar |
-| 4 | Laptop | **8010** | Aviso de grabación, música CMH y luego suena el celular (2001) |
-| 5 | En una llamada 1000 ↔ 2001 | Botón **Espera** y luego **Reanudar** | El otro escucha música mientras espera |
-| 6 | Laptop | **\*43** | Prueba de eco. Se escucha la propia voz |
-| 7 | Laptop | **\*97**, PIN, 0 y 1 | Grabar el saludo del buzón de la 1000 |
-| 8 | Celular | **1000** y no contestar 20 s | Va al buzón con el saludo grabado |
-| 9 | Laptop | **\*97**, PIN y 1 | Escuchar el mensaje |
-| 10 | Con un tercer teléfono | **##** (ciega) o **\*2** (atendida) durante la llamada | La llamada pasa a la otra extensión |
-
-> La transferencia necesita tres teléfonos. Sirve el celular de alguien del grupo, conectado al mismo Wi-Fi o hotspot, con la 3001 o la 4001.
-
-Después de las llamadas, abrir **Reports → CDR Reports**. Ahí aparecen todas, con origen, destino y duración. Las de la 1000 tienen el botón para escuchar la grabación.
-
-> **Evidencias para el informe.** Toma las capturas con el **reloj de Windows visible** y sin mostrar contraseñas (archivo 10 del plan).
+| 5.3 | PBX operativa con versiones documentadas | FreePBX 17.0.33.2 y Asterisk 22.11.0 en Debian 12.15 | 1 |
+| 5.3 | Al menos 5 extensiones con contraseñas robustas | 9 extensiones con secretos aleatorios de 32 caracteres | 2, 22 |
+| 5.3 | Códecs justificados | ulaw, alaw, g722 y opus. G.711 usa unos 87 kbps por sentido con Ethernet | 4 |
+| 5.3 | Registro de eventos | CDR con cada llamada y su grabación | 18, 27 |
+| 5.3 | Administración solo desde la red de gestión | Web y SSH solo para redes Trusted | 19, 20 |
+| 5.4 | Llamada en espera y transferencias | \*70, \*71, ## y \*2 activos en todas las extensiones | 5 |
+| 5.4 | Buzón en al menos 2 extensiones | 4 buzones con PIN propio y saludo personalizado | 7 |
+| 5.4 | IVR en español con 3 o más opciones, operadora, inválida y sin respuesta | IVR-Principal con 4 opciones y 0, dos reintentos y paso a la operadora | 8, 9, 10 |
+| 5.8 | Sin credenciales predeterminadas | Contraseñas nuevas en Linux y FreePBX, sin usuario `admin` | 22 |
+| 5.8 | Firewall y protección contra intentos repetidos | Firewall por zonas, SIP cerrado a redes no confiables y fail2ban | 19, 20, 21 |
+| 5.8 | Respaldos | Respaldo diario y VM exportada | 23 |
+| 6.1 | E1, acceso desde una red pública | Tailscale y llamada desde datos móviles | 25, 26, 27 |
+| 6.4 | E4, funciones avanzadas (mínimo 2) | Grupo y cola, horario, música propia y grabación (4 de 5) | 12 a 17 |
 
 ---
 
-## 6. Por consola (opcional)
+## 11. Registro de avance
 
-Desde PowerShell en la laptop:
-```powershell
-ssh -i "$env:USERPROFILE\.ssh\cmh_pbx_ed25519" -p 2222 cmhadmin@127.0.0.1
-```
-Ya dentro de la VM. Los que llevan `sudo` piden la contraseña de `cmhadmin`.
-
-| Comando | Qué muestra |
+| Fecha | Avance |
 |---|---|
-| `sudo asterisk -rx "pjsip show contacts"` | Teléfonos registrados |
-| `sudo asterisk -rx "core show channels"` | Llamadas en curso |
-| `sudo asterisk -rx "pjsip show channelstats"` | Jitter, pérdida y RTT de las llamadas activas (sirve para la QoS) |
-| `sudo fail2ban-client status` | Protecciones activas contra intentos repetidos |
-| `sudo tail -f /var/log/asterisk/full` | Lo que hace Asterisk en vivo. Se sale con Ctrl+C |
-| `ip -br -4 addr` | IPs de la VM |
-
----
-
-## 7. Apagar correctamente
-
-- En VirtualBox, clic derecho en **CMH-FreePBX → Stop → ACPI Shutdown**. Es el apagado limpio y tarda unos 20 segundos.
-- O en PowerShell:
-  ```powershell
-  & "$env:ProgramFiles\Oracle\VirtualBox\VBoxManage.exe" controlvm CMH-FreePBX acpipowerbutton
-  ```
-- **No usar "Power Off"**, salvo que la VM no responda.
-- **Los snapshots se sacan siempre con la VM apagada.** Con la VM encendida, VirtualBox puede trabarla.
-
-**Volver a un punto anterior** (con la VM apagada). En VirtualBox, CMH-FreePBX, ícono de lista, **Snapshots**. Elegir `03-antes-de-modo-puente` o `02-antes-de-config-sip` y luego **Restore**. Todo lo hecho después de ese snapshot se pierde, así que antes conviene un respaldo de FreePBX (**Admin → Backup & Restore**, botón de ejecutar en `CMH-diario`).
-
----
-
-## 8. Si algo falla
-
-| Problema | Qué hacer |
-|---|---|
-| `127.0.0.1:18080` no abre | Esperar 2 o 3 minutos después de encender. Revisar en VirtualBox que la VM diga *Running* |
-| El SSH se queda colgado | Bloqueo de fail2ban. Ver `CONFIG.md`, Parte C, C4 |
-| El teléfono no se registra | Revisar la IP de la PBX (sección 2), que la laptop y el celular estén en la misma red y que Linphone esté abierto |
-| Se escucha en un solo sentido | Revisar que la extensión tenga Direct Media en No y que la red del teléfono esté en *Local Networks* |
-| Cambié de red y no se registra | Si la red nueva no es `192.168.x.x` ni `172.16` a `172.31`, agregarla en **Settings → Asterisk SIP Settings → Local Networks** y en **Connectivity → Firewall → Main → Networks** como Local |
-| Me equivoqué de contraseña varias veces | Con 5 intentos fallidos en 10 minutos, fail2ban bloquea ese equipo 30 minutos. La administración por `127.0.0.1` nunca se bloquea, pero MicroSIP y el celular sí. Se espera o se desbloquea con `sudo fail2ban-client unban <IP>` por SSH |
-
-Más casos en `CONFIG.md`, Parte C, **C4. Reparación rápida**.
+| 16/10 | VM base con Debian 12.15 y FreePBX 17 lista |
+| 17/10 | Acceso seguro a la VM y contraseñas nuevas. Asistente inicial, ajustes SIP, 9 extensiones con buzones, firewall y fail2ban. Idioma español latino, audios, IVR y número 7000. Respaldo diario |
+| 17/10 | Primeros teléfonos registrados (MicroSIP y Linphone) y primera llamada real al IVR |
+| 17/10 | E4: grupo 8000, cola 8010, horarios, grabación y música propia. Saludos de los 4 buzones |
+| 19/10 | VM completa exportada en `.ova`. E1 con Tailscale y llamada desde datos móviles |
+| 19/10 | Asignación de extensiones por integrante y guion de pruebas (`GUIA-CELULARES.md`) |

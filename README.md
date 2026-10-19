@@ -19,10 +19,10 @@ Si la documentación no está cargada a tiempo, el proyecto **no se presenta** (
 
 | Si quieres... | Lee |
 |---|---|
-| Entender qué se configuró viendo las pantallas | [`GUIA-DEMO.md`](GUIA-DEMO.md), sección 4. Cada captura explica qué se hizo |
-| Preparar la demostración y las pruebas con llamadas | [`GUIA-DEMO.md`](GUIA-DEMO.md), secciones 2, 3 y 5 |
-| Ver cada paso con sus comandos y valores, para explicarlo en la defensa | [`CONFIG.md`](CONFIG.md), Parte B |
-| Saber cómo vamos frente a la rúbrica y qué falta | [`CONFIG.md`](CONFIG.md), secciones A3 y C3 |
+| Ver todo lo que se configuró, con capturas y qué se hizo en cada una | [`GUIA-DEMO.md`](GUIA-DEMO.md) |
+| Tu extensión, cómo configurar tu celular o laptop y qué pruebas te tocan | [`GUIA-CELULARES.md`](GUIA-CELULARES.md) |
+| Encender la VM, rutas de FreePBX, comandos y reparación rápida | [`CONFIG.md`](CONFIG.md) |
+| Saber cómo vamos frente a la rúbrica y qué falta | [`CONFIG.md`](CONFIG.md), secciones 11 y 12 |
 | Tu rol, tus tareas y el cronograma | [`plan/00_INDICE_Y_CRONOGRAMA.md`](plan/00_INDICE_Y_CRONOGRAMA.md) |
 | El diseño de la red: VLAN, direcciones y plan de numeración | [`plan/01_DISENO_DE_LA_SOLUCION.md`](plan/01_DISENO_DE_LA_SOLUCION.md) |
 
@@ -31,13 +31,14 @@ Si la documentación no está cargada a tiempo, el proyecto **no se presenta** (
 ```
 cmh-horizonte/
 ├── README.md        Esta portada
-├── GUIA-DEMO.md     Encender la VM, recorrer FreePBX con capturas y probar con llamadas
-├── CONFIG.md        Trazabilidad paso a paso de la VM, estado frente al PDF y pendientes
-├── capturas/        24 capturas de FreePBX que usa la guía (sin contraseñas)
+├── GUIA-DEMO.md     Documentación de lo realizado (PBX, E1, router y AP) con capturas
+├── GUIA-CELULARES.md  Extensión de cada integrante, configuración de Tailscale y Linphone, y pruebas por persona
+├── CONFIG.md        Operación de la PBX: encender, rutas, comandos, respaldos, estado y pendientes
+├── capturas/        27 capturas de FreePBX que usa la guía (sin contraseñas)
 └── plan/            Plan del grupo, validado contra el PDF
     ├── 00  Índice, roles y cronograma
     ├── 01  Diseño de la solución (investigación, VLAN, IP, numeración)
-    ├── 02  Router MikroTik RB4011
+    ├── 02  Router MikroTik (escrito para el RB4011, se adapta al RB750Gr3)
     ├── 03  Instalación de la PBX (FreePBX)
     ├── 04  Funcionalidades de la PBX
     ├── 05  Terminales y guía de usuario
@@ -50,7 +51,7 @@ cmh-horizonte/
 
 ## La solución en breve
 
-- **Red.** Un router físico **MikroTik RB4011** separa la red en VLAN: 10 Gestión, 20 Voz, 30 Administrativa, 40 Invitados y 50 Médicos (opcional). Controla quién habla con quién (firewall entre VLAN) y le da prioridad a la voz (QoS, marcado EF).
+- **Red.** Un router físico **MikroTik RB750Gr3 (hEX)** separa la red en VLAN: 10 Gestión, 20 Voz, 30 Administrativa, 40 Invitados y 50 Médicos (opcional). Un punto de acceso **Mercusys MW325R** da el Wi-Fi para los celulares. Controla quién habla con quién (firewall entre VLAN) y le da prioridad a la voz (QoS, marcado EF).
 - **PBX.** **FreePBX 17.0.33 con Asterisk 22.11** sobre Debian 12.15, en una máquina virtual de VirtualBox. En la integración queda en la VLAN de Voz con la IP **192.168.20.10**.
 - **Telefonía.** 9 extensiones de 4 dígitos, IVR en español (marcando **7000**), grupo de timbrado **8000**, cola **8010**, condiciones de horario y 4 buzones con saludo personalizado.
 - **Teléfonos.** MicroSIP en laptops y Linphone en celulares.
@@ -61,9 +62,9 @@ cmh-horizonte/
 - **La PBX está configurada.** Extensiones, IVR, buzones, firewall, respaldos y 4 de las 5 funciones de E4. Ya hubo llamadas reales desde un iPhone al IVR.
 - **Falta probar con llamadas** espera, transferencias y buzón, y anotarlo en la matriz (`plan/09`).
 - **Depende del router:** VLAN, firewall entre VLAN, llamadas entre VLAN y mediciones de QoS.
-- **En curso:** E1 (Tailscale). **Por empezar:** E3, informe y presentación.
+- **E1 (Tailscale) funcionando:** llamada real desde el iPhone por internet. **Por empezar:** E3, informe y presentación.
 
-El detalle por criterio está en [`CONFIG.md`, sección A3](CONFIG.md#a3-estado-frente-al-pdf).
+El detalle por criterio está en [`CONFIG.md`, sección 11](CONFIG.md#11-estado-frente-al-pdf).
 
 ## Lo que no está aquí
 
@@ -72,8 +73,8 @@ Lo maneja el responsable técnico del grupo en la laptop que corre la VM. Si lo 
 | Archivo | Por qué no se sube |
 |---|---|
 | `CREDENCIALES-ACTUALES.md` | Tiene todas las contraseñas (§11 del PDF) |
-| `CMH-FreePBX-final.ova` | La VM completa. Pesa unos 5.5 GB y lleva contraseñas |
-| `router/` | Scripts del RB4011 con las contraseñas de Wi-Fi. La configuración está explicada en `plan/02` y `plan/06` |
+| `CMH-FreePBX-final.ova` | La VM completa. Pesa unos 5.7 GB y lleva contraseñas |
+| `router/` | Scripts del router con las contraseñas de Wi-Fi. La configuración está explicada en `plan/02` y `plan/06` |
 | `respaldos/` | Respaldos de FreePBX, con las contraseñas de las extensiones |
 | `audios/` | Audios del IVR, música en espera y saludos. Ya están cargados en la PBX |
 | `.iso` y `crear-vm-cmh.ps1` | Instalación de la VM desde cero |
@@ -83,7 +84,7 @@ Lo maneja el responsable técnico del grupo en la laptop que corre la VM. Si lo 
 1. Instala **VirtualBox 7.2.x** desde https://www.virtualbox.org/wiki/Downloads. Necesitas 8 GB de RAM o más y unos 35 GB libres.
 2. **Archivo → Importar servicio virtualizado** → `CMH-FreePBX-final.ova`.
 3. En **Configuración → Red**, pon el **adaptador 1** en *Adaptador puente* a tu Wi-Fi o Ethernet. El adaptador 2 no se toca.
-4. Enciende la VM y abre **http://127.0.0.1:18080/admin**. El resto está en [`GUIA-DEMO.md`](GUIA-DEMO.md).
+4. Enciende la VM y abre **http://127.0.0.1:18080/admin**. Comandos y rutas en [`CONFIG.md`](CONFIG.md).
 
 Si la VM va muy lenta, revisa si Windows tiene activo su propio hipervisor (*Integridad de memoria*, Hyper-V, WSL2 o Docker Desktop). Con eso VirtualBox corre en modo de compatibilidad. Se puede bajar la VM a 2 CPU con la VM apagada, o desactivar *Seguridad de Windows → Seguridad del dispositivo → Aislamiento del núcleo → Integridad de memoria* y reiniciar.
 
@@ -92,4 +93,4 @@ Si la VM va muy lenta, revisa si Windows tiene activo su propio hipervisor (*Int
 - **Ninguna contraseña** en el repositorio, en el informe, en los anexos ni en las capturas (§11 del PDF).
 - Las capturas de evidencia llevan el **reloj de Windows visible**.
 - Se puede usar IA como apoyo, pero **cada integrante debe poder explicar cualquier parte** del proyecto en la defensa (§11 del PDF).
-- Cualquier cambio en la PBX se avisa al grupo y se anota en `CONFIG.md`.
+- Cualquier cambio en la PBX se avisa al grupo y se documenta con captura en `GUIA-DEMO.md`.
