@@ -1,0 +1,46 @@
+# Proyecto CMH Horizonte (PF-TEL-001-2026)
+# Al repositorio solo sube la documentación para el equipo:
+# CONFIG.md, GUIA-DEMO.md, README.md, plan/ y capturas/
+
+# Secretos. Nunca se suben (§11 del PDF)
+CREDENCIALES*.md
+CREDENCIALES*.txt
+*_ed25519*
+*.key
+*.pem
+.env
+
+# Respaldos de FreePBX. Contienen las contraseñas de las extensiones
+respaldos/
+*.tar.gz
+
+# Scripts del router. Llevan las contraseñas de Wi-Fi reales
+# (la configuración documentada está en plan/02 y plan/06)
+router/
+*.rsc
+*.backup
+
+# Máquina virtual e instaladores (pesados y con contraseñas)
+*.ova
+*.ovf
+*.mf
+*.vdi
+*.vmdk
+*.vbox
+*.vbox-prev
+*.iso
+crear-vm-cmh.ps1
+
+# Archivos de trabajo que no son documentación
+audios/
+*.wav
+*.pcap
+*.pcapng
+*.log
+
+# Sistema y editores
+Thumbs.db
+desktop.ini
+.DS_Store
+~$*
+.vscode/
