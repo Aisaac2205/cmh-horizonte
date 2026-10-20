@@ -62,7 +62,7 @@ La configuración del router se carga con **3 scripts** (carpeta `router\`):
 
 ## 2. Preparación (en casa, 20 min)
 
-- [ ] Descargar **Winbox** desde mikrotik.com (sección Software).
+- [x] Descargar **Winbox** desde mikrotik.com (sección Software). *(hecho 20/10, WinBox 4.4)*
 - [x] Scripts `01`, `02` y `03` adaptados al hEX, sin acentos y sin contraseñas. *(hecho 20/10)*
 - [x] Reservas DHCP con las MAC reales de la VM (192.168.20.10) y de la tarjeta Ethernet de la laptop host (192.168.20.20). *(hecho 20/10)*
 - [ ] Cables de red: ether1 (internet), ether2 (AP), laptop host al AP y uno por cada laptop en ether3, ether4 y ether5.
@@ -81,6 +81,7 @@ La configuración del router se carga con **3 scripts** (carpeta `router\`):
 ```
 Volver a entrar **por MAC**.
 - [ ] Captura: Winbox conectado por MAC después del reset.
+- [x] *(20/10)* El hEX venía configurado por un dueño anterior ("Everestnet 3.1", RouterOS 6.48.6). Se reseteó con el botón, se actualizó sin internet subiendo los paquetes oficiales por **Files** (6.48.6 → **6.49.23** → **7.24.5**) y se borró la configuración con `reset-configuration no-defaults=yes`.
 
 ### 3.3 Internet temporal y actualización (RouterOS v7, canal stable)
 ```
@@ -100,7 +101,7 @@ Antes de importar se borra el cliente DHCP temporal (el script 1 lo vuelve a cre
 /user add name=cmh-ti group=full password="CONTRASEÑA-DE-CREDENCIALES"
 ```
 Entrar con **cmh-ti** (por MAC) y luego `/user remove admin`.
-- [ ] Captura: `/user print` solo con `cmh-ti`.
+- [ ] Captura: `/user print` solo con `cmh-ti`. *(usuario creado el 20/10)*
 
 ---
 
