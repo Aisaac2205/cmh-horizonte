@@ -1,6 +1,6 @@
 # CONFIG · Operación de la PBX
 **Centro Médico Horizonte, S.A. · PF-TEL-001-2026**
-Última actualización: 19/10/2026
+Última actualización: 20/10/2026
 
 Instrucciones directas para operar la PBX desde la laptop host. Lo realizado, con capturas, está en `GUIA-DEMO.md`. El historial completo de cómo se construyó la VM está en el primer commit del repositorio.
 
@@ -182,16 +182,13 @@ Si el archivo ya existe, moverlo antes o usar otro nombre.
    ```powershell
    & "$env:ProgramFiles\Oracle\VirtualBox\VBoxManage.exe" modifyvm CMH-FreePBX --bridgeadapter1 "Realtek PCIe GbE Family Controller"
    ```
-3. Conectar la laptop host al puerto de la **VLAN 20 (Voz)** del router y encender la VM.
-4. Fijar la IP de la PBX en `192.168.20.10`:
-   ```powershell
-   ssh -t -i "$env:USERPROFILE\.ssh\cmh_pbx_ed25519" -p 2222 cmhadmin@127.0.0.1 "sudo bash /root/cmh-ip-estatica.sh"
-   ```
+3. Conectar la laptop host por cable a un **puerto LAN del AP MW325R**, que cuelga de ether2 del hEX (VLAN 20, Voz). Encender la VM.
+4. La PBX recibe **192.168.20.10** por la reserva DHCP del hEX (MAC `08:00:27:A5:DA:0A`). No hace falta IP fija. Si el cable se conecta con la VM encendida, el vigilante de red pide la IP nueva en menos de un minuto.
 5. Comprobar con `ip -br -4 addr` y `ip route` que hay **una sola** ruta por defecto, por `192.168.20.1`.
-6. En MicroSIP y en los celulares, cambiar el dominio a **`192.168.20.10`** y desactivar Tailscale.
-7. Para volver a DHCP fuera del router: `sudo bash /root/cmh-ip-dhcp.sh`.
+6. En MicroSIP y en los celulares conectados a `CMH-Voz`, cambiar el dominio a **`192.168.20.10`** y desactivar Tailscale.
+7. Respaldo, solo si la reserva DHCP falla: `sudo bash /root/cmh-ip-estatica.sh` fija la IP y `sudo bash /root/cmh-ip-dhcp.sh` la devuelve a DHCP.
 
-> **Router y AP.** Los scripts de `router\` y el archivo `plan\02` se escribieron para el RB4011. Se adaptan al **RB750Gr3** (5 puertos, sin Wi-Fi) y al **Mercusys MW325R** (un solo Wi-Fi, sin VLAN) antes de cargarlos. Propuesta de puertos: ether1 internet, ether2 Voz (AP y laptop host), ether3 Gestión, ether4 Administrativa, ether5 Invitados.
+> **Router y AP.** Puertos del hEX: ether1 internet, ether2 Voz (AP y, detrás del AP, la laptop host), ether3 Gestión, ether4 Administrativa, ether5 Invitados. Procedimiento completo en `plan\02_RED_MIKROTIK_HEX_Y_AP.md`.
 
 ---
 
@@ -220,16 +217,16 @@ Si el archivo ya existe, moverlo antes o usar otro nombre.
 | Criterio | Puntos | Configuración | Evidencia | Qué falta |
 |---|---|---|---|---|
 | A. Investigación y selección | 8 | 🟢 | 🟡 Tablas comparativas | Costos y fuentes en APA |
-| B. Diseño y segmentación | 17 | 🟡 Diseño hecho | 🔴 | Adaptar y cargar la configuración en el RB750Gr3, probar la matriz de ACL |
-| C. PBX virtual | 15 | 🟢 | 🟢 | Actualizar módulos (Wi-Fi) |
+| B. Diseño y segmentación | 17 | 🟡 Scripts del hEX y procedimiento del AP listos (`plan/02`) | 🔴 | Cargar en el hEX y el AP, probar la matriz de ACL |
+| C. PBX virtual | 15 | 🟢 | 🟢 | Nada. Módulos y sistema al día (20/10) |
 | D. Funcionalidades | 18 | 🟢 | 🟡 IVR probado | Sesión de pruebas conjunta (`GUIA-CELULARES.md`, sección 6) |
 | E. Terminales | 10 | 🟢 Extensiones asignadas | 🟡 | Sesión de pruebas y llamadas entre VLAN con el router |
 | F. QoS | 15 | 🟡 Script listo | 🔴 | Aplicar y medir con y sin QoS |
 | G. Documentación | 12 | No aplica | 🟡 | Informe, resumen ejecutivo, guía de usuario de 1 página, matriz llena |
 | H. Presentación | 5 | No aplica | 🔴 | Ensayo y video de respaldo |
 | E1. Red pública | 8 | 🟢 | 🟡 Llamada 5002 → 1000 | Captura del celular sin Wi-Fi y llamada 1000 → 5002 |
-| E3. Troncal SIP | 5 | 🔴 | 🔴 | Cuentas sip2sip, troncal y rutas |
-| E4. Funciones avanzadas | 4 | 🟢 4 de 5 | 🟡 | Buzón por correo y pruebas con llamadas |
+| E3. Troncal SIP | 5 | 🟢 Troncal registrada, entrante y 9100 | 🟡 Llamadas probadas el 20/10 | Capturas de la troncal y del CDR |
+| E4. Funciones avanzadas | 4 | 🟢 5 de 5 (buzón por correo el 20/10) | 🟡 | Capturas del correo y pruebas de grupo y cola con el equipo |
 
 🟢 listo · 🟡 avanzado · 🔴 por empezar
 
@@ -239,10 +236,10 @@ Si el archivo ya existe, moverlo antes o usar otro nombre.
 
 | # | Tarea | Necesita |
 |---|---|---|
-| 1 | Sesión de pruebas conjunta y matriz (archivo 09) | Los 8 integrantes con su extensión (`GUIA-CELULARES.md`) |
-| 2 | E1: captura del celular sin Wi-Fi, llamada 1000 → 5002, confirmar *Disable key expiry* y verificación en dos pasos | iPhone |
-| 3 | E4: buzón por correo | Contraseña de aplicación de la cuenta de Google del proyecto |
-| 4 | E3: troncal SIP | Dos cuentas en sip2sip.info |
-| 5 | Actualizar módulos de FreePBX | Wi-Fi |
-| 6 | Router RB750Gr3 y AP MW325R: adaptar el plan 02 y los scripts, cargar, probar ACL y medir QoS | Los equipos |
-| 7 | Informe, resumen ejecutivo, guía de usuario y presentación | Todo lo anterior |
+| 1 | Router hEX y AP MW325R: cargar los scripts, configurar el AP, probar la matriz de ACL y medir QoS (`plan/02` y `plan/06`) | Los equipos y las laptops en ether3, ether4 y ether5 |
+| 2 | Sesión de pruebas conjunta y matriz (archivo 09), ya con el router, para incluir las llamadas entre VLAN | Los 8 integrantes con su extensión (`GUIA-CELULARES.md`) |
+| 3 | E1: captura del celular sin Wi-Fi y llamada 1000 → 5002. Confirmar *Disable key expiry* en Tailscale | iPhone |
+| 4 | Capturas de E3 (troncal, ruta entrante, CDR) y de E4 (correo recibido) para `GUIA-DEMO.md` | FreePBX y la cuenta de Gmail |
+| 5 | Informe, resumen ejecutivo, guía de usuario y presentación | Todo lo anterior |
+
+Hecho el 20/10: actualizar módulos, E4 por correo, E3 con sip2sip y adaptar el plan 02 y los scripts al hEX y al AP.

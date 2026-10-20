@@ -91,7 +91,7 @@ systemctl restart ssh
 
 | # | Prueba | Desde | Comando / acción | Resultado esperado |
 |---|---|---|---|---|
-| S1 | Descubrimiento desde invitados | Laptop en ether6 (VLAN 40) | `nmap -sn 192.168.20.0/24` y `192.168.30.0/24` | 0 hosts encontrados |
+| S1 | Descubrimiento desde invitados | Laptop en ether5 (VLAN 40) | `nmap -sn 192.168.20.0/24` y `192.168.30.0/24` | 0 hosts encontrados |
 | S2 | Puertos de la PBX desde ADMIN | Laptop ADMIN | `nmap -Pn -p 22,80,443 192.168.20.10` | Todos *filtered* |
 | S3 | SIP desde ADMIN | Laptop ADMIN | `nmap -Pn -sU -p 5060 192.168.20.10` | *open* o *open\|filtered* (permitido) |
 | S4 | Administración web desde VOZ | Celular en CMH-Voz | Abrir `http://192.168.20.10` | No abre (lo bloquea el firewall de FreePBX) |

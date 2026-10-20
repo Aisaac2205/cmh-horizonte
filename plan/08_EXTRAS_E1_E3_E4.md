@@ -74,7 +74,7 @@ Resultado: los dispositivos remotos **solo** pueden hablar SIP y RTP con la PBX 
 | Robo de la cuenta de Tailscale | 2FA obligatoria; solo los integrantes tienen acceso |
 | Dispositivo remoto perdido | Desautorizarlo desde la consola de Tailscale (revocación inmediata) |
 | El túnel evita el firewall del router | Política de Tailscale (solo SIP/RTP) + firewall de FreePBX (zona Local, sin web) |
-| Dependencia de un servicio externo | Alternativa documentada: WireGuard en el RB4011 con redirección de puertos si existe IP pública |
+| Dependencia de un servicio externo | Alternativa documentada: WireGuard en el hEX con redirección de puertos si existe IP pública |
 | Calidad de la red celular | Códec Opus o G.711 según la cobertura; medir jitter con `pjsip show channelstats` |
 
 ---
@@ -135,7 +135,7 @@ Debe decir **Registered**.
 - [ ] `pjsip show registrations` = Registered.
 - [ ] Llamada de salida 1000 → cuenta B (captura + CDR con la troncal).
 - [ ] Llamada de entrada cuenta B → IVR → extensión (captura + CDR).
-- [ ] **Limitaciones documentadas:** doble NAT (RB4011 + router de casa), dependencia del proveedor gratuito, calidad variable, imposibilidad de llamar a la red telefónica pública sin un proveedor de pago, y por qué no se usó SIP ALG.
+- [ ] **Limitaciones documentadas:** doble NAT (hEX + router de casa), dependencia del proveedor gratuito, calidad variable, imposibilidad de llamar a la red telefónica pública sin un proveedor de pago, y por qué no se usó SIP ALG.
 
 ---
 

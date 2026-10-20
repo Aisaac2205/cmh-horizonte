@@ -1,14 +1,14 @@
 # GUÍA DEMO · Documentación de lo realizado
 **Centro Médico Horizonte, S.A. · PF-TEL-001-2026**
-Última actualización: 19/10/2026
+Última actualización: 20/10/2026
 
 Registro visual de todo lo configurado en el proyecto, para el equipo y para la defensa. Cada captura indica su ruta dentro del sistema y explica qué se hizo y por qué. El avance se agrega por componente.
 
 | Componente | Estado | Sección |
 |---|---|---|
-| PBX FreePBX en máquina virtual | Configurada y probada con llamadas reales | 2 a 7 |
-| Router MikroTik RB750Gr3 (hEX) | Pendiente de configurar | 8 |
-| Punto de acceso Mercusys MW325R | Pendiente de configurar | 9 |
+| PBX FreePBX en máquina virtual | Configurada y probada con llamadas reales, extras E1, E3 y E4 completos | 2 a 7 |
+| Router MikroTik RB750Gr3 (hEX) | Scripts listos (`plan/02`), falta cargarlos | 8 |
+| Punto de acceso Mercusys MW325R | Procedimiento listo (`plan/02`), falta configurarlo | 9 |
 
 > Las capturas están en la carpeta `capturas/` y no muestran contraseñas. Para verlas dentro de este documento se recomienda un visor de Markdown, por ejemplo GitHub o VS Code (**Ctrl+Shift+V**). Las extensiones de cada integrante y las pruebas por persona están en `GUIA-CELULARES.md`.
 
@@ -148,7 +148,9 @@ Registro visual de todo lo configurado en el proyecto, para el equipo y para la 
 
 > **Qué se hizo.** El CDR registra cada llamada con fecha, hora, origen (*CallerID*), destino (*App* y *Destination*), si se contestó (*ANSWERED*) y su duración. Aquí se ven las primeras llamadas de prueba del 17/10 desde un celular (extensión 2001) al IVR. Es la evidencia de llamadas para el informe y la matriz de pruebas. Las llamadas de la 1000 incluyen el botón para escuchar la grabación.
 
-**Pendiente de E4.** Notificación de mensajes de buzón por correo, con la cuenta de Google del proyecto.
+**Buzón por correo (quinta función de E4).** Rutas: *Settings → Voicemail Admin → Settings → Email Config* y *Connectivity → Extensions → (1000, 2001, 3001, 4001) → Voicemail*
+
+> **Qué se hizo.** La PBX envía correo por **Gmail** (`smtp.gmail.com`, puerto 587, cifrado TLS) con una **contraseña de aplicación** de la cuenta del proyecto. La contraseña normal de la cuenta no se usa y la de aplicación no aparece en ningún documento. Los 4 buzones mandan cada mensaje a `cmh.horizonte.org@gmail.com` **con el audio adjunto**, con remitente *Centro Medico Horizonte - Buzon de voz* y el asunto y el texto en español. Probado el 20/10: un mensaje dejado en la 1000 llegó al correo con su `.wav`. *Capturas pendientes: configuración del correo y el correo recibido.*
 
 ---
 
@@ -225,15 +227,31 @@ Los teléfonos usados son **MicroSIP** en laptop y **Linphone** en celulares. La
 
 > **Qué se hizo.** La primera fila es la prueba de E1 del 19/10 a las 9:54. El iPhone, **solo con datos móviles** y con Tailscale activo, se registró como la extensión **5002 (TI Remoto)** y llamó a la **1000** (MicroSIP en la laptop). La llamada se contestó y duró 40 segundos con audio en los dos sentidos. El retardo medido fue de 157 a 201 ms, propio de la red celular más el túnel.
 
+### Extra E3, troncal SIP con sip2sip
+
+**Cómo funciona.** El PDF pide conectar la PBX con un proveedor SIP para llamadas hacia y desde afuera (§6.3). Se usó **sip2sip.info**, un servicio SIP gratuito, con dos cuentas. La cuenta `cmh-horizonte` es la **línea del centro médico** y la registra la PBX. La cuenta `cmh-orizonte-ext` hace de **teléfono externo** (un paciente) en un celular.
+
+| Elemento | Configuración |
+|---|---|
+| Troncal | *Connectivity → Trunks → sip2sip* (PJSIP). Servidor `sip2sip.info:5060`, proxy de salida `proxy.sipthor.net` (el que publica el registro DNS SRV de sip2sip), registro saliente, códecs ulaw, alaw, g722 y opus. Estado: **Registered** |
+| Ruta entrante | *Connectivity → Inbound Routes → Entrante sip2sip (E3)*. Toda llamada de la troncal va a la condición de horario **TC-Horario**, igual que la 7000 |
+| Llamada saliente | Número corto **9100** hacia `cmh-orizonte-ext`, definido en *Admin → Config Edit → extensions_custom.conf* |
+
+> **Por qué el 9100 no es una ruta saliente.** Las rutas salientes de FreePBX solo aceptan dígitos en sus patrones, y las direcciones de sip2sip son alfanuméricas. FreePBX deformaba el nombre de la cuenta, así que el 9100 se escribió como plan de marcado propio que usa la misma troncal. Con un proveedor de pago que entregue números telefónicos sería una ruta saliente normal con prefijo 9.
+
+> **Prueba del 20/10.** *Entrante (15:18):* el celular con `cmh-orizonte-ext`, por datos móviles, llamó a `cmh-horizonte`. Entró por la troncal, pasó por el horario, contestó el **IVR-Principal** y la llamada se transfirió a la **1000**. *Saliente (15:18):* la 1000 marcó **9100** y sonó el celular externo. *Capturas pendientes: troncal registrada, ruta entrante y CDR de las dos llamadas.*
+
+**Limitaciones para el informe.** No se puede llamar a teléfonos de la red pública (PSTN) sin un proveedor de pago, la calidad depende de internet y del servicio gratuito, y la PBX queda detrás de NAT (doble NAT con el router). sip2sip resuelve el NAT del lado del proveedor.
+
 ---
 
 ## 8. Router MikroTik RB750Gr3 (hEX)
 
-*Pendiente.* Esta sección documentará, con capturas de Winbox, las VLAN 10, 20, 30 y 40, el direccionamiento y DHCP por VLAN, la matriz de reglas entre VLAN, el NAT con SIP ALG desactivado y la QoS con sus mediciones con y sin priorización.
+*Pendiente de cargar.* Los scripts y el procedimiento están en `plan/02_RED_MIKROTIK_HEX_Y_AP.md`. Esta sección documentará, con capturas de Winbox, las VLAN 10, 20, 30 y 40, el direccionamiento y DHCP por VLAN, la matriz de reglas entre VLAN, el NAT con SIP ALG desactivado y la QoS con sus mediciones con y sin priorización.
 
 ## 9. Punto de acceso Mercusys MW325R
 
-*Pendiente.* Esta sección documentará la configuración del Wi-Fi para los celulares en la VLAN de Voz.
+*Pendiente de configurar* (modo AP, SSID `CMH-Voz`, IP 192.168.20.2, procedimiento en `plan/02`, sección 5). Esta sección documentará la configuración del Wi-Fi para los celulares en la VLAN de Voz.
 
 ---
 
@@ -251,9 +269,11 @@ Los teléfonos usados son **MicroSIP** en laptop y **Linphone** en celulares. La
 | 5.4 | IVR en español con 3 o más opciones, operadora, inválida y sin respuesta | IVR-Principal con 4 opciones y 0, dos reintentos y paso a la operadora | 8, 9, 10 |
 | 5.8 | Sin credenciales predeterminadas | Contraseñas nuevas en Linux y FreePBX, sin usuario `admin` | 22 |
 | 5.8 | Firewall y protección contra intentos repetidos | Firewall por zonas, SIP cerrado a redes no confiables y fail2ban | 19, 20, 21 |
+| 5.8 | Sistema actualizado | Módulos de FreePBX y paquetes de Debian sin actualizaciones pendientes (20/10) | — |
 | 5.8 | Respaldos | Respaldo diario y VM exportada | 23 |
 | 6.1 | E1, acceso desde una red pública | Tailscale y llamada desde datos móviles | 25, 26, 27 |
-| 6.4 | E4, funciones avanzadas (mínimo 2) | Grupo y cola, horario, música propia y grabación (4 de 5) | 12 a 17 |
+| 6.3 | E3, troncal SIP | Troncal sip2sip registrada, entrante al horario e IVR y saliente con 9100 | Sección 7 |
+| 6.4 | E4, funciones avanzadas (mínimo 2) | Grupo y cola, horario, música propia, grabación y buzón por correo (5 de 5) | 12 a 17 |
 
 ---
 
@@ -267,3 +287,6 @@ Los teléfonos usados son **MicroSIP** en laptop y **Linphone** en celulares. La
 | 17/10 | E4: grupo 8000, cola 8010, horarios, grabación y música propia. Saludos de los 4 buzones |
 | 19/10 | VM completa exportada en `.ova`. E1 con Tailscale y llamada desde datos móviles |
 | 19/10 | Asignación de extensiones por integrante y guion de pruebas (`GUIA-CELULARES.md`) |
+| 20/10 | Primera sesión con el equipo: 7 teléfonos registrados por Tailscale. Vigilante de red en la VM (renueva la IP al cambiar de red sin reiniciar) |
+| 20/10 | Módulos y sistema al día. E4 completo con buzón por correo (Gmail). E3 completo con troncal sip2sip, llamada entrante al IVR y saliente con 9100 |
+| 20/10 | Scripts del router y procedimiento del AP adaptados al hEX RB750Gr3 y al MW325R (`plan/02`) |

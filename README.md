@@ -38,7 +38,7 @@ cmh-horizonte/
 └── plan/            Plan del grupo, validado contra el PDF
     ├── 00  Índice, roles y cronograma
     ├── 01  Diseño de la solución (investigación, VLAN, IP, numeración)
-    ├── 02  Router MikroTik (escrito para el RB4011, se adapta al RB750Gr3)
+    ├── 02  Router MikroTik hEX (RB750Gr3) y AP Mercusys MW325R
     ├── 03  Instalación de la PBX (FreePBX)
     ├── 04  Funcionalidades de la PBX
     ├── 05  Terminales y guía de usuario
@@ -51,18 +51,18 @@ cmh-horizonte/
 
 ## La solución en breve
 
-- **Red.** Un router físico **MikroTik RB750Gr3 (hEX)** separa la red en VLAN: 10 Gestión, 20 Voz, 30 Administrativa, 40 Invitados y 50 Médicos (opcional). Un punto de acceso **Mercusys MW325R** da el Wi-Fi para los celulares. Controla quién habla con quién (firewall entre VLAN) y le da prioridad a la voz (QoS, marcado EF).
+- **Red.** Un router físico **MikroTik RB750Gr3 (hEX)** separa la red en VLAN: 10 Gestión, 20 Voz, 30 Administrativa y 40 Invitados. Un punto de acceso **Mercusys MW325R** da el Wi-Fi para los celulares. Controla quién habla con quién (firewall entre VLAN) y le da prioridad a la voz (QoS, marcado EF).
 - **PBX.** **FreePBX 17.0.33 con Asterisk 22.11** sobre Debian 12.15, en una máquina virtual de VirtualBox. En la integración queda en la VLAN de Voz con la IP **192.168.20.10**.
 - **Telefonía.** 9 extensiones de 4 dígitos, IVR en español (marcando **7000**), grupo de timbrado **8000**, cola **8010**, condiciones de horario y 4 buzones con saludo personalizado.
 - **Teléfonos.** MicroSIP en laptops y Linphone en celulares.
 - **Extras.** E1 acceso desde red pública con Tailscale, E3 troncal SIP con sip2sip y E4 funciones avanzadas. E2 (SDN) no se implementa.
 
-## Estado al 19/10
+## Estado al 20/10
 
-- **La PBX está configurada.** Extensiones, IVR, buzones, firewall, respaldos y 4 de las 5 funciones de E4. Ya hubo llamadas reales desde un iPhone al IVR.
-- **Falta probar con llamadas** espera, transferencias y buzón, y anotarlo en la matriz (`plan/09`).
-- **Depende del router:** VLAN, firewall entre VLAN, llamadas entre VLAN y mediciones de QoS.
-- **E1 (Tailscale) funcionando:** llamada real desde el iPhone por internet. **Por empezar:** E3, informe y presentación.
+- **La PBX está completa.** Extensiones, IVR, buzones, firewall, respaldos y sistema al día. Ya hubo llamadas reales del equipo por Tailscale.
+- **Extras listos:** E1 (Tailscale), E3 (troncal sip2sip, entrante al IVR y saliente con 9100) y E4 (5 de 5, incluido el buzón por correo).
+- **Router y AP:** scripts y procedimiento listos en `plan/02`. Falta cargarlos, probar el firewall entre VLAN, las llamadas entre VLAN y medir la QoS.
+- **Por hacer:** sesión de pruebas con el router y la matriz (`plan/09`), informe y presentación.
 
 El detalle por criterio está en [`CONFIG.md`, sección 11](CONFIG.md#11-estado-frente-al-pdf).
 

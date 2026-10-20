@@ -40,7 +40,8 @@ Completen la tabla con fuentes citadas (APA). Los costos son **referenciales; ve
 
 | Opción | Costo aprox. | VLAN | QoS medible | Wi-Fi multi-SSID | SDN | Decisión |
 |---|---|---|---|---|---|---|
-| **MikroTik RB4011 Wi-Fi** | Disponible en el grupo | ✅ | ✅ colas por prioridad | ✅ 2.4 + 5 GHz | ❌ | ✅ **Seleccionado** |
+| MikroTik RB4011 Wi-Fi | Disponible en el grupo | ✅ | ✅ colas por prioridad | ✅ 2.4 + 5 GHz | ❌ | Primera elección, cambiado el 19/10 |
+| **MikroTik RB750Gr3 (hEX) + AP Mercusys MW325R** | Ya los tiene el grupo | ✅ (filtrado por hardware en RouterOS v7) | ✅ colas por prioridad | Un SSID de 2.4 GHz, sin VLAN | ❌ | ✅ **Seleccionado** |
 | MikroTik hAP ac lite | Q588 (Kemik) | ✅ | ✅ | ✅ | ❌ | Alternativa económica |
 | Kit TP-Link Omada (ER605 + SG2008P + EAP) | ≈ Q1,721 | ✅ | Parcial | ✅ | ✅ | Descartado (costo; E2 no se hará) |
 | Router virtual (OPNsense) + switch + AP | ≈ Q300–600 | ✅ | ✅ | Depende | ❌ | Descartado (más puntos de falla) |
@@ -51,41 +52,33 @@ Completen la tabla con fuentes citadas (APA). Los costos son **referenciales; ve
 
 | VLAN | Nombre | Propósito | Red | Gateway | Rango DHCP | Reservas / estáticas |
 |---|---|---|---|---|---|---|
-| 10 | GESTION | Equipos de red, administración de la PBX y del router (solo TI) | 192.168.10.0/24 | 192.168.10.1 | .100 – .199 | .10 Laptop de TI (reserva DHCP, script 1) |
-| 20 | VOZ | PBX, teléfonos y celulares de voz | 192.168.20.0/24 | 192.168.20.1 | .100 – .199 | **.10 FreePBX** · .20 Laptop host / servidor iperf3 |
+| 10 | GESTION | Equipos de red, administración de la PBX y del router (solo TI) | 192.168.10.0/24 | 192.168.10.1 | .100 – .199 | .10 Laptop de TI (reserva DHCP opcional, script 1) |
+| 20 | VOZ | PBX, teléfonos y celulares de voz | 192.168.20.0/24 | 192.168.20.1 | .100 – .199 | .2 AP MW325R (fija) · **.10 FreePBX** (reserva DHCP) · .20 Laptop host / servidor iperf3 (reserva DHCP) |
 | 30 | ADMIN | PC y laptops del personal | 192.168.30.0/24 | 192.168.30.1 | .100 – .199 | — |
 | 40 | INVITADOS | Internet para visitas | 192.168.40.0/24 | 192.168.40.1 | .100 – .199 | — |
-| 50 | MEDICOS (opcional) | Equipos médicos conectados | 192.168.50.0/24 | 192.168.50.1 | .100 – .199 | — |
-| — | RESCATE | Puerto físico de emergencia ether10 (fuera del bridge) | 192.168.88.0/24 | 192.168.88.1 | sin DHCP | Laptop .2 manual |
 | — | GESTION-VM (interna) | Puerto interno de gestión de la VM, solo alcanzable desde la laptop host (adaptador 2, NAT de VirtualBox) | 10.0.2.0/24 | sin gateway | sin DHCP | .15 VM FreePBX · .2 laptop host (NAT de VirtualBox) |
 
 **Escalabilidad:** cada /24 admite 253 hosts; el cliente tiene 31 colaboradores. El rango DHCP (100 IP) cubre el total con holgura y deja .2–.99 para reservas.
 
-### 2.1 Asignación de puertos del RB4011
+### 2.1 Asignación de puertos del RB750Gr3 (hEX)
 
 | Puerto | Modo | VLAN | Conectado a |
 |---|---|---|---|
 | ether1 | WAN (ruteado) | — | Internet (router de casa o de la U) |
-| ether2 | Acceso | 20 VOZ | Laptop host con la VM FreePBX |
+| ether2 | Acceso | 20 VOZ | AP Mercusys MW325R en modo AP. La laptop host con la VM FreePBX va en un puerto LAN del AP |
 | ether3 | Acceso | 10 GESTION | Laptop de TI |
-| ether4 | Acceso | 30 ADMIN | PC / laptop con softphone |
-| ether5 | Acceso | 30 ADMIN | Laptop (cliente iperf3 en pruebas) |
-| ether6 | Acceso | 40 INVITADOS | Laptop de prueba |
-| ether7 | Acceso | 50 MEDICOS | (opcional) |
-| ether8 | Acceso | 20 VOZ | Teléfono IP / equipo de voz cableado |
-| ether9 | Troncal (tagged 10,20,30,40,50) | — | Reservado: AP o switch futuro |
-| ether10 | Ruteado, fuera del bridge | Rescate | Laptop de configuración (192.168.88.2) |
-| sfp-sfpplus1 | — | — | Sin uso |
+| ether4 | Acceso | 30 ADMIN | Laptop con softphone (y cliente iperf3 en las pruebas de QoS) |
+| ether5 | Acceso | 40 INVITADOS | Laptop de prueba |
+
+La VLAN 50 (Médicos, opcional) y el puerto de rescate del RB4011 se eliminan. El hEX tiene 5 puertos y el PDF pide cuatro VLAN como mínimo. Detalle y limitaciones en el archivo 02.
 
 ### 2.2 SSID
 
 | SSID | Banda | VLAN | Seguridad | Uso |
 |---|---|---|---|---|
-| CMH-Voz | 2.4 GHz | 20 | WPA2-PSK (AES) | Celulares con softphone |
-| CMH-Voz-5G | 5 GHz | 20 | WPA2-PSK (AES) | Celulares con softphone (**recomendado para la demo**) |
-| CMH-Admin | 2.4 GHz | 30 | WPA2-PSK (AES) | Laptops del personal |
-| CMH-Admin-5G | 5 GHz | 30 | WPA2-PSK (AES) | Laptops del personal |
-| CMH-Invitados | 2.4 GHz | 40 | WPA2-PSK (AES), aislamiento de clientes | Visitas, 5 Mbps máx. |
+| CMH-Voz | 2.4 GHz (AP MW325R) | 20 | WPA2-PSK (AES), sin WPS | Celulares con softphone |
+
+El MW325R no maneja VLAN, así que da un solo SSID. Administrativa e Invitados se conectan por cable (ether4 y ether5).
 
 ---
 
@@ -93,18 +86,17 @@ Completen la tabla con fuentes citadas (APA). Los costos son **referenciales; ve
 
 Lectura: fila = **origen**, columna = **destino**. Las reglas exactas están en el script 2 del archivo 02.
 
-| Origen ↓ / Destino → | GESTION (10) | VOZ (20) | ADMIN (30) | INVITADOS (40) | MEDICOS (50) | Router (input) | Internet |
-|---|---|---|---|---|---|---|---|
-| **GESTION (10)** | ✅ | ✅ todo (web PBX, SSH) | ✅ | ✅ | ✅ | ✅ Winbox/SSH | ✅ |
-| **VOZ (20)** | ❌ (solo la PBX responde a softphones) | ✅ (mismo segmento) | ❌ (solo la PBX: SIP/RTP UDP) | ❌ | ❌ | DNS, DHCP, ICMP | ✅ |
-| **ADMIN (30)** | ❌ | ⚠️ **solo hacia 192.168.20.10: UDP 5060 y 10000–20000** | ✅ | ❌ | ❌ | DNS, DHCP, ICMP | ✅ |
-| **INVITADOS (40)** | ❌ | ❌ | ❌ | ❌ (aislamiento) | ❌ | DNS, DHCP | ✅ (5 Mbps) |
-| **MEDICOS (50)** | ❌ | ❌ | ❌ | ❌ | ✅ | DNS, DHCP, ICMP | ✅ |
-| **Internet** | ❌ | ❌ (salvo tráfico de retorno) | ❌ | ❌ | ❌ | ❌ | — |
+| Origen ↓ / Destino → | GESTION (10) | VOZ (20) | ADMIN (30) | INVITADOS (40) | Router (input) | Internet |
+|---|---|---|---|---|---|---|
+| **GESTION (10)** | ✅ | ✅ todo (web PBX, SSH) | ✅ | ✅ | ✅ Winbox/SSH | ✅ |
+| **VOZ (20)** | ❌ (solo la PBX responde a softphones) | ✅ (mismo segmento) | ❌ (solo la PBX: SIP/RTP UDP) | ❌ | DNS, DHCP, ICMP | ✅ |
+| **ADMIN (30)** | ❌ | ⚠️ **solo hacia 192.168.20.10: UDP 5060 y 10000–20000** | ✅ | ❌ | DNS, DHCP, ICMP | ✅ |
+| **INVITADOS (40)** | ❌ | ❌ | ❌ | ❌ (aislamiento) | DNS, DHCP | ✅ (5 Mbps) |
+| **Internet** | ❌ | ❌ (salvo tráfico de retorno) | ❌ | ❌ | ❌ | — |
 
 Notas para el informe:
 - La administración web de FreePBX la bloquean **dos capas**: el router (ADMIN solo llega a SIP/RTP) y el firewall de FreePBX (web solo desde 192.168.10.0/24). La segunda capa protege incluso contra equipos de la misma VLAN 20.
-- **Puerto interno de gestión (fuera de banda).** La VM tiene un segundo adaptador en NAT de VirtualBox, con reenvío solo en `127.0.0.1` de la laptop host (web 18080 y SSH 2222). Ningún equipo de la red llega a él. Cumple la misma función que el ether10 del router: entrar a administrar aunque la red falle. En el firewall de FreePBX solo se confía en `10.0.2.2/32` (archivo 07).
+- **Puerto interno de gestión (fuera de banda).** La VM tiene un segundo adaptador en NAT de VirtualBox, con reenvío solo en `127.0.0.1` de la laptop host (web 18080 y SSH 2222). Ningún equipo de la red llega a él. Permite entrar a administrar la PBX aunque la red falle. En el firewall de FreePBX solo se confía en `10.0.2.2/32` (archivo 07).
 - Reglas de prueba **deshabilitadas por defecto**: ADMIN → servidor iperf3 (192.168.20.20, puerto 5201) solo durante la prueba de QoS.
 
 ---
@@ -134,14 +126,14 @@ Sin traslapes: ningún rango empieza con 9, y los códigos de servicio usan `*`.
 
 | Ext. | Nombre | Área | Terminal | Red | Buzón |
 |---|---|---|---|---|---|
-| 1000 | Operadora Recepcion | Recepción | Laptop (MicroSIP) | ADMIN, ether4 | ✅ |
-| 1001 | Recepcion Movil | Recepción | Celular (Linphone) | Wi-Fi CMH-Voz-5G | — |
-| 2001 | Clinica 1 | Consulta Externa | Celular | Wi-Fi CMH-Voz-5G | ✅ |
-| 2002 | Clinica 2 | Consulta Externa | Laptop | Wi-Fi CMH-Admin | — |
+| 1000 | Operadora Recepcion | Recepción | Laptop host (MicroSIP) | VOZ, puerto LAN del AP | ✅ |
+| 1001 | Recepcion Movil | Recepción | Celular (Linphone) | Wi-Fi CMH-Voz | — |
+| 2001 | Clinica 1 | Consulta Externa | Celular | Wi-Fi CMH-Voz | ✅ |
+| 2002 | Clinica 2 | Consulta Externa | Celular | Wi-Fi CMH-Voz | — |
 | 3001 | Enfermeria | Enfermería | Celular | Wi-Fi CMH-Voz | ✅ |
-| 3002 | Emergencias | Emergencias | Laptop | ADMIN, ether5 | — |
-| 4001 | Administracion | Administración | PC / laptop | Wi-Fi CMH-Admin | ✅ |
-| 5001 | TI Gerencia | Gerencia y TI | Laptop | GESTION, ether3 | — |
+| 3002 | Emergencias | Emergencias | Celular | Wi-Fi CMH-Voz | — |
+| 4001 | Administracion | Administración | Laptop con softphone | ADMIN, ether4 | ✅ |
+| 5001 | TI Gerencia | Gerencia y TI | Laptop de TI con softphone | GESTION, ether3 | — |
 | 5002 | TI Remoto | Gerencia y TI | Celular con datos móviles | Tailscale (E1) | — |
 
 ---
@@ -188,7 +180,7 @@ Sin traslapes: ningún rango empieza con 9, y los códigos de servicio usan `*`.
 | Medios de voz | UDP 10000–20000 hacia o desde 192.168.20.10 | **EF (46)** | 1 (máxima) | 512 kbps |
 | Señalización | UDP 5060 hacia o desde 192.168.20.10 | **CS3 (24)** | 2 | 64 kbps |
 | Datos críticos | Tráfico de GESTION | AF21 (18) | 5 | — |
-| Mejor esfuerzo | Todo lo demás (ADMIN, MEDICOS) | 0 | 8 | — |
+| Mejor esfuerzo | Todo lo demás (ADMIN) | 0 | 8 | — |
 | Invitados | VLAN 40 (DSCP re-escrito a 0) | 0 | 8 + límite de 5 Mbps | — |
 
 **Por qué CS3 y no CS5 para la señalización:** RFC 4594 recomienda CS5 para señalización, pero muchas guías de fabricantes (Cisco) usan CS3 y Asterisk usa `cs3` por defecto en `tos` para SIP. Se adopta CS3 por compatibilidad con Asterisk y se documenta la diferencia.
@@ -199,6 +191,6 @@ Sin traslapes: ningún rango empieza con 9, y los códigos de servicio usan `*`.
 
 ## 7. Diagramas para el informe
 - [ ] **Diagrama lógico** (draw.io): VLAN, redes, gateway, PBX, flujos permitidos.
-- [ ] **Diagrama físico**: puertos del RB4011, cables, equipos y SSID (usar la tabla 2.1).
+- [ ] **Diagrama físico**: puertos del hEX, AP, cables, equipos y SSID (usar la tabla 2.1).
 - [ ] **Diagrama de flujo de llamada**: entrada → condición horaria → IVR → grupo/cola/extensión → buzón.
 - [ ] Exportar en PNG y guardar el `.drawio` en los anexos.

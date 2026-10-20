@@ -2,7 +2,7 @@
 **Centro Médico Horizonte, S.A.: PBX IP con VLAN, QoS y acceso seguro**
 
 > Decisiones tomadas por el grupo
-> - Red: **MikroTik RB4011iGS+5HacQ2HnD-IN** (router, switch, Wi-Fi, firewall y QoS en un solo equipo).
+> - Red: **MikroTik RB750Gr3 (hEX)** (router, switch, firewall y QoS) y **AP Mercusys MW325R** para el Wi-Fi de voz. Cambio del 19/10: reemplazan al RB4011.
 > - PBX: **FreePBX 17 (Asterisk)** en una máquina virtual, en modalidad **Stand-alone (local)**.
 > - Extras: **E1** (Tailscale), **E3** (troncal sip2sip) y **E4** (funciones avanzadas). **E2 (SDN) no se realiza.**
 > - Nota máxima posible: **100 base + 17 extra = 117 puntos**.
@@ -17,7 +17,7 @@
 |---|---|---|---|
 | 00 | `00_INDICE_Y_CRONOGRAMA.md` (este archivo) | Coordinador | G, H |
 | 01 | [01_DISENO_DE_LA_SOLUCION.md](01_DISENO_DE_LA_SOLUCION.md) | Documentación + Red | A, B |
-| 02 | [02_RED_MIKROTIK_RB4011.md](02_RED_MIKROTIK_RB4011.md) | Red y VLAN | B |
+| 02 | [02_RED_MIKROTIK_HEX_Y_AP.md](02_RED_MIKROTIK_HEX_Y_AP.md) | Red y VLAN | B |
 | 03 | [03_PBX_FREEPBX_INSTALACION.md](03_PBX_FREEPBX_INSTALACION.md) | Telefonía (PBX) | C |
 | 04 | [04_PBX_FUNCIONALIDADES.md](04_PBX_FUNCIONALIDADES.md) | Telefonía / Funcionalidades | D |
 | 05 | [05_TERMINALES_Y_GUIA_USUARIO.md](05_TERMINALES_Y_GUIA_USUARIO.md) | Terminales y UX | E, RN-06 |
@@ -42,22 +42,22 @@
                             │
                         ether1 (WAN, DHCP, NAT)
               ┌─────────────┴─────────────────────────────┐
-              │           MikroTik RB4011 (Wi-Fi)          │
-              │  bridge br-lan con filtrado de VLAN        │
+              │        MikroTik RB750Gr3 (hEX)             │
+              │  bridge br-lan con filtrado de VLAN (HW)   │
               │  firewall/ACL · DHCP · DNS · QoS (colas)   │
-              └─┬──────┬──────┬──────┬──────┬──────┬──────┬┘
-          ether2│ ether3│ ether4│ ether5│ ether6│ ether7│ ether10 (rescate 192.168.88.1)
-         VLAN 20│VLAN 10│VLAN 30│VLAN 30│VLAN 40│VLAN 50│
-           Voz  │Gestión│ Admin │ Admin │Invit. │Médicos│
-                │       │       │       │       │       │
-   Laptop host  │ Laptop│  PC / │Laptop │Laptop │(opc.) │
-   ├ VM FreePBX │  TI   │ laptop│(iperf)│prueba │       │
-   │ 192.168.20.10       softph.                         
-   ├ iperf3 srv 192.168.20.20
-   └ Puerto interno de gestión de la VM (NAT de VirtualBox, solo 127.0.0.1 de la laptop host)
+              └─┬──────────────┬──────────┬──────────┬─────┘
+          ether2│        ether3│    ether4│    ether5│
+         VLAN 20│       VLAN 10│   VLAN 30│   VLAN 40│
+           Voz  │       Gestión│     Admin│ Invitados│
+                │              │          │          │
+   AP Mercusys MW325R      Laptop TI   Laptop con  Laptop de
+   (modo AP, SSID CMH-Voz)            softphone   prueba
+   └ puerto LAN: laptop host          + iperf3
+       ├ VM FreePBX 192.168.20.10
+       ├ iperf3 srv 192.168.20.20
+       └ Puerto interno de gestión de la VM (NAT de VirtualBox, solo 127.0.0.1 de la laptop host)
 
-   Wi-Fi 2.4 GHz: CMH-Admin (V30) · CMH-Voz (V20) · CMH-Invitados (V40)
-   Wi-Fi 5 GHz  : CMH-Voz-5G (V20) · CMH-Admin-5G (V30)
+   Wi-Fi 2.4 GHz: CMH-Voz (VLAN 20). El AP no maneja VLAN, por eso hay un solo SSID.
 
    E1: celular con datos móviles ──Tailscale──► VM FreePBX (100.x.y.z)
    E3: FreePBX ──troncal SIP──► sip2sip.info
@@ -92,7 +92,7 @@ Casi todo se puede adelantar **sin tener el router configurado**. Los únicos mo
 
 | Rol | Trabajo independiente (en su casa) | Necesita |
 |---|---|---|
-| Red y VLAN | Leer el archivo 02, preparar los scripts con contraseñas propias, practicar en el RB4011 con el puerto de rescate | RB4011 + laptop + cable |
+| Red y VLAN | Leer el archivo 02 y practicar el reset y la carga de scripts en el hEX con Safe Mode | hEX + AP + laptop + cables |
 | Telefonía | Instalar la VM de FreePBX en su laptop (en la red de su casa), actualizar módulos, crear extensiones | Laptop de 16 GB |
 | Funcionalidades | Grabar los audios del IVR, configurar IVR, buzones, espera y transferencias **en la misma VM** | Acceso a la VM |
 | Terminales | Instalar MicroSIP, Linphone y Zoiper; probar registrándose a la VM en la red de su casa; redactar la guía de usuario | Celular y laptop |
@@ -123,7 +123,7 @@ VM FreePBX (03) ──► Extensiones (03) ─────┘          │      
 
 ## 5. Cronograma (15 al 28 de octubre)
 
-> Si el RB4011 todavía no está con el grupo el sábado 17, la Integración 1 pasa al primer día en que llegue y las fases siguientes se corren igual. La entrega del miércoles 28 no se mueve, así que la Integración 2 no debe pasar del jueves 22.
+> Si el router todavía no está con el grupo el sábado 17, la Integración 1 pasa al primer día en que llegue y las fases siguientes se corren igual. La entrega del miércoles 28 no se mueve, así que la Integración 2 no debe pasar del jueves 22.
 
 | Fecha | Fase | Qué se hace | Quién | Entregable del día |
 |---|---|---|---|---|
@@ -143,7 +143,8 @@ VM FreePBX (03) ──► Extensiones (03) ─────┘          │      
 
 | Recurso | Cantidad | Estado |
 |---|---|---|
-| MikroTik RB4011iGS+5HacQ2HnD-IN | 1 | ✅ Disponible |
+| MikroTik RB750Gr3 (hEX) | 1 | ✅ Disponible |
+| AP Mercusys MW325R | 1 | ✅ Disponible |
 | Cables UTP Cat5e/Cat6 (1–3 m) | 6 | [ ] |
 | Laptop host (16 GB RAM, puerto Ethernet) para la VM FreePBX | 1 | [ ] |
 | Laptop de TI (VLAN Gestión) | 1 | [ ] |

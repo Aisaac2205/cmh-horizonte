@@ -112,8 +112,8 @@
 |---|---|---|---|---|---|
 | **RN-01** | Extensiones de 4 dígitos, espera y transferencia | FreePBX: plan de numeración, call waiting, feature codes | FUN-01 a FUN-08 | | |
 | **RN-02** | Telefonía desde escritorio, laptop y móvil | MicroSIP, Linphone y Zoiper en VLAN ADMIN, VOZ y GESTION | TER-01 a TER-05 | | |
-| **RN-03** | Separación de voz, administrativo, gestión e invitados | VLAN 10/20/30/40/50 + ACL en el RB4011 | RED-01 a RED-11 | | |
-| **RN-04** | Calidad de voz con tráfico intenso | Marcado DSCP + colas por prioridad (RB4011) | QOS-01 a QOS-08 | | |
+| **RN-03** | Separación de voz, administrativo, gestión e invitados | VLAN 10/20/30/40 + ACL en el hEX RB750Gr3 | RED-01 a RED-11 | | |
+| **RN-04** | Calidad de voz con tráfico intenso | Marcado DSCP + colas por prioridad (hEX RB750Gr3) | QOS-01 a QOS-08 | | |
 | **RN-05** | Seguridad de la plataforma | Firewall del router + firewall/fail2ban de FreePBX + respaldos | SEG-01 a SEG-07, PBX-03, PBX-06 | | |
 | **RN-06** | Facilidad de uso y capacitación | Guía rápida, IVR claro, softphones sencillos | TER-07, FUN-12 | | |
 | **RN-07** | IVR y buzón de voz | IVR-Principal + buzones en 4 extensiones | FUN-09 a FUN-16 | | |

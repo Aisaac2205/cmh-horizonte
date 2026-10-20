@@ -44,3 +44,5 @@ desktop.ini
 .DS_Store
 ~$*
 .vscode/
+# Archivos reemplazados (quedan en el historial de git)
+_obsoleto*/

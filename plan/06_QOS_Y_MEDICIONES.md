@@ -10,14 +10,14 @@
 
 1. Se crea un **cuello de botella artificial de 2 Mbps** en la salida del router hacia la VLAN de voz (y otro hacia la VLAN ADMIN para el sentido contrario).
 2. Una laptop de la VLAN ADMIN hace una **llamada de voz** (prueba de eco `*43`, el audio va y vuelve por la PBX).
-3. Otra laptop de la VLAN ADMIN **satura los dos sentidos** con iperf3: 20 Mbps UDP hacia 192.168.20.20 y 20 Mbps de regreso (`-R`).
+3. La misma laptop de la VLAN ADMIN (el hEX tiene un solo puerto ADMIN) **satura los dos sentidos** con iperf3: 20 Mbps UDP hacia 192.168.20.20 y 20 Mbps de regreso (`-R`).
 4. Se mide **latencia, jitter y pérdida** en 3 escenarios: **base** (sin saturación), **saturado sin QoS** y **saturado con QoS**.
 5. **La pérdida se mide en la PBX**, no en la laptop. El eco (`*43`) devuelve el audio con su propia numeración RTP. Si se pierden paquetes de ida, el flujo de vuelta llega sin huecos y Wireshark en la laptop marcaría 0 % de pérdida aunque la voz se corte. Por eso se usan `pjsip show channelstats` (columna RX) y una captura con `tcpdump` en la VM.
 
 ```
  Laptop ADMIN (4001, llamada *43) ──┐                        ┌──► VM FreePBX 192.168.20.10
-                                    ├──► RB4011 ──[2 Mbps]───┤
- Laptop ADMIN (iperf3 cliente) ─────┘   (cola por prioridad)  └──► Host iperf3 192.168.20.20
+                                    ├──► hEX ─────[2 Mbps]───┤
+ misma laptop (iperf3 cliente) ─────┘   (cola por prioridad)  └──► Host iperf3 192.168.20.20
 ```
 > ¿Por qué entre VLAN? El tráfico **dentro** de la misma VLAN se conmuta en el bridge y no pasa por las colas IP del router. El tráfico **entre** VLAN sí se enruta, se marca y se encola. Por eso la llamada medida sale de la VLAN ADMIN.
 
@@ -121,9 +121,8 @@ El marcado DSCP sigue activo en ambos casos. Lo único que cambia es si la cola 
 
 | Equipo | Rol | Configuración |
 |---|---|---|
-| Laptop host (ether2, 192.168.20.20) | Servidor iperf3 | Dos servidores, uno por sentido: `iperf3 -s -p 5201` y `iperf3 -s -p 5202` en dos ventanas (permitir en el Firewall de Windows) |
-| Laptop A (ether4, VLAN ADMIN), ext. **1000** | Llamada medida | MicroSIP + Wireshark |
-| Laptop B (ether5, VLAN ADMIN), ext. 3002 | Generador de saturación | iperf3 cliente |
+| Laptop host (puerto LAN del AP, 192.168.20.20) | Servidor iperf3 | Dos servidores, uno por sentido: `iperf3 -s -p 5201` y `iperf3 -s -p 5202` en dos ventanas (permitir en el Firewall de Windows) |
+| Laptop ADMIN (ether4), ext. **4001** | Llamada medida y generador de saturación | MicroSIP + Wireshark + iperf3 cliente |
 | Laptop GESTION (ether3) | Control | Winbox (interruptor de QoS) + SSH a la PBX |
 | Laptop host (puerto interno) | Captura en la PBX | `ssh -p 2222 cmhadmin@127.0.0.1` para `tcpdump` y `channelstats` |
 

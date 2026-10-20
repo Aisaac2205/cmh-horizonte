@@ -19,7 +19,7 @@
 | Audio, USB | Deshabilitados (no se necesitan) |
 
 - En casa: el puente puede ir a la tarjeta Wi-Fi o Ethernet de la laptop (la VM recibe IP del router de su casa).
-- En el proyecto: el puente va a la **tarjeta Ethernet conectada a ether2** del RB4011 (VLAN 20). Windows no necesita manejar VLAN, porque ether2 es un puerto de acceso.
+- En el proyecto: el puente va a la **tarjeta Ethernet**, conectada a un puerto LAN del AP MW325R, que cuelga de ether2 del hEX (VLAN 20). Windows no necesita manejar VLAN, porque ether2 es un puerto de acceso.
 - **Puerto interno de gestión (adaptador 2).** La laptop host queda en la VLAN 20, donde el firewall de FreePBX no permite administrar. Por eso la VM tiene un segundo adaptador NAT cuyos reenvíos solo escuchan en `127.0.0.1` de la laptop host. Desde ahí se abre `http://127.0.0.1:18080` y `ssh -p 2222 cmhadmin@127.0.0.1`. Ningún otro equipo de la red llega a ese adaptador.
 - Con la VM apagada, se agrega así (PowerShell):
   ```powershell
@@ -86,7 +86,7 @@ Con la PBX instalada y actualizada (antes de crear extensiones):
 
 ## Paso 5. IP estática en la VLAN de voz (al integrar)
 
-Cuando la laptop host ya esté conectada a **ether2** del RB4011, editar `/etc/network/interfaces` (ver los nombres con `ip link`; suelen ser `enp0s3` para el adaptador 1 y `enp0s8` para el adaptador 2):
+Opción de respaldo. Lo normal es que la PBX reciba **192.168.20.10** por la reserva DHCP del hEX (archivo 02). Si se prefiere IP fija, cuando la laptop host ya esté en la VLAN 20, editar `/etc/network/interfaces` (ver los nombres con `ip link`; suelen ser `enp0s3` para el adaptador 1 y `enp0s8` para el adaptador 2):
 
 ```
 auto enp0s3

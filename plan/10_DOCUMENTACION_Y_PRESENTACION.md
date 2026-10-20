@@ -60,7 +60,7 @@ CMH-ProyectoFinal/
 
 **Anexos (archivo ZIP aparte):**
 - [ ] Guía rápida de usuario (1 página), del archivo 05 §4
-- [ ] `cmh-rb4011-export.rsc` (sin contraseñas)
+- [ ] `cmh-hex-export.rsc` (sin contraseñas) y respaldo del AP
 - [ ] Respaldo de FreePBX o documentación de configuración (credenciales retiradas)
 - [ ] Bitácora de trabajo
 - [ ] Diagramas `.drawio`
@@ -111,7 +111,7 @@ Grabar con OBS (pantalla + audio) o con el celular, de 3 a 6 minutos:
 - [ ] Llamada externa por la troncal (E3)
 
 ### 5.4 Lista para el día de la demostración
-- [ ] RB4011, fuente, 6 cables, regleta
+- [ ] hEX y AP con sus fuentes, 6 cables, regleta
 - [ ] Laptop host con la VM **encendida 15 min antes** (y `.ova` de respaldo en otra laptop)
 - [ ] Laptops y celulares **cargados**, softphones registrados (`pjsip show contacts`)
 - [ ] Celular E1 con **datos móviles** y Tailscale conectado
