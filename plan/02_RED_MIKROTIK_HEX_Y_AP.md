@@ -134,7 +134,8 @@ Entrar con **cmh-ti** (por MAC) y luego `/user remove admin`.
 /system identity set name=CMH-hEX
 /system clock set time-zone-autodetect=no time-zone-name=America/Guatemala
 /system ntp client set enabled=yes
-/system ntp client servers add address=pool.ntp.org
+/system ntp client servers add address=time.cloudflare.com
+/system ntp client servers add address=0.pool.ntp.org
 
 # ---------- Comentarios de puertos ----------
 /interface ethernet
