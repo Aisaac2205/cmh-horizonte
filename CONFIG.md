@@ -227,11 +227,11 @@ Si el archivo ya existe, moverlo antes o usar otro nombre.
 | Criterio | Puntos | Configuración | Evidencia | Qué falta |
 |---|---|---|---|---|
 | A. Investigación y selección | 8 | 🟢 | 🟡 Tablas comparativas | Costos y fuentes en APA |
-| B. Diseño y segmentación | 17 | 🟡 Scripts del hEX y procedimiento del AP listos (`plan/02`) | 🔴 | Cargar en el hEX y el AP, probar la matriz de ACL |
+| B. Diseño y segmentación | 17 | 🟢 VLAN, DHCP, NAT y firewall cargados en el hEX. AP con `CMH-Voz` (20/10) | 🟡 iPhone en la VLAN 20 | Probar la matriz de ACL con equipos en ether3, ether4 y ether5 |
 | C. PBX virtual | 15 | 🟢 | 🟢 | Nada. Módulos y sistema al día (20/10) |
 | D. Funcionalidades | 18 | 🟢 | 🟡 IVR probado | Sesión de pruebas conjunta (`GUIA-CELULARES.md`, sección 6) |
 | E. Terminales | 10 | 🟢 Extensiones asignadas | 🟡 | Sesión de pruebas y llamadas entre VLAN con el router |
-| F. QoS | 15 | 🟡 Script listo | 🔴 | Aplicar y medir con y sin QoS |
+| F. QoS | 15 | 🟢 Marcado DSCP y colas cargados en el hEX (20/10) | 🔴 | Medir con y sin QoS. Ajustar `q-wan` a la subida real |
 | G. Documentación | 12 | No aplica | 🟡 | Informe, resumen ejecutivo, guía de usuario de 1 página, matriz llena |
 | H. Presentación | 5 | No aplica | 🔴 | Ensayo y video de respaldo |
 | E1. Red pública | 8 | 🟢 | 🟡 Llamada 5002 → 1000 | Captura del celular sin Wi-Fi y llamada 1000 → 5002 |
@@ -246,10 +246,10 @@ Si el archivo ya existe, moverlo antes o usar otro nombre.
 
 | # | Tarea | Necesita |
 |---|---|---|
-| 1 | Router hEX y AP MW325R: cargar los scripts, configurar el AP, probar la matriz de ACL y medir QoS (`plan/02` y `plan/06`) | Los equipos y las laptops en ether3, ether4 y ether5 |
+| 1 | Probar la matriz de ACL y medir la QoS con y sin prioridad (`plan/02` y `plan/06`). Ajustar `q-wan` con un speedtest | Internet en ether1 (tercer cable), una laptop de TI en ether3 y un equipo en ether4 |
 | 2 | Sesión de pruebas conjunta y matriz (archivo 09), ya con el router, para incluir las llamadas entre VLAN | Los 8 integrantes con su extensión (`GUIA-CELULARES.md`) |
 | 3 | E1: captura del celular sin Wi-Fi y llamada 1000 → 5002. Confirmar *Disable key expiry* en Tailscale | iPhone |
 | 4 | Capturas de E3 (troncal, ruta entrante, CDR) y de E4 (correo recibido) para `GUIA-DEMO.md` | FreePBX y la cuenta de Gmail |
 | 5 | Informe, resumen ejecutivo, guía de usuario y presentación | Todo lo anterior |
 
-Hecho el 20/10: actualizar módulos, E4 por correo, E3 con sip2sip y adaptar el plan 02 y los scripts al hEX y al AP.
+Hecho el 20/10: actualizar módulos, E4 por correo, E3 con sip2sip, adaptar el plan 02 y los scripts al hEX y al AP, cargar los tres scripts en el hEX, configurar el AP y respaldar el router.

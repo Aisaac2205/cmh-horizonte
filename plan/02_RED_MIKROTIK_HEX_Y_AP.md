@@ -279,7 +279,9 @@ Los pasos exactos están en `CONFIG.md` sección 9. En resumen:
 
 ## 7. Script 2: firewall, ACL y seguridad (`02-firewall-seguridad.rsc`)
 
-Con Safe Mode activo, igual que el script 1.
+Con Safe Mode activo, igual que el script 1, ya desde **ether3**. *(Cargado el 20/10 sin errores.)*
+
+> Después de este script el router solo se administra desde Gestión (ether3, 192.168.10.0/24). La laptop host queda en Voz con la PBX, así que la laptop de TI tiene que ser otra.
 
 ```
 # =====================================================================
@@ -369,7 +371,7 @@ set winbox address=192.168.10.0/24
 ---
 
 ## 8. Script 3: QoS
-Se aplica en la **Integración 2**. El script y la medición están en [06_QOS_Y_MEDICIONES.md](06_QOS_Y_MEDICIONES.md). Las colas van sobre `vlan20-voz`, `vlan30-admin` y `ether1`, que existen igual en el hEX.
+Se aplica en la **Integración 2**. *(Cargado el 20/10 sin errores. Falta ajustar `q-wan` con un speedtest y medir.)* El script y la medición están en [06_QOS_Y_MEDICIONES.md](06_QOS_Y_MEDICIONES.md). Las colas van sobre `vlan20-voz`, `vlan30-admin` y `ether1`, que existen igual en el hEX.
 
 > ⚠️ **No agregar FastTrack.** Con FastTrack los paquetes se saltan mangle y colas, y la QoS deja de funcionar. Con el reset sin configuración por defecto no existe.
 
@@ -404,9 +406,9 @@ Después de cada sesión y al congelar la configuración:
 
 ## Lista de verificación final (Red)
 - [ ] RouterOS v7 stable y firmware actualizados
-- [ ] Usuario `admin` eliminado, servicios innecesarios apagados, IPv6 desactivado
+- [x] Usuario `admin` eliminado, servicios innecesarios apagados, IPv6 desactivado
 - [ ] 4 VLAN con IP y DHCP, filtrado por hardware (bandera H)
-- [ ] AP en modo AP con `CMH-Voz` (WPA2-AES, sin WPS) entregando IP de la VLAN 20
+- [x] AP en modo AP con `CMH-Voz` (WPA2-AES, sin WPS) entregando IP de la VLAN 20
 - [ ] Matriz de ACL verificada con las 11 pruebas
 - [ ] NAT funcionando, SIP ALG desactivado
 - [ ] Respaldos del router (sin contraseñas) y del AP descargados

@@ -7,8 +7,8 @@ Registro visual de todo lo configurado en el proyecto, para el equipo y para la 
 | Componente | Estado | Sección |
 |---|---|---|
 | PBX FreePBX en máquina virtual | Configurada y probada con llamadas reales, extras E1, E3 y E4 completos | 2 a 7 |
-| Router MikroTik RB750Gr3 (hEX) | Scripts listos (`plan/02`), falta cargarlos | 8 |
-| Punto de acceso Mercusys MW325R | Procedimiento listo (`plan/02`), falta configurarlo | 9 |
+| Router MikroTik RB750Gr3 (hEX) | VLAN, DHCP, NAT, firewall y QoS cargados (20/10). Faltan las capturas y las pruebas | 8 |
+| Punto de acceso Mercusys MW325R | En modo AP con `CMH-Voz` en la VLAN 20 (20/10). Faltan las capturas | 9 |
 
 > Las capturas están en la carpeta `capturas/` y no muestran contraseñas. Para verlas dentro de este documento se recomienda un visor de Markdown, por ejemplo GitHub o VS Code (**Ctrl+Shift+V**). Las extensiones de cada integrante y las pruebas por persona están en `GUIA-CELULARES.md`.
 
@@ -247,11 +247,11 @@ Los teléfonos usados son **MicroSIP** en laptop y **Linphone** en celulares. La
 
 ## 8. Router MikroTik RB750Gr3 (hEX)
 
-*Pendiente de cargar.* Los scripts y el procedimiento están en `plan/02_RED_MIKROTIK_HEX_Y_AP.md`. Esta sección documentará, con capturas de Winbox, las VLAN 10, 20, 30 y 40, el direccionamiento y DHCP por VLAN, la matriz de reglas entre VLAN, el NAT con SIP ALG desactivado y la QoS con sus mediciones con y sin priorización.
+*Configurado el 20/10, capturas pendientes.* RouterOS 7.24.5, usuario `cmh-ti` sin `admin` y los tres scripts de `plan/02_RED_MIKROTIK_HEX_Y_AP.md` cargados. Esta sección documentará, con capturas de Winbox, las VLAN 10, 20, 30 y 40, el direccionamiento y DHCP por VLAN, la matriz de reglas entre VLAN, el NAT con SIP ALG desactivado y la QoS con sus mediciones con y sin priorización.
 
 ## 9. Punto de acceso Mercusys MW325R
 
-*Pendiente de configurar* (modo AP, SSID `CMH-Voz`, IP 192.168.20.2, procedimiento en `plan/02`, sección 5). Esta sección documentará la configuración del Wi-Fi para los celulares en la VLAN de Voz.
+*Configurado el 20/10, capturas pendientes.* Modo AP, IP fija 192.168.20.2, SSID `CMH-Voz` con WPA2-PSK (AES). Los celulares reciben IP de la VLAN 20 desde el hEX. Esta sección documentará la configuración del Wi-Fi para los celulares en la VLAN de Voz.
 
 ---
 
@@ -290,3 +290,4 @@ Los teléfonos usados son **MicroSIP** en laptop y **Linphone** en celulares. La
 | 20/10 | Primera sesión con el equipo: 7 teléfonos registrados por Tailscale. Vigilante de red en la VM (renueva la IP al cambiar de red sin reiniciar) |
 | 20/10 | Módulos y sistema al día. E4 completo con buzón por correo (Gmail). E3 completo con troncal sip2sip, llamada entrante al IVR y saliente con 9100 |
 | 20/10 | Scripts del router y procedimiento del AP adaptados al hEX RB750Gr3 y al MW325R (`plan/02`) |
+| 20/10 | hEX reseteado y actualizado a RouterOS 7.24.5. Scripts de VLAN, firewall y QoS cargados. AP en modo AP con `CMH-Voz`. Respaldo del router |

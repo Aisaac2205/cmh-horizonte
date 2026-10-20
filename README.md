@@ -61,7 +61,7 @@ cmh-horizonte/
 
 - **La PBX está completa.** Extensiones, IVR, buzones, firewall, respaldos y sistema al día. Ya hubo llamadas reales del equipo por Tailscale.
 - **Extras listos:** E1 (Tailscale), E3 (troncal sip2sip, entrante al IVR y saliente con 9100) y E4 (5 de 5, incluido el buzón por correo).
-- **Router y AP:** scripts y procedimiento listos en `plan/02`. Falta cargarlos, probar el firewall entre VLAN, las llamadas entre VLAN y medir la QoS.
+- **Router y AP:** configurados el 20/10 (VLAN, DHCP, NAT, firewall, QoS y Wi-Fi `CMH-Voz`). Falta probar el firewall entre VLAN, las llamadas entre VLAN y medir la QoS.
 - **Por hacer:** sesión de pruebas con el router y la matriz (`plan/09`), informe y presentación.
 
 El detalle por criterio está en [`CONFIG.md`, sección 11](CONFIG.md#11-estado-frente-al-pdf).
