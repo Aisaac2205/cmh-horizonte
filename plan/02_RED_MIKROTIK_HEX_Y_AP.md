@@ -107,12 +107,13 @@ Entrar con **cmh-ti** (por MAC) y luego `/user remove admin`.
 
 ## 4. Script 1: base (`01-base.rsc`)
 
-1. Activar **Safe Mode** (botón en Winbox o `Ctrl+X` en la terminal).
-2. Arrastrar `01-base.rsc` a **Files** y ejecutar:
+1. Conectar la laptop a **ether1** para importar. Ese puerto no entra al bridge, así que la sesión de Winbox por MAC no se corta (por ether3 se corta y Safe Mode deshace el script). El internet de ether1 no hace falta en este paso.
+2. Activar **Safe Mode** (botón en Winbox o `Ctrl+X` en la terminal), arrastrar `01-base.rsc` a **Files** y ejecutar:
 ```
 /import file-name=01-base.rsc verbose=yes
 ```
 3. Si todo responde, desactivar Safe Mode para guardar.
+4. Internet a **ether1** y laptop a **ether3**. La laptop recibe 192.168.10.1xx. El hEX no tiene reloj con batería, así que la hora correcta depende de NTP (WAN conectada).
 
 ```
 # =====================================================================
@@ -249,16 +250,16 @@ add chain=input in-interface-list=WAN action=drop comment="TEMP"
 ## 5. AP Mercusys MW325R en modo AP (20 min)
 
 1. Reset del AP (botón 5 s) y conectar la laptop a un **puerto LAN** del AP, **sin** conectarlo todavía al hEX.
-2. Entrar a `http://mwlogin.net` y crear la contraseña de administrador (guardarla en `CREDENCIALES-ACTUALES.md`).
-3. **Sistema → Modo de operación → Punto de acceso** (*System → Operation Mode → Access Point*). Guardar y esperar el reinicio.
-4. **Red → LAN**: IP **estática 192.168.20.2**, máscara 255.255.255.0, puerta de enlace 192.168.20.1.
-5. **Inalámbrico**: SSID **`CMH-Voz`**, seguridad **WPA2-PSK (AES)** con la contraseña de `CREDENCIALES-ACTUALES.md`. **WPS desactivado**. Canal fijo 1, 6 u 11 (el menos ocupado), ancho 20 MHz.
-6. Conectar un **puerto LAN** del AP a **ether2** del hEX (no el puerto WAN del AP).
+2. Entrar a `http://192.168.1.1` (`mwlogin.net` no carga si la laptop tiene otra red activa) y crear la contraseña de administrador (guardarla en `CREDENCIALES-ACTUALES.md`).
+3. **Sistema → Modo de operación → Punto de acceso** (*System → Operation Mode → Access Point*). Guardar y esperar el reinicio. En modo AP el equipo apaga su DHCP y pide IP por DHCP, así que deja de responder en 192.168.1.1.
+4. Conectar un **puerto LAN** del AP a **ether2** y la laptop a **ether3**. Buscar la IP del AP con `/ip dhcp-server lease print` (aparece como `MW325R` en `dhcp-voz`) y entrar por esa IP.
+5. **Network → LAN**: **Static IP** 192.168.20.2, máscara 255.255.255.0, puerta de enlace 192.168.20.1 (en modo AP no pide DNS). Guardar y entrar de nuevo por `http://192.168.20.2`.
+6. **Wireless**: SSID **`CMH-Voz`**, seguridad **WPA2-PSK (AES)** con la contraseña de `CREDENCIALES-ACTUALES.md`. **WPS desactivado**. Canal fijo 1, 6 u 11 (el menos ocupado), ancho 20 MHz. Modo g/n si el firmware lo permite.
 
 > Si el firmware del AP no trae el menú **Modo de operación**, la guía oficial de Mercusys indica el método manual: IP fija de la LAN en la red del router principal y fuera de su rango DHCP (192.168.20.2), **servidor DHCP desactivado** y cable desde un puerto LAN del AP al router.
 
 ### 5.1 Verificación
-- [ ] Celular conectado a **CMH-Voz** recibe **192.168.20.1xx** del hEX (no del AP).
+- [x] Celular conectado a **CMH-Voz** recibe **192.168.20.1xx** del hEX (no del AP). *(20/10: iPhone con 192.168.20.198)*
 - [ ] Desde la laptop de TI (ether3) abre `http://192.168.20.2`.
 - [ ] Captura: pantalla del AP en modo AP y la lista de clientes Wi-Fi.
 
@@ -395,6 +396,7 @@ Después de cada sesión y al congelar la configuración:
 | `/import` se detuvo a la mitad | Una línea con error | Leer la salida de `verbose=yes`, corregir y seguir desde esa sección |
 | Celular en CMH-Voz recibe IP 192.168.0.x o 192.168.1.x | El AP sigue en modo router con DHCP | Revisar el modo AP y que el cable vaya a un puerto **LAN** del AP |
 | Celular en CMH-Voz sin IP | El AP está conectado por su puerto WAN | Moverlo a un puerto LAN |
+| Con el cable al hEX la laptop se queda sin internet | Windows prefiere el cable y ether1 no tiene internet | Conectar internet a ether1, o bajar la prioridad del cable con `Set-NetIPInterface -InterfaceAlias Ethernet -InterfaceMetric 50` |
 | La PBX no queda en 192.168.20.10 | El adaptador 1 sigue en Wi-Fi o la MAC cambió | `CONFIG.md` sección 9. Revisar `macaddress1` de la VM contra la reserva |
 | Audio en un solo sentido | SIP ALG o firewall | `service-port sip` deshabilitado y reglas M2 y M3 |
 
