@@ -163,15 +163,25 @@ scp -P 2222 -i "$env:USERPROFILE\.ssh\cmh_pbx_ed25519" "cmhadmin@127.0.0.1:/var/
 & "$env:ProgramFiles\Oracle\VirtualBox\VBoxManage.exe" snapshot CMH-FreePBX take "<nombre>"
 ```
 
-**Exportar la VM completa** (apagada, unos 45 minutos, laptop encendida todo el tiempo)
+**Exportar la VM completa** (apagada, unos 20 minutos, laptop encendida todo el tiempo)
 ```powershell
-& "$env:ProgramFiles\Oracle\VirtualBox\VBoxManage.exe" export CMH-FreePBX --output "C:\Users\Asus\Projects\cmh-horizonte\CMH-FreePBX-final.ova" --options manifest
+& "$env:ProgramFiles\Oracle\VirtualBox\VBoxManage.exe" export CMH-FreePBX --output "C:\Users\Asus\Projects\cmh-horizonte\CMH-FreePBX-AAAAMMDD.ova" --options manifest
 ```
 Si el archivo ya existe, moverlo antes o usar otro nombre.
 
 **Importar la VM en otra laptop.** VirtualBox → *Archivo → Importar servicio virtualizado* → `.ova`. Después, en *Configuración → Red*, poner el adaptador 1 en puente a la tarjeta de esa laptop.
 
-> Los snapshots `02-antes-de-config-sip` y `03-antes-de-modo-puente` son del 17/10 y no tienen la configuración posterior. Para volver a un estado completo, usar la `.ova`.
+**Puntos de restauración**
+
+| Punto | Fecha | Contenido |
+|---|---|---|
+| `CMH-FreePBX-20261020.ova` (5.67 GB) | 20/10, 15:42 | **El más completo.** Todo hasta E1, E3 y E4 completos, módulos al día y vigilante de red. SHA-256 `E018398DF4F2A3EDE0B9BB45A3AE0BD6BC735EAD9E45ECF8CCBA44E66239DB63` |
+| Snapshot `05-antes-del-router` | 20/10, 15:30 | Lo mismo que la OVA del 20/10, dentro de VirtualBox |
+| Snapshot `04-antes-de-actualizar` | 20/10, 14:10 | Antes de E3, E4 por correo y la revisión de módulos |
+| `CMH-FreePBX-final.ova` | 19/10 | Hasta E1. Sin E3, sin correo y sin vigilante de red |
+| Snapshots `02` y `03` | 17/10 | Primeras etapas. No usarlos salvo emergencia |
+
+> El respaldo de FreePBX se ejecuta desde la pestaña de **trabajos de respaldo**. La lista de archivos guardados tiene un botón ▶ que **restaura**, no respalda. Revisar la fila antes de hacer clic.
 
 ---
 
