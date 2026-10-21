@@ -7,8 +7,8 @@ Registro visual de todo lo configurado en el proyecto, para el equipo y para la 
 | Componente | Estado | Sección |
 |---|---|---|
 | PBX FreePBX en máquina virtual | Configurada y probada con llamadas reales, extras E1, E3 y E4 completos | 2 a 7 |
-| Router MikroTik RB750Gr3 (hEX) | VLAN, DHCP, NAT, firewall y QoS cargados (20/10). Faltan las capturas y las pruebas | 8 |
-| Punto de acceso Mercusys MW325R | En modo AP con `CMH-Voz` en la VLAN 20 (20/10). Faltan las capturas | 9 |
+| Router MikroTik RB750Gr3 (hEX) | VLAN, DHCP, NAT, firewall y QoS cargados (20/10). Faltan las pruebas y las mediciones | 8 |
+| Punto de acceso Mercusys MW325R | En modo AP con `CMH-Voz` en la VLAN 20 (20/10). Falta la captura del Wi-Fi | 9 |
 
 > Las capturas están en la carpeta `capturas/` y no muestran contraseñas. Para verlas dentro de este documento se recomienda un visor de Markdown, por ejemplo GitHub o VS Code (**Ctrl+Shift+V**). Las extensiones de cada integrante y las pruebas por persona están en `GUIA-CELULARES.md`.
 
@@ -247,11 +247,103 @@ Los teléfonos usados son **MicroSIP** en laptop y **Linphone** en celulares. La
 
 ## 8. Router MikroTik RB750Gr3 (hEX)
 
-*Configurado el 20/10, capturas pendientes.* RouterOS 7.24.5, usuario `cmh-ti` sin `admin` y los tres scripts de `plan/02_RED_MIKROTIK_HEX_Y_AP.md` cargados. Esta sección documentará, con capturas de Winbox, las VLAN 10, 20, 30 y 40, el direccionamiento y DHCP por VLAN, la matriz de reglas entre VLAN, el NAT con SIP ALG desactivado y la QoS con sus mediciones con y sin priorización.
+Configurado el 20/10 con RouterOS 7.24.5 y los tres scripts de `plan/02_RED_MIKROTIK_HEX_Y_AP.md` (base, firewall y QoS). Las capturas son de Winbox, conectado desde la VLAN 10 de Gestión. Faltan las mediciones de QoS con y sin prioridad.
+
+**Figura 28. Sistema, firmware y usuarios.** Ruta: *New Terminal*
+
+![Recursos, firmware y usuarios del hEX](capturas/30-hex-sistema-usuarios.png)
+
+> **Qué se hizo.** El router se reseteó sin la configuración del dueño anterior y se actualizó a **RouterOS 7.24.5**, con el firmware de la placa en la misma versión. El único usuario es `cmh-ti` en el grupo *full*. Al final se ve que el **SIP ALG** está desactivado (bandera X).
+
+**Figura 29. Usuario `admin` eliminado.** Ruta: *New Terminal*
+
+![Intentos con admin rechazados y lista de usuarios](capturas/30b-hex-admin-eliminado.png)
+
+> **Qué se hizo.** Se eliminó el usuario `admin` que trae el equipo de fábrica. Los intentos de entrar con ese usuario quedan registrados como *login failure* en el log del router.
+
+**Figura 30. Interfaces.** Ruta: *Interfaces → Interface*
+
+![Bridge, VLAN y puertos del hEX](capturas/31-hex-interfaces.png)
+
+> **Qué se hizo.** Los puertos ether2 a ether5 están dentro del bridge `br-lan`. Sobre el bridge están las cuatro interfaces VLAN, una por red. Cada puerto lleva un comentario con su uso, y ether1 queda fuera del bridge como salida a internet.
+
+**Figura 31. Puertos del bridge.** Ruta: *Bridge → Ports*
+
+![Puertos de acceso con su PVID](capturas/32-hex-bridge-puertos.png)
+
+> **Qué se hizo.** Cada puerto es de acceso a una sola VLAN (PVID 20, 10, 30 y 40) y solo acepta tráfico sin etiqueta. La bandera **H** indica que el chip del hEX hace la conmutación por hardware.
+
+**Figura 32. Tabla de VLAN.** Ruta: *Bridge → VLANs*
+
+![VLAN 10, 20, 30 y 40 en el bridge](capturas/33-hex-bridge-vlan.png)
+
+> **Qué se hizo.** Las cuatro VLAN están etiquetadas hacia el propio router (`br-lan`), que hace de puerta de enlace, y sin etiqueta hacia su puerto. La columna *Current Untagged* solo muestra los puertos con cable conectado.
+
+**Figura 33. Direcciones IP.** Ruta: *IP → Addresses*
+
+![Puerta de enlace de cada VLAN](capturas/34-hex-direcciones.png)
+
+> **Qué se hizo.** El router es la puerta de enlace `.1` de cada red. 192.168.10.0/24 Gestión, 192.168.20.0/24 Voz, 192.168.30.0/24 Administrativa y 192.168.40.0/24 Invitados.
+
+**Figura 34. Servidores DHCP.** Ruta: *IP → DHCP Server → DHCP*
+
+![Un servidor DHCP por VLAN](capturas/35a-hex-dhcp-servidores.png)
+
+> **Qué se hizo.** Cada VLAN tiene su propio servidor DHCP y su rango (.100 a .199). En Invitados la concesión dura 2 horas y en las demás 8 horas.
+
+**Figura 35. Asignaciones DHCP.** Ruta: *IP → DHCP Server → Leases*
+
+![Reservas y equipos conectados](capturas/35b-hex-dhcp-leases.png)
+
+> **Qué se hizo.** Se reservó la **192.168.20.10** para la PBX (por la MAC de la VM) y la 192.168.20.20 para la laptop host. La laptop de TI recibió una IP de Gestión y un iPhone conectado al Wi-Fi `CMH-Voz` recibió una IP de la VLAN de Voz.
+
+**Figura 36. Reglas del firewall.** Ruta: *IP → Firewall → Filter Rules*
+
+![Matriz de comunicación entre VLAN](capturas/36-hex-firewall-filter.png)
+
+> **Qué se hizo.** Las reglas *input* protegen al router. Solo Gestión lo administra, el resto de redes solo usa DNS, DHCP y ping, y todo lo que llega de internet se descarta. Las reglas *forward* son la matriz entre VLAN. Gestión llega a todas (M1), Administrativa solo habla con la PBX por SIP y RTP (M2 y M3), todas salen a internet (M5) y lo demás se descarta y queda en el log (M6). Las dos reglas de iperf3 están desactivadas y se activan solo en las pruebas de QoS.
+
+**Figura 37. NAT.** Ruta: *IP → Firewall → NAT*
+
+![Masquerade hacia la WAN](capturas/37-hex-nat.png)
+
+> **Qué se hizo.** Una regla *masquerade* traduce las direcciones de todas las VLAN al salir por la WAN (ether1).
+
+**Figura 38. SIP ALG desactivado.** Ruta: *IP → Firewall → Service Ports*
+
+![Helper sip deshabilitado](capturas/37b-hex-sip-alg.png)
+
+> **Qué se hizo.** Se desactivó el *helper* de SIP (bandera X en `sip`). La PBX ya maneja el NAT por sí misma, y el ALG del router suele romper el audio de las llamadas.
+
+**Figura 39. Clasificación y marcado de la QoS.** Ruta: *IP → Firewall → Mangle*
+
+![Marcado DSCP y marcas de paquete](capturas/38-hex-mangle.png)
+
+> **Qué se hizo.** Primero se borra cualquier prioridad que traiga la red de Invitados. Luego el audio (RTP) se marca **EF (46)**, la señalización SIP **CS3 (24)** y el tráfico de Gestión **AF21 (18)**. Con ese marcado cada paquete recibe una marca que decide en qué cola entra.
+
+**Figura 40. Colas por prioridad.** Ruta: *Queues → Queue Tree*
+
+![Árbol de colas hacia Voz, Administrativa y la WAN](capturas/39-hex-queue-tree.png)
+
+> **Qué se hizo.** Hay un árbol de colas hacia la VLAN de Voz, otro hacia Administrativa y otro hacia internet. En cada uno el audio va en la cola de prioridad 1 con 512 kbps garantizados, SIP en la 2, Gestión en la 5 y el resto en la 8. Las colas *QOS-FIFO* están desactivadas y sirven para la medición sin prioridad.
+
+**Figura 41. Servicios del router.** Ruta: *IP → Services*
+
+![Servicios activos y desde dónde se permiten](capturas/40-hex-servicios.png)
+
+> **Qué se hizo.** Se apagaron telnet, ftp, www, www-ssl, api y api-ssl. Winbox y SSH solo aceptan conexiones desde la red de Gestión (192.168.10.0/24). También se limitó el acceso por MAC y el descubrimiento de vecinos a Gestión y se desactivó IPv6.
 
 ## 9. Punto de acceso Mercusys MW325R
 
-*Configurado el 20/10, capturas pendientes.* Modo AP, IP fija 192.168.20.2, SSID `CMH-Voz` con WPA2-PSK (AES). Los celulares reciben IP de la VLAN 20 desde el hEX. Esta sección documentará la configuración del Wi-Fi para los celulares en la VLAN de Voz.
+Configurado el 20/10. Está conectado a ether2 del hEX, así que todo lo que entra por su Wi-Fi cae en la VLAN 20 de Voz.
+
+**Figura 42. Red del punto de acceso.** Ruta: *Network → LAN* (en `http://192.168.20.2`)
+
+![IP fija del AP en la VLAN de Voz](capturas/41-ap-lan.png)
+
+> **Qué se hizo.** El equipo se pasó a modo **punto de acceso**, con lo que apaga su propio DHCP y su NAT. Se le dio la IP fija **192.168.20.2** con puerta de enlace 192.168.20.1 (el hEX). Los celulares que se conectan a `CMH-Voz` reciben la IP del hEX, como se ve en la figura 35.
+
+*Pendiente la captura del Wi-Fi (SSID `CMH-Voz`, WPA2-PSK con AES, canal fijo y WPS apagado), con la contraseña oculta.*
 
 ---
 
