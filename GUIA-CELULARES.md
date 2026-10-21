@@ -1,6 +1,6 @@
 # GUÍA TELÉFONOS · Extensiones del equipo con Tailscale y Linphone
 **Centro Médico Horizonte, S.A. · PF-TEL-001-2026**
-Última actualización: 19/10/2026
+Última actualización: 20/10/2026
 
 Procedimiento para que cada integrante convierta su celular en una **extensión de la PBX** del proyecto, y lista de las pruebas que le corresponden a cada uno. Se usan aplicaciones gratuitas.
 
@@ -262,30 +262,273 @@ Las claves entre paréntesis (FUN-05, EXT-07, etc.) son los identificadores de l
 
 ## 6. Guion de la sesión de pruebas conjunta
 
-Duración estimada de 50 minutos. Todos conectados a una videollamada para coordinar, con Tailscale activo y Linphone abierto en pantalla. Isaac anuncia cada prueba.
+Duración estimada de 60 minutos. Todos entran a una videollamada para coordinar, con Tailscale activo y Linphone abierto en pantalla. Isaac anuncia cada prueba por su número y dice quién empieza.
 
-| # | Prueba | Quién llama | Quién contesta o actúa |
+### 6.1 Reglas de la sesión
+
+- **Todas las extensiones pueden llamarse entre sí.** Con Tailscale no hay restricciones por área. Las restricciones entre redes (VLAN) solo existen el día del router.
+- En cada prueba **solo actúan las personas de su tabla**. Los demás no llaman a nadie y tienen el micrófono de la videollamada apagado.
+- Se marca **solo cuando Isaac lo indique**. Si alguien llama antes, la extensión de destino aparece ocupada y la prueba se repite.
+- Al terminar cada prueba, **todos cuelgan** antes de pasar a la siguiente.
+- Quien tiene una captura asignada la toma **con la hora visible** y la nombra con el número de prueba, por ejemplo `prueba06-omar.png`.
+
+### 6.2 Directorio
+
+| Extensión | Integrante | Área | Notas |
 |---|---|---|---|
-| 1 | Todos registrados (TER-01) | Cada uno abre su softphone | Isaac captura Asterisk Info |
-| 2 | Marcación entre áreas (FUN-01) | 1000 → 2001, Ernesto → 4001, Romeo → 1001 | Leonardo, Anthony y José |
-| 3 | Espera desde laptop (FUN-02) | 1000 → 2001 | Isaac pone en espera y reanuda |
-| 4 | Espera desde móvil (FUN-03) | 1000 → 2001 | Leonardo pone en pausa y reanuda |
-| 5 | Segunda llamada (FUN-04) | 1000 en llamada con 2001, Ernesto → 1000 | Isaac alterna entre las dos |
-| 6 | Transferencia ciega T1 (FUN-05) | Ernesto → 1000 | Isaac `##` → 2002, contesta Omar |
-| 7 | Transferencia atendida T2 (FUN-06) | Anthony → 1000 | Isaac `*2` → 2001, consulta con Leonardo y completa |
-| 8 | Transferencia ciega T3 (FUN-07) | 1000 → 1001 | José `##` → 3002, contesta Reginaldo |
-| 9 | Transferencia atendida T4 (FUN-08) | Omar → 2001 | Leonardo `*2` → 3001, consulta con Ernesto y completa |
-| 10 | Buzón sin respuesta (FUN-09) | Anthony → 1000 | Isaac no contesta, Anthony deja mensaje |
-| 11 | Buzón ocupado (FUN-10) | Isaac \*71 y llama a 2001, Ernesto → 1000 | Saludo de ocupado. Al final Isaac \*70 |
-| 12 | Consultar buzones (FUN-11) | Omar → 2001 sin respuesta | Leonardo y luego Isaac escuchan con \*97 |
-| 13 | Recorrido del IVR (FUN-12 a 16) | Omar → 7000 | Contestan según la opción |
-| 14 | Grupo de timbrado (EXT-06) | Leonardo → 8000 | Suenan 1000 y 1001 |
-| 15 | Cola con 3 llamadas (EXT-07) | José, Ernesto y Romeo → 8010 a la vez | Leonardo y Omar contestan, la tercera espera |
-| 16 | Fuera de horario (EXT-08) | Isaac \*271, Reginaldo → 7000 → 3 | Ernesto. Al final Isaac \*271 |
-| 17 | Llamadas entre terminales (L2, L4, L5, L6) | Omar → 3002, Romeo → 4001, Ernesto → 5001, Anthony → 1001 | Reginaldo, Anthony, Romeo y José |
-| 18 | E1 desde red pública (EXT-02) | 1000 → 5002 | Isaac en el iPhone con datos móviles |
-| 19 | Evidencias finales | | Isaac captura el CDR con todas las llamadas |
-| 20 | Seguridad (SEG-04) | Romeo con contraseña incorrecta | Isaac confirma el bloqueo y lo libera |
+| 1000 | Isaac (laptop, MicroSIP) | Operadora Recepción | Buzón. Coordina la sesión |
+| 1001 | José | Recepción Móvil | Suena junto con la 1000 en el grupo 8000 |
+| 2001 | Leonardo | Clínica 1 | Buzón. Agente de la cola 8010 |
+| 2002 | Omar | Clínica 2 | Agente de la cola 8010 |
+| 3001 | Ernesto | Enfermería | Buzón |
+| 3002 | Reginaldo | Emergencias | |
+| 4001 | Anthony | Administración | Buzón |
+| 5001 | Romeo | TI Gerencia | |
+| 5002 | Isaac (iPhone, datos móviles) | TI Remoto | Solo en la prueba 18 |
+
+| Número especial | Qué hace |
+|---|---|
+| 7000 | IVR del Centro Médico |
+| 8000 | Grupo de timbrado de Recepción (1000 y 1001) |
+| 8010 | Cola de Consulta Externa (agentes 2001 y 2002) |
+| \*97 | Escuchar el buzón propio (pide el PIN) |
+| `##` | Durante una llamada, transferencia ciega |
+| `*2` | Durante una llamada, transferencia atendida (con consulta) |
+
+### 6.3 Pruebas paso a paso
+
+#### Prueba 1 · Todos registrados (TER-01)
+
+| Paso | Quién | Qué hace |
+|---|---|---|
+| 1 | Todos | Abren Linphone y confirman en la videollamada que su cuenta está en verde |
+| 2 | Isaac | Captura *Reports → Asterisk Info* con todas las extensiones en *Avail* |
+
+**Resultado esperado.** Las 9 extensiones registradas a la vez.
+
+#### Prueba 2 · Llamadas entre áreas (FUN-01)
+
+Son tres llamadas, una después de otra.
+
+| Paso | Quién llama | Marca | Quién contesta |
+|---|---|---|---|
+| 1 | Isaac (1000) | **2001** | Leonardo |
+| 2 | Ernesto (3001) | **4001** | Anthony |
+| 3 | Romeo (5001) | **1001** | José |
+
+**Resultado esperado.** En cada llamada los dos se escuchan. Se dicen su nombre y área y cuelgan.
+
+#### Prueba 3 · Espera desde la laptop (FUN-02)
+
+| Paso | Quién | Qué hace |
+|---|---|---|
+| 1 | Isaac (1000) | Marca **2001** |
+| 2 | Leonardo (2001) | Contesta |
+| 3 | Isaac | Pone la llamada **en espera** en MicroSIP, cuenta 10 segundos y la reanuda |
+
+**Resultado esperado.** Leonardo escucha la música en espera y luego vuelve a escuchar a Isaac. **No cuelguen**, la prueba 4 sigue en la misma llamada.
+
+#### Prueba 4 · Espera desde el celular (FUN-03)
+
+| Paso | Quién | Qué hace |
+|---|---|---|
+| 1 | Leonardo (2001) | En la misma llamada, toca **Pausa** en Linphone, cuenta 10 segundos y la reanuda |
+
+**Resultado esperado.** Isaac escucha la música en espera y la llamada se retoma. **No cuelguen**, la prueba 5 sigue en la misma llamada.
+
+#### Prueba 5 · Segunda llamada entrante (FUN-04)
+
+| Paso | Quién | Qué hace |
+|---|---|---|
+| 1 | Isaac (1000) | Sigue en llamada con Leonardo |
+| 2 | Ernesto (3001) | Marca **1000** |
+| 3 | Isaac | Escucha el aviso de llamada en espera, contesta a Ernesto y luego vuelve con Leonardo |
+| 4 | Todos | Cuelgan |
+
+**Resultado esperado.** Isaac atiende dos llamadas a la vez y alterna entre ellas.
+
+#### Prueba 6 · Transferencia ciega T1 (FUN-05)
+
+| Paso | Quién | Qué hace |
+|---|---|---|
+| 1 | Ernesto (3001) | Marca **1000** |
+| 2 | Isaac (1000) | Contesta, marca **`##`** y luego **2002** |
+| 3 | Omar (2002) | Contesta. Habla con Ernesto |
+
+**Resultado esperado.** Ernesto termina hablando con Omar sin que Isaac hable antes con Omar. **Captura** Omar, con la llamada de Ernesto en pantalla.
+
+#### Prueba 7 · Transferencia atendida T2 (FUN-06)
+
+| Paso | Quién | Qué hace |
+|---|---|---|
+| 1 | Anthony (4001) | Marca **1000** |
+| 2 | Isaac (1000) | Contesta, marca **`*2`** y luego **2001**. Anthony queda en espera |
+| 3 | Leonardo (2001) | Contesta. Isaac le explica que le pasa una llamada de Administración |
+| 4 | Isaac | Cuelga para completar la transferencia |
+| 5 | Leonardo y Anthony | Hablan entre ellos |
+
+**Resultado esperado.** Anthony termina conectado con Leonardo después de la consulta. **Captura** Anthony.
+
+#### Prueba 8 · Transferencia ciega T3 (FUN-07)
+
+| Paso | Quién | Qué hace |
+|---|---|---|
+| 1 | Isaac (1000) | Marca **1001** |
+| 2 | José (1001) | Contesta, marca **`##`** y luego **3002** |
+| 3 | Reginaldo (3002) | Contesta. Habla con Isaac |
+
+**Resultado esperado.** La llamada de Isaac pasa de José a Reginaldo. **Captura** José, durante la transferencia, y Reginaldo, con la llamada recibida.
+
+#### Prueba 9 · Transferencia atendida T4 (FUN-08)
+
+| Paso | Quién | Qué hace |
+|---|---|---|
+| 1 | Omar (2002) | Marca **2001** |
+| 2 | Leonardo (2001) | Contesta, marca **`*2`** y luego **3001**. Omar queda en espera |
+| 3 | Ernesto (3001) | Contesta. Leonardo le explica que le pasa una llamada de la Clínica 2 |
+| 4 | Leonardo | Cuelga para completar la transferencia |
+| 5 | Omar y Ernesto | Hablan entre ellos |
+
+**Resultado esperado.** Omar termina conectado con Ernesto. Esta transferencia se hace entre dos celulares. **Captura** Omar.
+
+#### Prueba 10 · Buzón cuando no contestan (FUN-09)
+
+| Paso | Quién | Qué hace |
+|---|---|---|
+| 1 | Anthony (4001) | Marca **1000** |
+| 2 | Isaac (1000) | **No contesta** |
+| 3 | Anthony | Escucha el saludo de Recepción y deja un mensaje corto después del tono. Cuelga |
+
+**Resultado esperado.** Se escucha el saludo personalizado de Recepción y el mensaje queda grabado. **Captura** Anthony.
+
+#### Prueba 11 · Buzón cuando está ocupado (FUN-10)
+
+| Paso | Quién | Qué hace |
+|---|---|---|
+| 1 | Isaac (1000) | Marca **\*71** para apagar la llamada en espera |
+| 2 | Isaac | Marca **2001** |
+| 3 | Leonardo (2001) | Contesta y se queda en la llamada |
+| 4 | Ernesto (3001) | Marca **1000** |
+| 5 | Ernesto | Escucha el saludo de ocupado y cuelga sin dejar mensaje |
+| 6 | Isaac y Leonardo | Cuelgan. Isaac marca **\*70** para volver a encender la llamada en espera |
+
+**Resultado esperado.** Ernesto escucha el saludo de **ocupado** de Recepción, distinto al de la prueba 10. **Captura** Ernesto.
+
+#### Prueba 12 · Dejar y escuchar mensajes (FUN-11)
+
+| Paso | Quién | Qué hace |
+|---|---|---|
+| 1 | Omar (2002) | Marca **2001** |
+| 2 | Leonardo (2001) | **No contesta** |
+| 3 | Omar | Deja un mensaje corto después del tono y cuelga |
+| 4 | Leonardo | Marca **\*97**, escribe su PIN y escucha el mensaje de Omar |
+| 5 | Isaac (1000) | Marca **\*97**, escribe su PIN y escucha el mensaje de Anthony (prueba 10) |
+
+**Resultado esperado.** Cada uno escucha el mensaje que le dejaron. **Captura** Leonardo, con el buzón reproduciendo el mensaje.
+
+#### Prueba 13 · Recorrido del IVR (FUN-12 a FUN-16)
+
+Omar hace **siete llamadas** al **7000**, una por opción. Antes de cada una, Isaac avisa quién debe contestar.
+
+| Llamada | Omar marca en el IVR | Quién contesta |
+|---|---|---|
+| 1 | **1** | Suenan Isaac (1000) y José (1001). Contesta José |
+| 2 | **2** | Entra a la cola. Contesta Leonardo (2001) o Omar no, porque es él quien llama. Contesta Leonardo |
+| 3 | **3** | Ernesto (3001) |
+| 4 | **4** | Anthony (4001) |
+| 5 | **0** | Isaac (1000), como operadora |
+| 6 | **8**, y otra vez **8** cuando lo pida | Isaac (1000), después del segundo error |
+| 7 | No marca nada | Isaac (1000), después de los reintentos |
+
+**Resultado esperado.** Cada opción llega a quien dice la tabla. **Captura** Omar, de al menos una llamada en el menú.
+
+#### Prueba 14 · Grupo de timbrado (EXT-06)
+
+| Paso | Quién | Qué hace |
+|---|---|---|
+| 1 | Leonardo (2001) | Marca **8000** |
+| 2 | Isaac (1000) y José (1001) | Sus teléfonos suenan al mismo tiempo. **Contesta José** |
+
+**Resultado esperado.** Suenan los dos a la vez y al contestar José la 1000 deja de sonar. **Captura** José, con el celular sonando.
+
+#### Prueba 15 · Cola con tres llamadas (EXT-07)
+
+| Paso | Quién | Qué hace |
+|---|---|---|
+| 1 | Leonardo (2001) y Omar (2002) | Tienen Linphone abierto. Son los agentes y van a contestar |
+| 2 | José (1001), Ernesto (3001) y Romeo (5001) | Cuando Isaac diga "ya", los tres marcan **8010** al mismo tiempo |
+| 3 | Leonardo y Omar | Contestan la llamada que les llegue |
+| 4 | El tercero que llamó | Se queda escuchando música y el anuncio de su posición. No cuelga |
+| 5 | Leonardo u Omar | Cuando termine su llamada, cuelga y le entra la del tercero |
+
+**Resultado esperado.** Se escucha el aviso de grabación, la cola reparte las llamadas entre los dos agentes y la tercera espera su turno. **Captura** Romeo, o quien quede en espera.
+
+#### Prueba 16 · Fuera de horario (EXT-08)
+
+| Paso | Quién | Qué hace |
+|---|---|---|
+| 1 | Isaac (1000) | Marca **\*271** para pasar a modo fuera de horario |
+| 2 | Reginaldo (3002) | Marca **7000**, escucha el mensaje de fuera de horario y marca **3** |
+| 3 | Ernesto (3001) | Contesta la llamada de emergencia |
+| 4 | Isaac | Marca **\*271** otra vez para volver al horario normal |
+
+**Resultado esperado.** El 7000 responde con el mensaje de fuera de horario y la opción 3 llega a Enfermería. **Captura** Reginaldo.
+
+#### Prueba 17 · Llamadas entre celulares (L2, L4, L5, L6)
+
+Son cuatro llamadas, una después de otra.
+
+| Paso | Quién llama | Marca | Quién contesta |
+|---|---|---|---|
+| 1 | Omar (2002) | **3002** | Reginaldo |
+| 2 | Romeo (5001) | **4001** | Anthony |
+| 3 | Ernesto (3001) | **5001** | Romeo |
+| 4 | Anthony (4001) | **1001** | José |
+
+**Resultado esperado.** Audio en los dos sentidos en las cuatro. Cada quien califica el audio de 1 a 5.
+
+#### Prueba 18 · Acceso desde red pública, E1 (EXT-02)
+
+| Paso | Quién | Qué hace |
+|---|---|---|
+| 1 | Isaac | Apaga el Wi-Fi del iPhone y deja solo datos móviles, con Tailscale y Linphone (5002) abiertos |
+| 2 | Isaac (1000) | Desde la laptop marca **5002** |
+| 3 | Isaac (5002) | Contesta en el iPhone |
+
+**Resultado esperado.** Audio en los dos sentidos por datos móviles. **Captura** Isaac, del iPhone sin Wi-Fi y en llamada.
+
+#### Prueba 19 · Evidencias de la PBX
+
+| Paso | Quién | Qué hace |
+|---|---|---|
+| 1 | Isaac | Captura *Reports → CDR Reports* con todas las llamadas de la sesión |
+
+#### Prueba 20 · Seguridad, intentos de contraseña (SEG-04)
+
+Va al final porque deja bloqueado el equipo de Romeo un rato.
+
+| Paso | Quién | Qué hace |
+|---|---|---|
+| 1 | Romeo (5001) | En Linphone cambia su contraseña por una incorrecta y fuerza el registro 5 o 6 veces |
+| 2 | Isaac | Revisa en la PBX que la IP de Tailscale de Romeo aparece bloqueada y la desbloquea |
+| 3 | Romeo | Vuelve a poner la contraseña correcta y confirma que queda en verde |
+
+**Resultado esperado.** La PBX bloquea el equipo de Romeo después de los intentos fallidos. **Captura** Romeo, del error de registro.
+
+### 6.4 Resumen de participación
+
+Para que cada uno sepa en qué pruebas tiene que estar atento.
+
+| Integrante | Pruebas |
+|---|---|
+| Isaac (1000 y 5002) | Todas |
+| José (1001) | 1, 2, 8, 13, 14, 15, 17 |
+| Leonardo (2001) | 1, 2, 3, 4, 5, 7, 9, 11, 12, 13, 14, 15 |
+| Omar (2002) | 1, 6, 9, 12, 13, 15, 17 |
+| Ernesto (3001) | 1, 2, 5, 6, 9, 11, 13, 15, 16, 17 |
+| Reginaldo (3002) | 1, 8, 16, 17 |
+| Anthony (4001) | 1, 2, 7, 10, 13, 17 |
+| Romeo (5001) | 1, 2, 15, 17, 20 |
 
 > **Pruebas que esperan al router.** Las llamadas **entre VLAN** (TER-05) y las mediciones de **QoS** se hacen el día de la integración, con los teléfonos conectados a la red del router en lugar de Tailscale.
 
