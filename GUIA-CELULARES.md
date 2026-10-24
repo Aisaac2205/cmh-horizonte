@@ -165,7 +165,7 @@ Las claves entre paréntesis (FUN-05, EXT-07, etc.) son los identificadores de l
 
 | Prueba | Qué hacer | Resultado esperado |
 |---|---|---|
-| Recorrido del IVR (FUN-12 a FUN-16) | Marcar **7000** y probar, en llamadas separadas, las opciones **1, 2, 3, 4 y 0**, una opción inválida (**8** dos veces) y no marcar nada | 1 suena el grupo 8000. 2 entra a la cola. 3 suena Ernesto. 4 suena Anthony. 0, inválida y sin respuesta pasan a la operadora (1000) |
+| Recorrido del IVR (FUN-12 a FUN-16) | Marcar **7000** y probar, en llamadas separadas, las opciones **1, 2, 3, 4 y 0**, una opción inválida (**8** tres veces) y no marcar nada | 1 suena el grupo 8000. 2 entra a la cola. 3 suena Ernesto. 4 suena Anthony. 0, inválida y sin respuesta pasan a la operadora (1000) |
 | Transferencia ciega T1, destino (FUN-05) | Esperar la llamada que Isaac transfiere desde la 1000 | Le llega la llamada de Ernesto |
 | Transferencia atendida T4, origen (FUN-08) | Marcar **2001** y esperar a que Leonardo lo transfiera | Termina hablando con Ernesto |
 | Dejar un mensaje (FUN-11) | Marcar **2001**, no contestan, dejar un mensaje corto después del tono | El mensaje queda en el buzón de Leonardo |
@@ -430,15 +430,17 @@ Son tres llamadas, una después de otra.
 
 Omar hace **siete llamadas** al **7000**, una por opción. Antes de cada una, Isaac avisa quién debe contestar.
 
+> **Horario.** El 7000 atiende con el menú normal de lunes a viernes de 7:00 a 19:00. Si la sesión es fuera de ese horario, Isaac marca **\*271** antes de empezar, si no el 7000 contesta con el menú de fuera de horario. En la prueba 16 se vuelve a marcar **\*271** para regresar al modo automático.
+
 | Llamada | Omar marca en el IVR | Quién contesta |
 |---|---|---|
 | 1 | **1** | Suenan Isaac (1000) y José (1001). Contesta José |
-| 2 | **2** | Entra a la cola. Contesta Leonardo (2001) o Omar no, porque es él quien llama. Contesta Leonardo |
+| 2 | **2** | Entra a la cola 8010. Contesta Leonardo (2001), porque Omar, el otro agente, es quien llama |
 | 3 | **3** | Ernesto (3001) |
 | 4 | **4** | Anthony (4001) |
 | 5 | **0** | Isaac (1000), como operadora |
-| 6 | **8**, y otra vez **8** cuando lo pida | Isaac (1000), después del segundo error |
-| 7 | No marca nada | Isaac (1000), después de los reintentos |
+| 6 | **8** tres veces, una cada vez que se repite el menú | Isaac (1000), después del tercer error |
+| 7 | No marca nada | Isaac (1000), después de dos esperas de 7 segundos |
 
 **Resultado esperado.** Cada opción llega a quien dice la tabla. **Captura** Omar, de al menos una llamada en el menú.
 

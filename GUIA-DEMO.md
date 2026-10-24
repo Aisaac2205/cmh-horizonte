@@ -1,6 +1,6 @@
 # GUÍA DEMO · Documentación de lo realizado
 **Centro Médico Horizonte, S.A. · PF-TEL-001-2026**
-Última actualización: 20/10/2026
+Última actualización: 23/10/2026
 
 Registro visual de todo lo configurado en el proyecto, para el equipo y para la defensa. Cada captura indica su ruta dentro del sistema y explica qué se hizo y por qué. El avance se agrega por componente.
 
@@ -9,6 +9,7 @@ Registro visual de todo lo configurado en el proyecto, para el equipo y para la 
 | PBX FreePBX en máquina virtual | Configurada y probada con llamadas reales, extras E1, E3 y E4 completos | 2 a 7 |
 | Router MikroTik RB750Gr3 (hEX) | VLAN, DHCP, NAT, firewall y QoS cargados (20/10). Faltan las pruebas y las mediciones | 8 |
 | Punto de acceso Mercusys MW325R | En modo AP con `CMH-Voz` en la VLAN 20 (20/10). Falta la captura del Wi-Fi | 9 |
+| Sesión de pruebas con el equipo | Pruebas 1 a 17 y 19 completas el 23/10. La 18 y la 20 con evidencia del 19 y 20/10 | 12 |
 
 > Las capturas están en la carpeta `capturas/` y no muestran contraseñas. Para verlas dentro de este documento se recomienda un visor de Markdown, por ejemplo GitHub o VS Code (**Ctrl+Shift+V**). Las extensiones de cada integrante y las pruebas por persona están en `GUIA-CELULARES.md`.
 
@@ -86,7 +87,7 @@ Registro visual de todo lo configurado en el proyecto, para el equipo y para la 
 
 ![Configuración del IVR principal](capturas/07-ivr-principal.png)
 
-> **Qué se hizo.** Se creó el IVR con la bienvenida como anuncio, **7 segundos** para marcar y hasta **2 intentos** ante una opción no válida. Si la persona se equivoca dos veces o no marca, la llamada pasa a la **operadora (1000)**. Opciones: 1 Recepción (grupo 8000), 2 Consulta Externa (cola 8010), 3 Enfermería (3001), 4 Administración (4001) y 0 operadora. Cumple §5.4 del PDF: tres o más opciones, operadora, opción inválida y falta de respuesta.
+> **Qué se hizo.** Se creó el IVR con la bienvenida como anuncio, **7 segundos** para marcar y hasta **2 intentos** ante una opción no válida. Si la persona se equivoca tres veces, o se queda sin marcar dos veces seguidas, la llamada pasa a la **operadora (1000)**. Opciones: 1 Recepción (grupo 8000), 2 Consulta Externa (cola 8010), 3 Enfermería (3001), 4 Administración (4001) y 0 operadora. Cumple §5.4 del PDF: tres o más opciones, operadora, opción inválida y falta de respuesta.
 
 **Figura 10. Número interno del IVR.** Ruta: *Applications → Misc Applications*
 
@@ -383,3 +384,70 @@ Configurado el 20/10. Está conectado a ether2 del hEX, así que todo lo que ent
 | 20/10 | Módulos y sistema al día. E4 completo con buzón por correo (Gmail). E3 completo con troncal sip2sip, llamada entrante al IVR y saliente con 9100 |
 | 20/10 | Scripts del router y procedimiento del AP adaptados al hEX RB750Gr3 y al MW325R (`plan/02`) |
 | 20/10 | hEX reseteado y actualizado a RouterOS 7.24.5. Scripts de VLAN, firewall y QoS cargados. AP en modo AP con `CMH-Voz`. Respaldo del router |
+| 23/10 | Sesión de pruebas con todo el equipo por Tailscale. Pruebas 1 a 17 y 19 completas. Capturas en la sección 12 |
+
+---
+
+## 12. Evidencia de la sesión de pruebas (23/10)
+
+**Cómo se hizo.** El 23/10, de 18:17 a 19:35, el equipo siguió el guion de la sección 6 de `GUIA-CELULARES.md`. Cada integrante usó su extensión desde su propia red, conectado por Tailscale. Las capturas de esta sección salen de la PBX al terminar la sesión y no muestran contraseñas.
+
+| Prueba | Qué se probó | Resultado | Evidencia |
+|---|---|---|---|
+| 1 | Las 9 extensiones registradas | Las 9 se registraron durante la sesión (MicroSIP en la laptop, Linphone en los celulares) | Figura 24 |
+| 2 | Llamadas entre áreas | 1000 a 2001, 3001 a 4001 y 5001 a 1001, contestadas | Figura 43 |
+| 3 y 4 | Llamada en espera desde laptop y celular | Música en espera y reanudación en los dos sentidos | Figura 43 |
+| 5 | Segunda llamada entrante | A las 18:45 la 1000 atendió a la 3001 sin perder a la 2001 y alternó entre las dos | Figura 43 |
+| 6 a 9 | Transferencias ciega y atendida, entre laptop y celulares | Las cuatro completadas (T1 18:37, T2 18:41, T3 18:48, T4 18:50) | Figuras 43 y 44 |
+| 10 y 11 | Buzón cuando no contestan y cuando está ocupado | Saludo de "no disponible" y saludo de "ocupado" de Recepción, distintos | Figuras 44, 45 y 48 |
+| 12 | Escuchar mensajes con \*97 | Leonardo escuchó el mensaje de Omar e Isaac los de Anthony | Figura 48 |
+| 13 | Recorrido del IVR (7000) | Opciones 1, 2, 3, 4 y 0 llegaron a su destino. La opción inválida y la falta de respuesta pasaron a la operadora | Figura 45 |
+| 14 | Grupo de timbrado 8000 | Sonaron 1000 y 1001 a la vez, contestó José | Figura 45 |
+| 15 | Cola 8010 con tres llamadas | La cola repartió las llamadas entre la 2001 y la 2002 | Figuras 46 y 47 |
+| 16 | Fuera de horario | El 7000 contestó con el menú de fuera de horario y la opción 3 llegó a Enfermería | Figura 46 |
+| 17 | Llamadas entre celulares | Las cuatro contestadas con audio en los dos sentidos | Figura 46 |
+| 18 | Acceso desde datos móviles (E1) | Probado el 19/10 | Figura 27 |
+| 19 | Historial de llamadas | Registro completo en el CDR | Figuras 43 a 46 |
+| 20 | Intentos de contraseña (fail2ban) | Ocurrió el 20/10, cuando un celular se configuró con la contraseña de otra extensión | Figura 49 |
+
+**Figura 43. Llamadas de 18:15 a 18:40.** Ruta: *Reports → CDR Reports*
+
+![CDR de 18:15 a 18:40](capturas/50a-sesion-cdr-1817-1840.png)
+
+> **Qué se ve.** Cada fila es una llamada, con la hora, quién llamó (*CallerID*), a dónde (*Destination*), cómo terminó (*Disposition*) y cuánto duró. Aquí están las pruebas 1 a 7. Las llamadas entre áreas, la llamada en espera, la segunda llamada entrante y las primeras dos transferencias. Una transferencia aparece como dos filas, la llamada original y el tramo hacia la extensión que recibió la transferencia.
+
+**Figura 44. Llamadas de 18:41 a 18:59.** Ruta: *Reports → CDR Reports*
+
+![CDR de 18:41 a 18:59](capturas/50b-sesion-cdr-1841-1859.png)
+
+> **Qué se ve.** Las transferencias entre celulares (pruebas 8 y 9) y las llamadas a la 1000 sin contestar. En esas la columna *App* dice **VoiceMail**, o sea que la llamada terminó en el buzón y quien llamó dejó un mensaje (prueba 10).
+
+**Figura 45. Llamadas de 19:00 a 19:27.** Ruta: *Reports → CDR Reports*
+
+![CDR de 19:00 a 19:27](capturas/50c-sesion-cdr-1900-1927.png)
+
+> **Qué se ve.** Las llamadas a la 1000 mientras estaba ocupada (prueba 11), las consultas al buzón con **\*97** (prueba 12), las siete llamadas al **7000** para recorrer el IVR (prueba 13) y las llamadas al grupo **8000** (prueba 14).
+
+**Figura 46. Llamadas de 19:28 a 19:35.** Ruta: *Reports → CDR Reports*
+
+![CDR de 19:28 a 19:35](capturas/50d-sesion-cdr-1928-1935.png)
+
+> **Qué se ve.** Las tres llamadas simultáneas a la cola **8010** (prueba 15), la llamada al 7000 en modo fuera de horario (prueba 16) y las cuatro llamadas entre celulares (prueba 17).
+
+**Figura 47. Estadísticas de la cola 8010.** Ruta: *Reports → Asterisk Info → Queues*
+
+![Estadísticas de la cola 8010](capturas/51-sesion-cola-8010.png)
+
+> **Qué se ve.** La cola registra **6 llamadas atendidas** (C:6) con estrategia *rrmemory*, que reparte por turnos. La 2001 (Clínica 1) tomó 5 y la 2002 (Clínica 2) tomó 1. Las 3 abandonadas (A:3) son las veces que alguien colgó mientras esperaba, al repetir la prueba. Los dos agentes aparecen *Unavailable* porque la captura se tomó cuando los celulares ya estaban desconectados.
+
+**Figura 48. Buzones de voz.** Ruta: *Reports → Asterisk Info → Voicemail*
+
+![Buzones con sus mensajes nuevos](capturas/52-sesion-buzones.png)
+
+> **Qué se ve.** Los 4 buzones configurados y sus mensajes nuevos. La **1000** (Recepción) tiene los mensajes que se dejaron en la prueba 10. La **2001** tiene 0 nuevos porque Leonardo ya escuchó el de Omar con \*97 (prueba 12), y al escucharlo el mensaje pasa a la carpeta de leídos.
+
+**Figura 49. Intentos de registro fallidos.** Ruta: *Reports → System Logfiles → fail2ban*
+
+![Registro de intentos fallidos de la 1001](capturas/53-intentos-fallidos-1001-20oct.png)
+
+> **Qué se ve.** Es el archivo que vigila fail2ban. El 20/10, a las 12:34 y 12:47, un celular intentó registrarse como la **1001** con una contraseña equivocada. Cada intento queda como *Failed to authenticate* con la IP de origen. Al pasar de 5 intentos en 10 minutos, fail2ban bloqueó ese equipo durante 30 minutos. Es la misma protección que pide la prueba 20.

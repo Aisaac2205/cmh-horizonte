@@ -131,7 +131,7 @@ Grábenlas con voz clara, en un lugar silencioso, a ritmo pausado. Formato: WAV 
 | Llamar al 7000 desde la laptop 4001 | Se escucha la bienvenida completa y clara |
 | Marcar 1, 2, 3, 4 (una llamada por opción) | Llega a la extensión correcta |
 | Marcar 0 | Llega a la operadora 1000 |
-| Marcar 8 (inválida) dos veces | Escucha "opción no válida" y luego pasa a la operadora |
+| Marcar 8 (inválida) tres veces | Escucha "opción no válida" y luego pasa a la operadora |
 | No marcar nada | Tras el tiempo de espera pasa a la operadora |
 | Marcar 2002 directo | Llega a la extensión 2002 (direct dial) |
 | Repetir desde un **móvil** | Igual |

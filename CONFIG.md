@@ -86,12 +86,43 @@ O en VirtualBox: **Stop → ACPI Shutdown**. Usar *Power Off* solo si la VM no r
 | Música en espera | *Settings → Music on Hold* | Categoría CMH |
 | Firewall | *Connectivity → Firewall* | Networks, Interfaces, Services, Responsive Firewall |
 | Respaldo | *Admin → Backup & Restore* | CMH-diario (2:00, guarda 7) |
-| Teléfonos registrados | *Reports → Asterisk Info* | Sección PJSIP, líneas *Contact* |
-| Llamadas y grabaciones | *Reports → CDR Reports* · *Reports → Call Recordings* | |
+| Teléfonos registrados | *Reports → Asterisk Info → Peers* | Líneas *Contact* con estado Avail |
+| Llamadas y grabaciones | *Reports → CDR Reports* (columna *Recording*) | *Call Recordings* es un módulo de pago, no se usa |
 | Registros del sistema | *Reports → System Logfiles* | |
 | Consola de Asterisk | *Admin → Asterisk CLI* | |
 
-> Navegar siempre con los menús. Escribir a mano una dirección con `&action=` muestra *"Potential Security Breach"*. Después de guardar cambios, tocar **Apply Config** (botón rojo arriba).
+### 4.1 Recorrido para la demostración, en orden
+
+Abrir cada dirección en el navegador con la sesión iniciada. Todas empiezan con `http://127.0.0.1:18080/admin/`. El orden sigue al de la GUIA-DEMO.
+
+| # | Dirección | Menú | Qué se muestra |
+|---|---|---|---|
+| 1 | `config.php?display=index` | Dashboard | Versión de FreePBX y servicios en verde (Asterisk, base de datos, fail2ban, firewall) |
+| 2 | `config.php?display=extensions` | Connectivity → Extensions | Las 9 extensiones de 4 dígitos. El primer dígito es el área |
+| 3 | `config.php?display=extensions&extdisplay=1000` | Extensions → 1000 | Pestaña *Advanced* con Direct Media en No. Pestaña *Voicemail* con el buzón activo |
+| 4 | `config.php?display=sipsettings` | Settings → Asterisk SIP Settings | Redes locales, rango de audio RTP 10000 a 20000 y códecs |
+| 5 | `config.php?display=featurecodeadmin` | Admin → Feature Codes | Códigos de espera (\*70, \*71), transferencia (##, \*2), buzón (\*97, \*98) y horario (\*271) |
+| 6 | `config.php?display=recordings` | Admin → System Recordings | Los 4 audios en español del IVR |
+| 7 | `config.php?display=soundlang` | Admin → Sound Languages | Español latinoamericano (es_419) por defecto |
+| 8 | `config.php?display=voicemail` | Settings → Voicemail Admin | Ajustes generales del buzón de voz |
+| 9 | `config.php?display=ivr` | Applications → IVR | IVR-Principal y IVR-FueraHorario. Al abrir uno se ven sus opciones 1, 2, 3, 4 y 0 |
+| 10 | `config.php?display=miscapps` | Applications → Misc Applications | El número 7000 que entra al IVR |
+| 11 | `config.php?display=timegroups` | Applications → Time Groups | Horario de atención, L a V 7:00 a 19:00 y sábado 7:00 a 12:00 |
+| 12 | `config.php?display=timeconditions` | Applications → Time Conditions | TC-Horario. Dentro de horario va al IVR principal y fuera al de fuera de horario |
+| 13 | `config.php?display=ringgroups` | Applications → Ring Groups | Grupo 8000, suenan 1000 y 1001 a la vez |
+| 14 | `config.php?display=queues` | Applications → Queues | Cola 8010 con los agentes 2001 y 2002 |
+| 15 | `config.php?display=music` | Settings → Music on Hold | Categoría CMH con la música propia |
+| 16 | `config.php?display=trunks` | Connectivity → Trunks | Troncal sip2sip (extra E3) |
+| 17 | `config.php?display=did` | Connectivity → Inbound Routes | La llamada que entra por la troncal va al IVR |
+| 18 | `config.php?display=routing` | Connectivity → Outbound Routes | Ruta de salida por la troncal |
+| 19 | `config.php?display=firewall` | Connectivity → Firewall | Pestañas Networks, Interfaces, Services y Responsive Firewall |
+| 20 | `config.php?display=weakpasswords` | Reports → Weak Password Detection | Sin contraseñas débiles |
+| 21 | `config.php?display=backup` | Admin → Backup & Restore | Respaldo diario CMH-diario |
+| 22 | `config.php?display=asteriskinfo&module=peers` | Reports → Asterisk Info → Peers | Teléfonos registrados con su IP. En el menú de la derecha también están *Voicemail* (mensajes por buzón) y *Registries* (troncal sip2sip) |
+| 23 | `config.php?display=cdr` | Reports → CDR Reports | Historial de llamadas. Tocar *Search* para ver las del día. Las llamadas de la 1000 se escuchan con el botón de la columna *Recording* |
+| 24 | `config.php?display=asteriskinfo&module=queues` | Reports → Asterisk Info → Queues | Estadísticas de la cola 8010, llamadas atendidas por agente |
+| 25 | `config.php?display=logfiles` | Reports → System Logfiles | Registros para auditoría. `full` tiene todo lo de Asterisk y `fail2ban` los intentos de registro |
+> Las direcciones de la tabla 4.1 se pueden escribir a mano. Lo que no se debe escribir es una dirección con `&action=`, porque muestra *"Potential Security Breach"*. Para editar algo, entrar desde la lista con el ícono de lápiz. Después de guardar cambios, tocar **Apply Config** (botón rojo arriba).
 
 ---
 

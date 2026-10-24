@@ -51,7 +51,7 @@
 | FUN-12 | IVR bienvenida | Llamar al 7000 | Laptop | Mensaje claro en español | | | |
 | FUN-13 | IVR opciones 1–4 | Recorrer cada opción | Laptop y móvil | Destino correcto | | | |
 | FUN-14 | IVR operadora | Marcar 0 | Móvil | Llega a 1000 | | | |
-| FUN-15 | IVR opción inválida | Marcar 8 dos veces | Laptop | Mensaje de error → operadora | | | |
+| FUN-15 | IVR opción inválida | Marcar 8 tres veces | Laptop | Mensaje de error → operadora | | | |
 | FUN-16 | IVR sin respuesta | No marcar | Móvil | Pasa a la operadora | | | |
 
 ### 1.4 Terminales (criterio E)
