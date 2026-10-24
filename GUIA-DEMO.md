@@ -240,7 +240,31 @@ Los teléfonos usados son **MicroSIP** en laptop y **Linphone** en celulares. La
 
 > **Por qué el 9100 no es una ruta saliente.** Las rutas salientes de FreePBX solo aceptan dígitos en sus patrones, y las direcciones de sip2sip son alfanuméricas. FreePBX deformaba el nombre de la cuenta, así que el 9100 se escribió como plan de marcado propio que usa la misma troncal. Con un proveedor de pago que entregue números telefónicos sería una ruta saliente normal con prefijo 9.
 
-> **Prueba del 20/10.** *Entrante (15:18):* el celular con `cmh-orizonte-ext`, por datos móviles, llamó a `cmh-horizonte`. Entró por la troncal, pasó por el horario, contestó el **IVR-Principal** y la llamada se transfirió a la **1000**. *Saliente (15:18):* la 1000 marcó **9100** y sonó el celular externo. *Capturas pendientes: troncal registrada, ruta entrante y CDR de las dos llamadas.*
+> **Prueba del 20/10.** *Entrante (15:18):* el celular con `cmh-orizonte-ext`, por datos móviles, llamó a `cmh-horizonte`. Entró por la troncal, pasó por el horario, contestó el **IVR-Principal** y la llamada se transfirió a la **1000**. *Saliente (15:18):* la 1000 marcó **9100** y sonó el celular externo.
+
+**Figura 27a. Troncal sip2sip.** Ruta: *Connectivity → Trunks*
+
+![Troncal sip2sip activa](capturas/25-e3-troncal-lista.png)
+
+> **Qué se ve.** La troncal **sip2sip**, de tipo PJSIP, está habilitada (*Enabled*). Es la conexión de la PBX con el proveedor SIP externo.
+
+**Figura 27b. Registro de la troncal.** Ruta: *Reports → Asterisk Info → Registries*
+
+![Troncal registrada en sip2sip.info](capturas/26-e3-troncal-registrada.png)
+
+> **Qué se ve.** La PBX está **Registered** en `sip2sip.info:5060` con la cuenta `sip2sip`. Eso significa que el proveedor sabe dónde está la PBX y le puede entregar llamadas. El registro se renueva solo antes de vencer.
+
+**Figura 27c. Ruta entrante.** Ruta: *Connectivity → Inbound Routes*
+
+![Ruta entrante hacia TC-Horario](capturas/27-e3-ruta-entrante.png)
+
+> **Qué se ve.** La ruta **Entrante sip2sip (E3)** acepta cualquier número (*Any*) y manda la llamada a la condición horaria **TC-Horario**. Así, quien llama desde afuera escucha el mismo IVR que la 7000, con el horario de atención aplicado.
+
+**Figura 27d. Llamadas por la troncal.** Ruta: *Reports → CDR Reports* (20/10, de 15:00 a 15:40)
+
+![CDR de las llamadas por la troncal](capturas/28-e3-cdr-troncal.png)
+
+> **Qué se ve.** A las 15:06 la 1000 marcó **9100** y el celular externo contestó (28 segundos, *ANSWERED*). A las 15:18 entró una llamada desde `cmh-orizonte-ext` hacia la línea `cmh-horizonte`. Pasó por el IVR, se eligió la opción 1 y la contestó el grupo de Recepción (**8000**). La última fila es un segundo intento de salida que no se contestó.
 
 **Limitaciones para el informe.** No se puede llamar a teléfonos de la red pública (PSTN) sin un proveedor de pago, la calidad depende de internet y del servicio gratuito, y la PBX queda detrás de NAT (doble NAT con el router). sip2sip resuelve el NAT del lado del proveedor.
 

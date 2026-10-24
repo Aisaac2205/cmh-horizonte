@@ -260,14 +260,14 @@ Si el archivo ya existe, moverlo antes o usar otro nombre.
 | A. Investigación y selección | 8 | 🟢 | 🟡 Tablas comparativas | Costos y fuentes en APA |
 | B. Diseño y segmentación | 17 | 🟢 VLAN, DHCP, NAT y firewall cargados en el hEX. AP con `CMH-Voz` (20/10) | 🟡 iPhone en la VLAN 20 | Probar la matriz de ACL con equipos en ether3, ether4 y ether5 |
 | C. PBX virtual | 15 | 🟢 | 🟢 | Nada. Módulos y sistema al día (20/10) |
-| D. Funcionalidades | 18 | 🟢 | 🟡 IVR probado | Sesión de pruebas conjunta (`GUIA-CELULARES.md`, sección 6) |
-| E. Terminales | 10 | 🟢 Extensiones asignadas | 🟡 | Sesión de pruebas y llamadas entre VLAN con el router |
+| D. Funcionalidades | 18 | 🟢 | 🟢 Sesión de pruebas del 23/10 (GUIA-DEMO, sección 12) | Nada |
+| E. Terminales | 10 | 🟢 Extensiones asignadas | 🟡 9 extensiones y llamadas entre laptop y celulares (23/10) | Llamadas entre VLAN con el router |
 | F. QoS | 15 | 🟢 Marcado DSCP y colas cargados en el hEX (20/10) | 🔴 | Medir con y sin QoS. Ajustar `q-wan` a la subida real |
 | G. Documentación | 12 | No aplica | 🟡 | Informe, resumen ejecutivo, guía de usuario de 1 página, matriz llena |
 | H. Presentación | 5 | No aplica | 🔴 | Ensayo y video de respaldo |
 | E1. Red pública | 8 | 🟢 | 🟡 Llamada 5002 → 1000 | Captura del celular sin Wi-Fi y llamada 1000 → 5002 |
-| E3. Troncal SIP | 5 | 🟢 Troncal registrada, entrante y 9100 | 🟡 Llamadas probadas el 20/10 | Capturas de la troncal y del CDR |
-| E4. Funciones avanzadas | 4 | 🟢 5 de 5 (buzón por correo el 20/10) | 🟡 | Capturas del correo y pruebas de grupo y cola con el equipo |
+| E3. Troncal SIP | 5 | 🟢 Troncal registrada, entrante y 9100 | 🟢 Figuras 27a a 27d | Nada |
+| E4. Funciones avanzadas | 4 | 🟢 5 de 5 (buzón por correo el 20/10) | 🟡 Grupo y cola probados el 23/10 | Captura del correo recibido |
 
 🟢 listo · 🟡 avanzado · 🔴 por empezar
 
@@ -278,9 +278,9 @@ Si el archivo ya existe, moverlo antes o usar otro nombre.
 | # | Tarea | Necesita |
 |---|---|---|
 | 1 | Probar la matriz de ACL y medir la QoS con y sin prioridad (`plan/02` y `plan/06`). Ajustar `q-wan` con un speedtest | Internet en ether1 (tercer cable), una laptop de TI en ether3 y un equipo en ether4 |
-| 2 | Sesión de pruebas conjunta y matriz (archivo 09), ya con el router, para incluir las llamadas entre VLAN | Los 8 integrantes con su extensión (`GUIA-CELULARES.md`) |
+| 2 | Llamadas entre VLAN con el router. Las demás pruebas ya se hicieron el 23/10 | Isaac y un compañero con laptop en ether4 |
 | 3 | E1: captura del celular sin Wi-Fi y llamada 1000 → 5002. Confirmar *Disable key expiry* en Tailscale | iPhone |
-| 4 | Capturas de E3 (troncal, ruta entrante, CDR) y de E4 (correo recibido) para `GUIA-DEMO.md` | FreePBX y la cuenta de Gmail |
+| 4 | Captura del correo del buzón (E4). Los avisos del 23/10 están en cola porque la red de casa bloquea el puerto 587. Salen solos al conectar la laptop al hotspot | Hotspot y la cuenta de Gmail |
 | 5 | Informe, resumen ejecutivo, guía de usuario y presentación | Todo lo anterior |
 
-Hecho el 20/10: actualizar módulos, E4 por correo, E3 con sip2sip, adaptar el plan 02 y los scripts al hEX y al AP, cargar los tres scripts en el hEX, configurar el AP y respaldar el router.
+Hecho el 23/10: sesión de pruebas con el equipo (pruebas 1 a 17) y capturas de E3. Hecho el 20/10: actualizar módulos, E4 por correo, E3 con sip2sip, adaptar el plan 02 y los scripts al hEX y al AP, cargar los tres scripts en el hEX, configurar el AP y respaldar el router.
