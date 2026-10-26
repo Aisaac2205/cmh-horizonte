@@ -53,8 +53,8 @@
    AP Mercusys MW325R      Laptop TI   Laptop con  Laptop de
    (modo AP, SSID CMH-Voz)            softphone   prueba
    └ puerto LAN: laptop host          + iperf3
-       ├ VM FreePBX 192.168.20.10
-       ├ iperf3 srv 192.168.20.20
+       ├ VM FreePBX 172.16.20.10
+       ├ iperf3 srv 172.16.20.20
        └ Puerto interno de gestión de la VM (NAT de VirtualBox, solo 127.0.0.1 de la laptop host)
 
    Wi-Fi 2.4 GHz: CMH-Voz (VLAN 20). El AP no maneja VLAN, por eso hay un solo SSID.
@@ -129,7 +129,7 @@ VM FreePBX (03) ──► Extensiones (03) ─────┘          │      
 |---|---|---|---|---|
 | **Jue 15** | 0. Arranque | Asignar roles, crear carpeta compartida y bitácora, leer el plan | Todos | Roles en tabla §3 |
 | **Jue 15 – Vie 16** | 1. Preparación en paralelo | Ver tabla §4.1 | Cada rol | VM FreePBX funcionando; scripts listos; cuentas creadas |
-| **Sáb 17** | **INTEGRACIÓN 1** (presencial, ~4 h) | Router configurado (scripts 1 y 2), PBX a 192.168.20.10, softphones registrados en distintas VLAN, primeras llamadas | Todos | Llamadas entre VLAN funcionando |
+| **Sáb 17** | **INTEGRACIÓN 1** (presencial, ~4 h) | Router configurado (scripts 1 y 2), PBX a 172.16.20.10, softphones registrados en distintas VLAN, primeras llamadas | Todos | Llamadas entre VLAN funcionando |
 | **Dom 18 – Mar 20** | 2. Funciones y extras | IVR, buzón, transferencias, seguridad, E1, E3, E4 | Roles 3, 4, 5, 7, 8 | Funciones demostrables |
 | **Mié 21** | **INTEGRACIÓN 2** (presencial, ~4 h) | Script 3 (QoS), mediciones con y sin QoS, prueba E1 con datos móviles, pruebas de seguridad | Todos | Tabla de mediciones completa |
 | **Jue 22 – Vie 23** | 3. Pruebas y evidencias | Ejecutar la matriz de pruebas completa, capturas, respaldos finales. **Congelar la configuración el viernes 23** | Roles 9 + todos | Matriz de pruebas 100 % |
@@ -164,7 +164,7 @@ VM FreePBX (03) ──► Extensiones (03) ─────┘          │      
 | Área | Está terminada cuando… |
 |---|---|
 | Red | Cada puerto y SSID entrega IP de su VLAN; la matriz de ACL se cumple; existe el `/export` sin contraseñas |
-| PBX | FreePBX en 192.168.20.10, actualizada, administración solo desde Gestión y el puerto interno de gestión, ≥ 8 extensiones, CDR activo, respaldo descargado |
+| PBX | FreePBX en 172.16.20.10, actualizada, administración solo desde Gestión y el puerto interno de gestión, ≥ 8 extensiones, CDR activo, respaldo descargado |
 | Funcionalidades | Las 5 funciones (4 dígitos, espera, transferencia ciega y atendida, buzón, IVR) probadas desde laptop **y** móvil |
 | Terminales | ≥ 4 extensiones registradas a la vez, llamadas escritorio↔móvil, escritorio↔escritorio, móvil↔móvil y entre VLAN; guía rápida lista |
 | QoS | Tabla con latencia, jitter y pérdida en 3 escenarios (base, sin QoS, con QoS), con la pérdida medida **en la PBX**, + capturas de Wireshark con DSCP EF/CS3 |

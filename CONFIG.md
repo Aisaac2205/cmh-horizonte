@@ -19,7 +19,7 @@ Instrucciones directas para operar la PBX desde la laptop host. Lo realizado, co
 | SSH | `ssh -i "$env:USERPROFILE\.ssh\cmh_pbx_ed25519" -p 2222 cmhadmin@127.0.0.1` |
 | `sudo` en la VM | Pide la contraseña de `cmhadmin` |
 | IP por Tailscale (fija) | **100.91.176.16** |
-| IP local de la PBX | Cambia según la red (sección 3). Con el router será **192.168.20.10** |
+| IP local de la PBX | Cambia según la red (sección 3). Con el router será **172.16.20.10** |
 | Adaptador 1 de la VM | Puente a la tarjeta de red de la laptop (Wi-Fi o Ethernet) |
 | Adaptador 2 de la VM | Puerto interno de gestión (NAT 10.0.2.0/24). Da el acceso por `127.0.0.1:18080` y `127.0.0.1:2222` en cualquier red |
 | Respaldo completo | `CMH-FreePBX-final.ova` (19/10, SHA-256 `2ced3421c486248875cf927fd29bdd010fb0d96829dd4e31769afe0097513d21`) |
@@ -140,7 +140,7 @@ Abrir cada dirección en el navegador con la sesión iniciada. Todas empiezan co
 | 5001 | Romeo | No |
 | 5002 | Isaac Sarceño (iPhone, E1) | No |
 
-- **Dominio por Tailscale:** `100.91.176.16`. **Con el router:** `192.168.20.10`. Transporte UDP.
+- **Dominio por Tailscale:** `100.91.176.16`. **Con el router:** `172.16.20.10`. Transporte UDP.
 - **MicroSIP:** la cuenta está en `%APPDATA%\MicroSIP\microsip.ini`.
 - **Linphone en iOS** solo recibe llamadas con la app abierta en pantalla.
 - Configuración de los celulares y guion de pruebas en `GUIA-CELULARES.md`.
@@ -224,9 +224,9 @@ Si el archivo ya existe, moverlo antes o usar otro nombre.
    & "$env:ProgramFiles\Oracle\VirtualBox\VBoxManage.exe" modifyvm CMH-FreePBX --bridgeadapter1 "Realtek PCIe GbE Family Controller"
    ```
 3. Conectar la laptop host por cable a un **puerto LAN del AP MW325R**, que cuelga de ether2 del hEX (VLAN 20, Voz). Encender la VM.
-4. La PBX recibe **192.168.20.10** por la reserva DHCP del hEX (MAC `08:00:27:A5:DA:0A`). No hace falta IP fija. Si el cable se conecta con la VM encendida, el vigilante de red pide la IP nueva en menos de un minuto.
-5. Comprobar con `ip -br -4 addr` y `ip route` que hay **una sola** ruta por defecto, por `192.168.20.1`.
-6. En MicroSIP y en los celulares conectados a `CMH-Voz`, cambiar el dominio a **`192.168.20.10`** y desactivar Tailscale.
+4. La PBX recibe **172.16.20.10** por la reserva DHCP del hEX (MAC `08:00:27:A5:DA:0A`). No hace falta IP fija. Si el cable se conecta con la VM encendida, el vigilante de red pide la IP nueva en menos de un minuto.
+5. Comprobar con `ip -br -4 addr` y `ip route` que hay **una sola** ruta por defecto, por `172.16.20.1`.
+6. En MicroSIP y en los celulares conectados a `CMH-Voz`, cambiar el dominio a **`172.16.20.10`** y desactivar Tailscale.
 7. Respaldo, solo si la reserva DHCP falla: `sudo bash /root/cmh-ip-estatica.sh` fija la IP y `sudo bash /root/cmh-ip-dhcp.sh` la devuelve a DHCP.
 
 > **Router y AP.** Puertos del hEX: ether1 internet, ether2 Voz (AP y, detrás del AP, la laptop host), ether3 Gestión, ether4 Administrativa, ether5 Invitados. Procedimiento completo en `plan\02_RED_MIKROTIK_HEX_Y_AP.md`.

@@ -86,33 +86,33 @@ Con la PBX instalada y actualizada (antes de crear extensiones):
 
 ## Paso 5. IP estática en la VLAN de voz (al integrar)
 
-Opción de respaldo. Lo normal es que la PBX reciba **192.168.20.10** por la reserva DHCP del hEX (archivo 02). Si se prefiere IP fija, cuando la laptop host ya esté en la VLAN 20, editar `/etc/network/interfaces` (ver los nombres con `ip link`; suelen ser `enp0s3` para el adaptador 1 y `enp0s8` para el adaptador 2):
+Opción de respaldo. Lo normal es que la PBX reciba **172.16.20.10** por la reserva DHCP del hEX (archivo 02). Si se prefiere IP fija, cuando la laptop host ya esté en la VLAN 20, editar `/etc/network/interfaces` (ver los nombres con `ip link`; suelen ser `enp0s3` para el adaptador 1 y `enp0s8` para el adaptador 2):
 
 ```
 auto enp0s3
 iface enp0s3 inet static
-    address 192.168.20.10/24
-    gateway 192.168.20.1
-    dns-nameservers 192.168.20.1
+    address 172.16.20.10/24
+    gateway 172.16.20.1
+    dns-nameservers 172.16.20.1
 
 # Puerto interno de gestion (adaptador 2, NAT de VirtualBox). SIN gateway.
 auto enp0s8
 iface enp0s8 inet static
     address 10.0.2.15/24
 ```
-> El adaptador 2 **no lleva gateway**. Si lo tuviera, la PBX sacaría su tráfico por el NAT de VirtualBox y no por el router, y la QoS dejaría de verse. Si usan `/root/cmh-ip-estatica.sh`, revisen con `ip -4 addr` y `ip route` que queden las dos interfaces y una sola ruta por defecto (por 192.168.20.1).
+> El adaptador 2 **no lleva gateway**. Si lo tuviera, la PBX sacaría su tráfico por el NAT de VirtualBox y no por el router, y la QoS dejaría de verse. Si usan `/root/cmh-ip-estatica.sh`, revisen con `ip -4 addr` y `ip route` que queden las dos interfaces y una sola ruta por defecto (por 172.16.20.1).
 ```bash
 systemctl restart networking
-ping -c 3 192.168.20.1
+ping -c 3 172.16.20.1
 ping -c 3 1.1.1.1
 ```
-Si `dns-nameservers` no aplica, editar `/etc/resolv.conf` con `nameserver 192.168.20.1`.
+Si `dns-nameservers` no aplica, editar `/etc/resolv.conf` con `nameserver 172.16.20.1`.
 
-- [ ] La interfaz web abre en `http://192.168.20.10` **desde la laptop de GESTION** (ether3).
+- [ ] La interfaz web abre en `http://172.16.20.10` **desde la laptop de GESTION** (ether3).
 - [x] La interfaz web abre en `http://127.0.0.1:18080` **desde la laptop host** (puerto interno de gestión). *(hecho 17/10)*
-- [ ] `ip route` en la VM muestra **una sola** ruta por defecto, por 192.168.20.1.
+- [ ] `ip route` en la VM muestra **una sola** ruta por defecto, por 172.16.20.1.
 
-**Laptop host (Windows):** a su tarjeta Ethernet asignarle IP fija **192.168.20.20/24**, gateway 192.168.20.1, DNS 192.168.20.1. Será el servidor iperf3 en las pruebas de QoS.
+**Laptop host (Windows):** a su tarjeta Ethernet asignarle IP fija **172.16.20.20/24**, gateway 172.16.20.1, DNS 172.16.20.1. Será el servidor iperf3 en las pruebas de QoS.
 
 ---
 
@@ -122,7 +122,7 @@ Si `dns-nameservers` no aplica, editar `/etc/resolv.conf` con `nameserver 192.16
 | Campo | Valor |
 |---|---|
 | External Address | Botón **Detect Network Settings** (necesario para la troncal E3) |
-| Local Networks | `192.168.0.0/16` y `100.64.0.0/10` (red de Tailscale, E1) |
+| Local Networks | `172.16.0.0/12` (las VLAN en clase B) y `100.64.0.0/10` (red de Tailscale, E1) |
 | RTP Port Ranges | Start `10000` · End `20000` |
 | Allow Anonymous Inbound SIP Calls | **No** |
 | Allow SIP Guests | **No** |
@@ -209,7 +209,7 @@ asterisk -rx "pjsip show channelstats"   # jitter, pérdida y RTT por llamada (Q
 ## Lista de verificación final (PBX)
 - [ ] Debian 12 + FreePBX 17 instalados; versiones documentadas
 - [ ] Módulos actualizados; idioma español *(idioma listo el 17/10: español latino `es_419`. Faltan los módulos, requieren Wi-Fi)*
-- [ ] IP estática 192.168.20.10; navegación y DNS funcionando
+- [ ] IP estática 172.16.20.10; navegación y DNS funcionando
 - [x] Ajustes SIP: redes locales, RTP 10000–20000, códecs, sin invitados anónimos *(hecho 17/10)*
 - [x] 9 extensiones con contraseñas robustas y Direct Media = No *(hecho 17/10)*
 - [x] CDR y logs funcionando *(hecho 17/10)*

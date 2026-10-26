@@ -20,7 +20,7 @@
 
 ### 1.2 Servicios expuestos mínimos y firewall
 **Router (ya aplicado con el script 2):**
-- [ ] Telnet, FTP, www, API deshabilitados; Winbox y SSH solo desde 192.168.10.0/24 y el puerto de rescate.
+- [ ] Telnet, FTP, www, API deshabilitados; Winbox y SSH solo desde 172.16.10.0/24 y el puerto de rescate.
 - [ ] Input desde la WAN: todo descartado.
 - [ ] Matriz de ACL entre VLAN (archivo 01, sección 3).
 
@@ -30,10 +30,10 @@
 2. Pestaña **Networks**:
    | Red | Zona |
    |---|---|
-   | 192.168.10.0/24 (GESTION) | **Trusted** |
+   | 172.16.10.0/24 (GESTION) | **Trusted** |
    | 10.0.2.2/32 (puerto interno de gestión, laptop host) | **Trusted** |
-   | 192.168.20.0/24 (VOZ) | Local |
-   | 192.168.30.0/24 (ADMIN) | Local |
+   | 172.16.20.0/24 (VOZ) | Local |
+   | 172.16.30.0/24 (ADMIN) | Local |
    | 100.64.0.0/10 (Tailscale, E1) | Local |
 3. Pestaña **Services**:
    | Servicio | Zonas permitidas |
@@ -52,7 +52,7 @@
 ### 1.3 Protección contra intentos repetidos y escaneo
 - [x] **Connectivity → Firewall → Intrusion Detection**: habilitado (fail2ban). *(17/10: la pestaña no existe en esta versión. Fail2ban está activo por consola, ver `CONFIG.md`, Paso 10)*
   - Ban time: 1800 s · Max retry: 5 · Find time: 600 s.
-  - Whitelist: 192.168.10.0/24 y 10.0.2.2 (para que TI no se bloquee a sí mismo).
+  - Whitelist: 172.16.10.0/24 y 10.0.2.2 (para que TI no se bloquee a sí mismo).
 - [x] Verificar el servicio: `fail2ban-client status` (en la consola de la PBX). *(hecho 17/10)*
 - [x] **Asterisk SIP Settings**: *Allow SIP Guests = No*, *Allow Anonymous Inbound SIP Calls = No* (archivo 03). *(hecho 17/10)*
 
@@ -91,20 +91,20 @@ systemctl restart ssh
 
 | # | Prueba | Desde | Comando / acción | Resultado esperado |
 |---|---|---|---|---|
-| S1 | Descubrimiento desde invitados | Laptop en ether5 (VLAN 40) | `nmap -sn 192.168.20.0/24` y `192.168.30.0/24` | 0 hosts encontrados |
-| S2 | Puertos de la PBX desde ADMIN | Laptop ADMIN | `nmap -Pn -p 22,80,443 192.168.20.10` | Todos *filtered* |
-| S3 | SIP desde ADMIN | Laptop ADMIN | `nmap -Pn -sU -p 5060 192.168.20.10` | *open* o *open\|filtered* (permitido) |
-| S4 | Administración web desde VOZ | Celular en CMH-Voz | Abrir `http://192.168.20.10` | No abre (lo bloquea el firewall de FreePBX) |
+| S1 | Descubrimiento desde invitados | Laptop en ether5 (VLAN 40) | `nmap -sn 172.16.20.0/24` y `172.16.30.0/24` | 0 hosts encontrados |
+| S2 | Puertos de la PBX desde ADMIN | Laptop ADMIN | `nmap -Pn -p 22,80,443 172.16.20.10` | Todos *filtered* |
+| S3 | SIP desde ADMIN | Laptop ADMIN | `nmap -Pn -sU -p 5060 172.16.20.10` | *open* o *open\|filtered* (permitido) |
+| S4 | Administración web desde VOZ | Celular en CMH-Voz | Abrir `http://172.16.20.10` | No abre (lo bloquea el firewall de FreePBX) |
 | S5 | Fuerza bruta SIP | Laptop ADMIN | Configurar un softphone con contraseña **incorrecta** y forzar 6 registros | La IP aparece **bloqueada** en Intrusion Detection; después se desbloquea |
-| S6 | Router desde ADMIN | Laptop ADMIN | `nmap -Pn -p 21,22,23,80,8291 192.168.30.1` | Todos *filtered* |
+| S6 | Router desde ADMIN | Laptop ADMIN | `nmap -Pn -p 21,22,23,80,8291 172.16.30.1` | Todos *filtered* |
 | S7 | Router desde internet | Celular con datos móviles | Escanear la IP pública (si hay IP pública directa) o documentar que no se publica ningún puerto | Sin servicios expuestos |
 | S8 | Auto-priorización de invitados | Laptop en VLAN 40 | Navegar o hacer un speedtest y revisar `/ip firewall mangle print stats` en el router | El contador de la regla "QoS: invitados DSCP=0" sube: todo lo de invitados se re-marca a 0 (frontera de confianza) |
-| S9 | Puerto interno de gestión desde la red | Laptop GESTION o ADMIN | `nmap -Pn -p 2222,18080 192.168.20.20` | Todos *closed* o *filtered*: los reenvíos solo escuchan en 127.0.0.1 de la laptop host |
+| S9 | Puerto interno de gestión desde la red | Laptop GESTION o ADMIN | `nmap -Pn -p 2222,18080 172.16.20.20` | Todos *closed* o *filtered*: los reenvíos solo escuchan en 127.0.0.1 de la laptop host |
 
 Para S5, revisar después:
 ```bash
 fail2ban-client status
-fail2ban-client set asterisk unbanip 192.168.30.1xx
+fail2ban-client set asterisk unbanip 172.16.30.1xx
 ```
 (El nombre exacto de la *jail* aparece en `fail2ban-client status`.)
 

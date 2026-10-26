@@ -10,14 +10,14 @@
 
 1. Se crea un **cuello de botella artificial de 2 Mbps** en la salida del router hacia la VLAN de voz (y otro hacia la VLAN ADMIN para el sentido contrario).
 2. Una laptop de la VLAN ADMIN hace una **llamada de voz** (prueba de eco `*43`, el audio va y vuelve por la PBX).
-3. La misma laptop de la VLAN ADMIN (el hEX tiene un solo puerto ADMIN) **satura los dos sentidos** con iperf3: 20 Mbps UDP hacia 192.168.20.20 y 20 Mbps de regreso (`-R`).
+3. La misma laptop de la VLAN ADMIN (el hEX tiene un solo puerto ADMIN) **satura los dos sentidos** con iperf3: 20 Mbps UDP hacia 172.16.20.20 y 20 Mbps de regreso (`-R`).
 4. Se mide **latencia, jitter y pérdida** en 3 escenarios: **base** (sin saturación), **saturado sin QoS** y **saturado con QoS**.
 5. **La pérdida se mide en la PBX**, no en la laptop. El eco (`*43`) devuelve el audio con su propia numeración RTP. Si se pierden paquetes de ida, el flujo de vuelta llega sin huecos y Wireshark en la laptop marcaría 0 % de pérdida aunque la voz se corte. Por eso se usan `pjsip show channelstats` (columna RX) y una captura con `tcpdump` en la VM.
 
 ```
- Laptop ADMIN (4001, llamada *43) ──┐                        ┌──► VM FreePBX 192.168.20.10
+ Laptop ADMIN (4001, llamada *43) ──┐                        ┌──► VM FreePBX 172.16.20.10
                                     ├──► hEX ─────[2 Mbps]───┤
- misma laptop (iperf3 cliente) ─────┘   (cola por prioridad)  └──► Host iperf3 192.168.20.20
+ misma laptop (iperf3 cliente) ─────┘   (cola por prioridad)  └──► Host iperf3 172.16.20.20
 ```
 > ¿Por qué entre VLAN? El tráfico **dentro** de la misma VLAN se conmuta en el bridge y no pasa por las colas IP del router. El tráfico **entre** VLAN sí se enruta, se marca y se encola. Por eso la llamada medida sale de la VLAN ADMIN.
 
@@ -27,8 +27,8 @@
 
 | Clase | Identificación | DSCP (marca) | Packet-mark | Prioridad | Garantía (limit-at) |
 |---|---|---|---|---|---|
-| 1. Medios de voz | UDP 10000–20000 desde/hacia 192.168.20.10 | **EF (46)** | `pm-ef` | **1** | 512 kbps |
-| 2. Señalización | UDP 5060 desde/hacia 192.168.20.10 | **CS3 (24)** | `pm-cs3` | 2 | 64 kbps |
+| 1. Medios de voz | UDP 10000–20000 desde/hacia 172.16.20.10 | **EF (46)** | `pm-ef` | **1** | 512 kbps |
+| 2. Señalización | UDP 5060 desde/hacia 172.16.20.10 | **CS3 (24)** | `pm-cs3` | 2 | 64 kbps |
 | 3. Datos críticos | Origen VLAN GESTION | AF21 (18) | `pm-af21` | 5 | — |
 | 4. Mejor esfuerzo | Todo lo demás | 0 | `pm-be` | 8 | — |
 | 5. Invitados | Origen VLAN 40 (DSCP re-escrito a 0) | 0 | `pm-guest` | 8 + **límite de 5 Mbps** | — |
@@ -97,7 +97,7 @@ add name=q-wan-be parent=q-wan packet-mark=pm-be,pm-guest priority=8 max-limit=5
 
 # --- Invitados: limite de ancho de banda ---
 /queue simple
-add name=q-invitados target=192.168.40.0/24 max-limit=5M/5M comment="INVITADOS max 5 Mbps"
+add name=q-invitados target=172.16.40.0/24 max-limit=5M/5M comment="INVITADOS max 5 Mbps"
 ```
 
 ### 3.1 Interruptor "sin QoS / con QoS" (pegar en New Terminal)
@@ -121,7 +121,7 @@ El marcado DSCP sigue activo en ambos casos. Lo único que cambia es si la cola 
 
 | Equipo | Rol | Configuración |
 |---|---|---|
-| Laptop host (puerto LAN del AP, 192.168.20.20) | Servidor iperf3 | Dos servidores, uno por sentido: `iperf3 -s -p 5201` y `iperf3 -s -p 5202` en dos ventanas (permitir en el Firewall de Windows) |
+| Laptop host (puerto LAN del AP, 172.16.20.20) | Servidor iperf3 | Dos servidores, uno por sentido: `iperf3 -s -p 5201` y `iperf3 -s -p 5202` en dos ventanas (permitir en el Firewall de Windows) |
 | Laptop ADMIN (ether4), ext. **4001** | Llamada medida y generador de saturación | MicroSIP + Wireshark + iperf3 cliente |
 | Laptop GESTION (ether3) | Control | Winbox (interruptor de QoS) + SSH a la PBX |
 | Laptop host (puerto interno) | Captura en la PBX | `ssh -p 2222 cmhadmin@127.0.0.1` para `tcpdump` y `channelstats` |
@@ -149,14 +149,14 @@ El marcado DSCP sigue activo en ambos casos. Lo único que cambia es si la cola 
    ```
    Anotar **RX Jitter, RX Loss % y RTT**. Las columnas **RX** son el audio que llega a la PBX desde la laptop, que es el que cruza la cola `q-voz`.
 4. Colgar y detener `tcpdump` (Ctrl+C). Copiar la captura a la laptop host: `scp -P 2222 cmhadmin@127.0.0.1:/tmp/qos-esc1-rep1.pcap .`
-5. En Wireshark, abrir esa captura: **Telefonía → RTP → Flujos RTP** → elegir el flujo **de la laptop A hacia 192.168.20.10** → **Analizar** → anotar *Max Jitter, Mean Jitter, Lost (%), Max Delta*.
+5. En Wireshark, abrir esa captura: **Telefonía → RTP → Flujos RTP** → elegir el flujo **de la laptop A hacia 172.16.20.10** → **Analizar** → anotar *Max Jitter, Mean Jitter, Lost (%), Max Delta*.
 6. La captura de la laptop A se usa como evidencia del **marcado DSCP** (sección 7), no para la pérdida.
 
 ### Escenario 2: SATURADO SIN QoS
 1. Pegar el comando **Sin QoS** (3.1).
 2. Laptop B, en dos ventanas a la vez:
-   - `iperf3 -c 192.168.20.20 -p 5201 -u -b 20M -t 90` (satura hacia VOZ)
-   - `iperf3 -c 192.168.20.20 -p 5202 -u -b 20M -t 90 -R` (satura hacia ADMIN)
+   - `iperf3 -c 172.16.20.20 -p 5201 -u -b 20M -t 90` (satura hacia VOZ)
+   - `iperf3 -c 172.16.20.20 -p 5202 -u -b 20M -t 90 -R` (satura hacia ADMIN)
 3. Mientras corren, laptop A llama a `*43` 60 s y se mide igual que en el escenario 1 (captura en la PBX con nombre `qos-esc2-repN.pcap`).
 4. Durante la prueba: captura de `/queue tree print stats` (se ve todo en `q-voz-fifo` y `q-admin-fifo` con *dropped*).
 

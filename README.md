@@ -52,7 +52,7 @@ cmh-horizonte/
 ## La solución en breve
 
 - **Red.** Un router físico **MikroTik RB750Gr3 (hEX)** separa la red en VLAN: 10 Gestión, 20 Voz, 30 Administrativa y 40 Invitados. Un punto de acceso **Mercusys MW325R** da el Wi-Fi para los celulares. Controla quién habla con quién (firewall entre VLAN) y le da prioridad a la voz (QoS, marcado EF).
-- **PBX.** **FreePBX 17.0.33 con Asterisk 22.11** sobre Debian 12.15, en una máquina virtual de VirtualBox. En la integración queda en la VLAN de Voz con la IP **192.168.20.10**.
+- **PBX.** **FreePBX 17.0.33 con Asterisk 22.11** sobre Debian 12.15, en una máquina virtual de VirtualBox. En la integración queda en la VLAN de Voz con la IP **172.16.20.10**.
 - **Telefonía.** 9 extensiones de 4 dígitos, IVR en español (marcando **7000**), grupo de timbrado **8000**, cola **8010**, condiciones de horario y 4 buzones con saludo personalizado.
 - **Teléfonos.** MicroSIP en laptops y Linphone en celulares.
 - **Extras.** E1 acceso desde red pública con Tailscale, E3 troncal SIP con sip2sip y E4 funciones avanzadas. E2 (SDN) no se implementa.

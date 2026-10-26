@@ -107,7 +107,7 @@ Solo si un integrante prefiere usar su laptop con Windows en lugar del celular. 
 
 En **macOS** se usa Linphone para escritorio (https://www.linphone.org) con los mismos datos de la tabla 4.1, junto con Tailscale para macOS.
 
-> **Dominio según el escenario.** Con Tailscale, desde cualquier red, el dominio es `100.91.176.16`. El día de la integración con el router, conectados a la red de la VLAN de Voz, el dominio cambia a **`192.168.20.10`** y Tailscale se desactiva. Así las llamadas cruzan el router y pasan por la QoS que se va a medir.
+> **Dominio según el escenario.** Con Tailscale, desde cualquier red, el dominio es `100.91.176.16`. El día de la integración con el router, conectados a la red de la VLAN de Voz, el dominio cambia a **`172.16.20.10`** y Tailscale se desactiva. Así las llamadas cruzan el router y pasan por la QoS que se va a medir.
 
 ### 4.3 Comprobación individual
 

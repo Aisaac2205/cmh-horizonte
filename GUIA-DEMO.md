@@ -23,7 +23,7 @@ Registro visual de todo lo configurado en el proyecto, para el equipo y para la 
 | Nombre del sistema | `CMH-PBX Centro Medico Horizonte` |
 | Extensiones | 9, de 4 dígitos, numeradas por área (1xxx Recepción, 2xxx Consulta Externa, 3xxx Enfermería y Emergencias, 4xxx Administración, 5xxx TI) |
 | Números especiales | 7000 IVR, 8000 grupo de Recepción, 8010 cola de Consulta Externa |
-| IP de la PBX con el router | 192.168.20.10 (VLAN 20, Voz) |
+| IP de la PBX con el router | 172.16.20.10 (VLAN 20, Voz) |
 | IP de la PBX por Tailscale | 100.91.176.16, fija desde cualquier red |
 | Idioma | Español latino (`es_419`), con respaldo en español estándar |
 
@@ -53,7 +53,7 @@ Registro visual de todo lo configurado en el proyecto, para el equipo y para la 
 
 ![Ajustes SIP con redes locales y rango RTP](capturas/04-ajustes-sip.png)
 
-> **Qué se hizo.** Se dejaron en **No** las llamadas anónimas y los invitados, para que nadie use la PBX sin usuario y contraseña. En *Local Networks* se declararon las redes del proyecto (192.168.0.0/16 para las VLAN, 100.64.0.0/10 para Tailscale y 172.16.0.0/12 para pruebas), así Asterisk identifica qué teléfonos están en la red interna. Abajo está el rango de puertos del audio (RTP 10000 a 20000), el mismo que usan las reglas del router. Los códecs habilitados son ulaw, alaw, g722 y opus.
+> **Qué se hizo.** Se dejaron en **No** las llamadas anónimas y los invitados, para que nadie use la PBX sin usuario y contraseña. En *Local Networks* se declararon las redes del proyecto (172.16.0.0/12 para las VLAN en clase B y 100.64.0.0/10 para Tailscale), así Asterisk identifica qué teléfonos están en la red interna. Abajo está el rango de puertos del audio (RTP 10000 a 20000), el mismo que usan las reglas del router. Los códecs habilitados son ulaw, alaw, g722 y opus.
 
 ---
 
@@ -308,7 +308,7 @@ Configurado el 20/10 con RouterOS 7.24.5 y los tres scripts de `plan/02_RED_MIKR
 
 ![Puerta de enlace de cada VLAN](capturas/34-hex-direcciones.png)
 
-> **Qué se hizo.** El router es la puerta de enlace `.1` de cada red. 192.168.10.0/24 Gestión, 192.168.20.0/24 Voz, 192.168.30.0/24 Administrativa y 192.168.40.0/24 Invitados.
+> **Qué se hizo.** El router es la puerta de enlace `.1` de cada red. 172.16.10.0/24 Gestión, 172.16.20.0/24 Voz, 172.16.30.0/24 Administrativa y 172.16.40.0/24 Invitados.
 
 **Figura 34. Servidores DHCP.** Ruta: *IP → DHCP Server → DHCP*
 
@@ -320,7 +320,7 @@ Configurado el 20/10 con RouterOS 7.24.5 y los tres scripts de `plan/02_RED_MIKR
 
 ![Reservas y equipos conectados](capturas/35b-hex-dhcp-leases.png)
 
-> **Qué se hizo.** Se reservó la **192.168.20.10** para la PBX (por la MAC de la VM) y la 192.168.20.20 para la laptop host. La laptop de TI recibió una IP de Gestión y un iPhone conectado al Wi-Fi `CMH-Voz` recibió una IP de la VLAN de Voz.
+> **Qué se hizo.** Se reservó la **172.16.20.10** para la PBX (por la MAC de la VM) y la 172.16.20.20 para la laptop host. La laptop de TI recibió una IP de Gestión y un iPhone conectado al Wi-Fi `CMH-Voz` recibió una IP de la VLAN de Voz.
 
 **Figura 36. Reglas del firewall.** Ruta: *IP → Firewall → Filter Rules*
 
@@ -356,17 +356,17 @@ Configurado el 20/10 con RouterOS 7.24.5 y los tres scripts de `plan/02_RED_MIKR
 
 ![Servicios activos y desde dónde se permiten](capturas/40-hex-servicios.png)
 
-> **Qué se hizo.** Se apagaron telnet, ftp, www, www-ssl, api y api-ssl. Winbox y SSH solo aceptan conexiones desde la red de Gestión (192.168.10.0/24). También se limitó el acceso por MAC y el descubrimiento de vecinos a Gestión y se desactivó IPv6.
+> **Qué se hizo.** Se apagaron telnet, ftp, www, www-ssl, api y api-ssl. Winbox y SSH solo aceptan conexiones desde la red de Gestión (172.16.10.0/24). También se limitó el acceso por MAC y el descubrimiento de vecinos a Gestión y se desactivó IPv6.
 
 ## 9. Punto de acceso Mercusys MW325R
 
 Configurado el 20/10. Está conectado a ether2 del hEX, así que todo lo que entra por su Wi-Fi cae en la VLAN 20 de Voz.
 
-**Figura 42. Red del punto de acceso.** Ruta: *Network → LAN* (en `http://192.168.20.2`)
+**Figura 42. Red del punto de acceso.** Ruta: *Network → LAN* (en `http://172.16.20.2`)
 
 ![IP fija del AP en la VLAN de Voz](capturas/41-ap-lan.png)
 
-> **Qué se hizo.** El equipo se pasó a modo **punto de acceso**, con lo que apaga su propio DHCP y su NAT. Se le dio la IP fija **192.168.20.2** con puerta de enlace 192.168.20.1 (el hEX). Los celulares que se conectan a `CMH-Voz` reciben la IP del hEX, como se ve en la figura 35.
+> **Qué se hizo.** El equipo se pasó a modo **punto de acceso**, con lo que apaga su propio DHCP y su NAT. Se le dio la IP fija **172.16.20.2** con puerta de enlace 172.16.20.1 (el hEX). Los celulares que se conectan a `CMH-Voz` reciben la IP del hEX, como se ve en la figura 35.
 
 *Pendiente la captura del Wi-Fi (SSID `CMH-Voz`, WPA2-PSK con AES, canal fijo y WPS apagado), con la contraseña oculta.*
 

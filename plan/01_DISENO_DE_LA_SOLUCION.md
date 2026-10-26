@@ -52,11 +52,15 @@ Completen la tabla con fuentes citadas (APA). Los costos son **referenciales; ve
 
 | VLAN | Nombre | Propósito | Red | Gateway | Rango DHCP | Reservas / estáticas |
 |---|---|---|---|---|---|---|
-| 10 | GESTION | Equipos de red, administración de la PBX y del router (solo TI) | 192.168.10.0/24 | 192.168.10.1 | .100 – .199 | .10 Laptop de TI (reserva DHCP opcional, script 1) |
-| 20 | VOZ | PBX, teléfonos y celulares de voz | 192.168.20.0/24 | 192.168.20.1 | .100 – .199 | .2 AP MW325R (fija) · **.10 FreePBX** (reserva DHCP) · .20 Laptop host / servidor iperf3 (reserva DHCP) |
-| 30 | ADMIN | PC y laptops del personal | 192.168.30.0/24 | 192.168.30.1 | .100 – .199 | — |
-| 40 | INVITADOS | Internet para visitas | 192.168.40.0/24 | 192.168.40.1 | .100 – .199 | — |
+| 10 | GESTION | Equipos de red, administración de la PBX y del router (solo TI) | 172.16.10.0/24 | 172.16.10.1 | .100 – .199 | .10 Laptop de TI (reserva DHCP opcional, script 1) |
+| 20 | VOZ | PBX, teléfonos y celulares de voz | 172.16.20.0/24 | 172.16.20.1 | .100 – .199 | .2 AP MW325R (fija) · **.10 FreePBX** (reserva DHCP) · .20 Laptop host / servidor iperf3 (reserva DHCP) |
+| 30 | ADMIN | PC y laptops del personal | 172.16.30.0/24 | 172.16.30.1 | .100 – .199 | — |
+| 40 | INVITADOS | Internet para visitas | 172.16.40.0/24 | 172.16.40.1 | .100 – .199 | — |
 | — | GESTION-VM (interna) | Puerto interno de gestión de la VM, solo alcanzable desde la laptop host (adaptador 2, NAT de VirtualBox) | 10.0.2.0/24 | sin gateway | sin DHCP | .15 VM FreePBX · .2 laptop host (NAT de VirtualBox) |
+
+**Direccionamiento clase B.** Por instrucción del catedrático (24/10), la LAN usa el bloque privado de clase B **172.16.0.0/12** (RFC 1918), segmentado en una subred /24 por VLAN. El tercer octeto coincide con el número de VLAN (VLAN 20 → 172.16.20.0/24), así cualquier IP dice a qué red pertenece. El diseño original usaba 192.168.x.0/24. Al migrar, cada equipo conservó su último octeto (la PBX sigue en .10, el AP en .2 y la laptop host en .20), lo que redujo los cambios a la red y a la configuración de los teléfonos. El bloque deja libres de 172.17 a 172.31 para sedes o servicios futuros sin traslapes.
+
+**VLAN de administración centralizada.** El grupo no usa controladora Omada (el E2 no se implementa). La **VLAN 10 GESTION** cumple el papel de la VLAN de la controladora. Desde ella, y solo desde ella, se administran el router (Winbox y SSH), el AP, la PBX (web y SSH) y el acceso por MAC del hEX. Si en el futuro se agrega una controladora SDN, se ubicaría en 172.16.10.0/24 con una reserva DHCP.
 
 **Escalabilidad:** cada /24 admite 253 hosts; el cliente tiene 31 colaboradores. El rango DHCP (100 IP) cubre el total con holgura y deja .2–.99 para reservas.
 
@@ -90,14 +94,14 @@ Lectura: fila = **origen**, columna = **destino**. Las reglas exactas están en 
 |---|---|---|---|---|---|---|
 | **GESTION (10)** | ✅ | ✅ todo (web PBX, SSH) | ✅ | ✅ | ✅ Winbox/SSH | ✅ |
 | **VOZ (20)** | ❌ (solo la PBX responde a softphones) | ✅ (mismo segmento) | ❌ (solo la PBX: SIP/RTP UDP) | ❌ | DNS, DHCP, ICMP | ✅ |
-| **ADMIN (30)** | ❌ | ⚠️ **solo hacia 192.168.20.10: UDP 5060 y 10000–20000** | ✅ | ❌ | DNS, DHCP, ICMP | ✅ |
+| **ADMIN (30)** | ❌ | ⚠️ **solo hacia 172.16.20.10: UDP 5060 y 10000–20000** | ✅ | ❌ | DNS, DHCP, ICMP | ✅ |
 | **INVITADOS (40)** | ❌ | ❌ | ❌ | ❌ (aislamiento) | DNS, DHCP | ✅ (5 Mbps) |
 | **Internet** | ❌ | ❌ (salvo tráfico de retorno) | ❌ | ❌ | ❌ | — |
 
 Notas para el informe:
-- La administración web de FreePBX la bloquean **dos capas**: el router (ADMIN solo llega a SIP/RTP) y el firewall de FreePBX (web solo desde 192.168.10.0/24). La segunda capa protege incluso contra equipos de la misma VLAN 20.
+- La administración web de FreePBX la bloquean **dos capas**: el router (ADMIN solo llega a SIP/RTP) y el firewall de FreePBX (web solo desde 172.16.10.0/24). La segunda capa protege incluso contra equipos de la misma VLAN 20.
 - **Puerto interno de gestión (fuera de banda).** La VM tiene un segundo adaptador en NAT de VirtualBox, con reenvío solo en `127.0.0.1` de la laptop host (web 18080 y SSH 2222). Ningún equipo de la red llega a él. Permite entrar a administrar la PBX aunque la red falle. En el firewall de FreePBX solo se confía en `10.0.2.2/32` (archivo 07).
-- Reglas de prueba **deshabilitadas por defecto**: ADMIN → servidor iperf3 (192.168.20.20, puerto 5201) solo durante la prueba de QoS.
+- Reglas de prueba **deshabilitadas por defecto**: ADMIN → servidor iperf3 (172.16.20.20, puerto 5201) solo durante la prueba de QoS.
 
 ---
 
@@ -177,8 +181,8 @@ Sin traslapes: ningún rango empieza con 9, y los códigos de servicio usan `*`.
 
 | Clase | Identificación (en el router) | DSCP | Prioridad en cola | Garantía |
 |---|---|---|---|---|
-| Medios de voz | UDP 10000–20000 hacia o desde 192.168.20.10 | **EF (46)** | 1 (máxima) | 512 kbps |
-| Señalización | UDP 5060 hacia o desde 192.168.20.10 | **CS3 (24)** | 2 | 64 kbps |
+| Medios de voz | UDP 10000–20000 hacia o desde 172.16.20.10 | **EF (46)** | 1 (máxima) | 512 kbps |
+| Señalización | UDP 5060 hacia o desde 172.16.20.10 | **CS3 (24)** | 2 | 64 kbps |
 | Datos críticos | Tráfico de GESTION | AF21 (18) | 5 | — |
 | Mejor esfuerzo | Todo lo demás (ADMIN) | 0 | 8 | — |
 | Invitados | VLAN 40 (DSCP re-escrito a 0) | 0 | 8 + límite de 5 Mbps | — |

@@ -9,14 +9,37 @@
 
 ## 1. Matriz de pruebas
 
+### 1.0 Pruebas automatizadas (scripts en `pruebas/`)
+
+Las pruebas de red se corren con scripts de PowerShell para que el resultado sea el mismo hoy y el día de la entrega. Funcionan en Windows PowerShell 5.1 y en PowerShell 7.
+
+| Script | Qué hace | Dónde se corre | Salida |
+|---|---|---|---|
+| `Probar-Vlan.ps1` | Detecta la VLAN por la IP (172.16.**VLAN**.x) y prueba la matriz de ACL de esa VLAN con ping, TCP, DNS y un SIP OPTIONS a la PBX. Compara el resultado esperado con el obtenido | Una laptop en cada puerto del hEX (ether3, ether4, ether5 y detrás del AP) | `pruebas/resultados/vlanNN-fecha.md` |
+| `Evidencia-Router.ps1` | Entra al hEX por SSH con llave y guarda VLAN, DHCP, listas, firewall con contadores, NAT, mangle, colas, servicios, log y export | Laptop de TI en ether3 (GESTION) | `pruebas/evidencias/router-fecha/` con `resumen.md` |
+
+**Uso.**
+```powershell
+cd C:\ruta\cmh-horizonte\pruebas
+.\Probar-Vlan.ps1 -Extension 4001          # laptop del compañero en ether4 (ADMIN)
+.\Probar-Vlan.ps1 -Vlan 30 -ModoQoS        # con las reglas PRUEBA-QOS activas
+.\Evidencia-Router.ps1 -Usuario <usuario> -Etiqueta antes-qos -ReiniciarContadores
+```
+
+- Antes de `Probar-Vlan.ps1` hay que **desconectar el Wi-Fi y cualquier otra red** del equipo. Si no, la prueba de internet puede salir por otra red y no por el hEX. El script lo avisa en amarillo y lo deja escrito en el informe.
+- El SIP OPTIONS lleva en el *From* la extensión del equipo (`-Extension`). Así Asterisk reconoce el endpoint y no lo cuenta como intento fallido para fail2ban.
+- Si una ejecución termina con código 1, alguna prueba no cumple. El informe dice cuál y qué regla la explica.
+- `Evidencia-Router.ps1` necesita una llave SSH cargada en el usuario del hEX. Los pasos están en su ayuda (`Get-Help .\Evidencia-Router.ps1 -Full`).
+- Para la prueba de QoS el orden es correr `Evidencia-Router.ps1 -ReiniciarContadores`, hacer la prueba y volver a correr `Evidencia-Router.ps1`. Así los contadores muestran solo el tráfico de la prueba.
+
 ### 1.1 Red y segmentación (criterio B)
 | ID | Requisito | Procedimiento | Resultado esperado | Resultado obtenido | Estado | Evidencia |
 |---|---|---|---|---|---|---|
 | RED-01 | 4+ VLAN definidas | `/interface bridge vlan print` | VLAN 10, 20, 30, 40, 50 | | | |
 | RED-02 | DHCP por VLAN | Conectar un equipo en cada puerto/SSID | IP del rango correcto | | | |
 | RED-03 | Enrutamiento entre VLAN | Softphone ADMIN se registra en la PBX (VOZ) | Registro exitoso | | | |
-| RED-04 | ACL ADMIN → PBX solo voz | `ping 192.168.20.10` desde ADMIN | Falla | | | |
-| RED-05 | Invitados aislados | `nmap -sn 192.168.30.0/24` desde VLAN 40 | 0 hosts | | | |
+| RED-04 | ACL ADMIN → PBX solo voz | `ping 172.16.20.10` desde ADMIN | Falla | | | |
+| RED-05 | Invitados aislados | `nmap -sn 172.16.30.0/24` desde VLAN 40 | 0 hosts | | | |
 | RED-06 | Gestión administra | Winbox y web de la PBX desde GESTION | Acceso permitido | | | |
 | RED-07 | Gestión restringida | Winbox y web de la PBX desde ADMIN | Acceso denegado | | | |
 | RED-08 | NAT a internet | Navegar desde cada VLAN | Navegación correcta | | | |
@@ -87,7 +110,7 @@
 | SEG-05 | S6: servicios del router desde ADMIN | Filtrados | | | |
 | SEG-06 | Credenciales por defecto | `admin` no existe en el router ni en FreePBX | | | |
 | SEG-07 | Respaldos | Router y PBX respaldados, sin contraseñas | | | |
-| SEG-08 | S9: puerto interno de gestión desde la red | 2222 y 18080 no responden en 192.168.20.20 | | | |
+| SEG-08 | S9: puerto interno de gestión desde la red | 2222 y 18080 no responden en 172.16.20.20 | | | |
 
 ### 1.7 Extras
 | ID | Extra | Procedimiento | Resultado esperado | Resultado obtenido | Estado | Evidencia |

@@ -21,7 +21,7 @@
 
 > **19/10.** Asignación por integrante, configuración remota por Tailscale y pruebas por persona en `GUIA-CELULARES.md`. Las columnas *Conexión* y *VLAN* aplican el día de la integración con el hEX RB750Gr3 y el AP Mercusys MW325R (un solo Wi-Fi, `CMH-Voz`, en la VLAN 20). La 4001 y la 5001 van en una laptop por cable para tener terminales en ADMIN y GESTION. Si Anthony o Romeo no llevan laptop, otro integrante la usa con esa extensión. Hasta entonces, todos se conectan por Tailscale con el dominio `100.91.176.16`. Las llamadas entre VLAN (TER-05) se hacen entre los celulares (VLAN 20) y las laptops conectadas por cable a Gestión (VLAN 10) o Administrativa (VLAN 30).
 
-Datos comunes para todos: **Servidor/Dominio:** `192.168.20.10` · **Puerto:** 5060 · **Transporte:** UDP · **Usuario y autenticación:** el número de extensión · **Contraseña:** la del gestor de contraseñas.
+Datos comunes para todos: **Servidor/Dominio:** `172.16.20.10` · **Puerto:** 5060 · **Transporte:** UDP · **Usuario y autenticación:** el número de extensión · **Contraseña:** la del gestor de contraseñas.
 
 ---
 
@@ -33,9 +33,9 @@ Datos comunes para todos: **Servidor/Dominio:** `192.168.20.10` · **Puerto:** 5
    | Campo | Valor |
    |---|---|
    | Nombre de cuenta | `CMH 1000` |
-   | Servidor SIP | `192.168.20.10` |
+   | Servidor SIP | `172.16.20.10` |
    | Usuario | `1000` |
-   | Dominio | `192.168.20.10` |
+   | Dominio | `172.16.20.10` |
    | Login | `1000` |
    | Contraseña | (secret de la extensión) |
    | Nombre a mostrar | `Operadora Recepcion` |
@@ -46,14 +46,14 @@ Datos comunes para todos: **Servidor/Dominio:** `192.168.20.10` · **Puerto:** 5
 
 ### 2.2 Linphone (Android / iOS / Windows)
 1. Abrir la app → **Usar una cuenta SIP** (no "crear cuenta Linphone").
-2. Usuario `2001`, contraseña, dominio `192.168.20.10`, transporte **UDP**.
+2. Usuario `2001`, contraseña, dominio `172.16.20.10`, transporte **UDP**.
 3. Ajustes → Audio → Códecs: activar **PCMU, PCMA, G722, opus**; desactivar los demás.
 4. Ajustes → Red: desactivar *IPv6* si da problemas; activar **Keep alive**.
 5. **Android:** Ajustes del teléfono → Batería → Linphone → **Sin restricciones** (si no, se duerme y no recibe llamadas).
 
 ### 2.3 Zoiper (Android / iOS)
-1. **Ya tengo una cuenta** → usuario `3001@192.168.20.10` y contraseña.
-2. Hostname `192.168.20.10` → *Skip* en proxy → elegir **SIP UDP**.
+1. **Ya tengo una cuenta** → usuario `3001@172.16.20.10` y contraseña.
+2. Hostname `172.16.20.10` → *Skip* en proxy → elegir **SIP UDP**.
 3. Settings → Audio → Codecs: G.711 u-law/a-law, G.722.
 
 ### 2.4 Verificación del registro
@@ -91,7 +91,7 @@ En cada llamada: hablar 30 s, confirmar que **ambos se escuchan**, calificar la 
 
 **1. Configure su teléfono (solo la primera vez)**
 - En la **computadora**, abra *MicroSIP*. En el **celular**, abra *Linphone*.
-- Escriba los datos que le entregó TI: **su número de extensión**, **su contraseña** y el **servidor** `192.168.20.10`.
+- Escriba los datos que le entregó TI: **su número de extensión**, **su contraseña** y el **servidor** `172.16.20.10`.
 - Cuando el indicador esté **en verde**, ya puede llamar y recibir llamadas.
 - En el celular, conéctese a la red Wi-Fi **CMH-Voz**.
 

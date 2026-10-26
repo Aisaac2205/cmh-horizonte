@@ -36,12 +36,13 @@ La configuración del router se carga con **3 scripts** (carpeta `router\`):
           AP Mercusys   Laptop  Laptop  Laptop de
           MW325R (AP)   de TI   softphone prueba
           SSID CMH-Voz          + iperf3
-          puerto LAN ─► Laptop host (VM FreePBX 192.168.20.10)
+          puerto LAN ─► Laptop host (VM FreePBX 172.16.20.10)
 ```
 
 | Puerto | Modo | VLAN | Conectado a |
 |---|---|---|---|
-| ether1 | WAN (ruteado) | — | Internet |
+| lte1 | WAN principal (ruteado) | — | Celular Xiaomi 11T por anclaje USB en el puerto USB del hEX |
+| ether1 | WAN alterna (ruteado) | — | Internet por cable, si hay router disponible |
 | ether2 | Acceso | 20 VOZ | AP MW325R. La laptop host va a un puerto LAN del AP |
 | ether3 | Acceso | 10 GESTION | Laptop de TI (Winbox, web de FreePBX y del AP) |
 | ether4 | Acceso | 30 ADMIN | Laptop con softphone. En la prueba de QoS también corre el cliente iperf3 |
@@ -64,7 +65,7 @@ La configuración del router se carga con **3 scripts** (carpeta `router\`):
 
 - [x] Descargar **Winbox** desde mikrotik.com (sección Software). *(hecho 20/10, WinBox 4.4)*
 - [x] Scripts `01`, `02` y `03` adaptados al hEX, sin acentos y sin contraseñas. *(hecho 20/10)*
-- [x] Reservas DHCP con las MAC reales de la VM (192.168.20.10) y de la tarjeta Ethernet de la laptop host (192.168.20.20). *(hecho 20/10)*
+- [x] Reservas DHCP con las MAC reales de la VM (172.16.20.10) y de la tarjeta Ethernet de la laptop host (172.16.20.20). *(hecho 20/10)*
 - [ ] Cables de red: ether1 (internet), ether2 (AP), laptop host al AP y uno por cada laptop en ether3, ether4 y ether5.
 - [ ] Contraseñas en `CREDENCIALES-ACTUALES.md`. Usuario `cmh-ti` del router y Wi-Fi `CMH-Voz`.
 ---
@@ -113,7 +114,7 @@ Entrar con **cmh-ti** (por MAC) y luego `/user remove admin`.
 /import file-name=01-base.rsc verbose=yes
 ```
 3. Si todo responde, desactivar Safe Mode para guardar.
-4. Internet a **ether1** y laptop a **ether3**. La laptop recibe 192.168.10.1xx. El hEX no tiene reloj con batería, así que la hora correcta depende de NTP (WAN conectada).
+4. Internet a **ether1** y laptop a **ether3**. La laptop recibe 172.16.10.1xx. El hEX no tiene reloj con batería, así que la hora correcta depende de NTP (WAN conectada).
 
 ```
 # =====================================================================
@@ -187,17 +188,17 @@ add list=LAN interface=vlan40-invitados
 add list=MGMT interface=vlan10-gestion
 
 /ip address
-add address=192.168.10.1/24 interface=vlan10-gestion comment="GW GESTION"
-add address=192.168.20.1/24 interface=vlan20-voz comment="GW VOZ"
-add address=192.168.30.1/24 interface=vlan30-admin comment="GW ADMIN"
-add address=192.168.40.1/24 interface=vlan40-invitados comment="GW INVITADOS"
+add address=172.16.10.1/24 interface=vlan10-gestion comment="GW GESTION"
+add address=172.16.20.1/24 interface=vlan20-voz comment="GW VOZ"
+add address=172.16.30.1/24 interface=vlan30-admin comment="GW ADMIN"
+add address=172.16.40.1/24 interface=vlan40-invitados comment="GW INVITADOS"
 
 # ---------- DHCP por VLAN ----------
 /ip pool
-add name=pool-gestion ranges=192.168.10.100-192.168.10.199
-add name=pool-voz ranges=192.168.20.100-192.168.20.199
-add name=pool-admin ranges=192.168.30.100-192.168.30.199
-add name=pool-invitados ranges=192.168.40.100-192.168.40.199
+add name=pool-gestion ranges=172.16.10.100-172.16.10.199
+add name=pool-voz ranges=172.16.20.100-172.16.20.199
+add name=pool-admin ranges=172.16.30.100-172.16.30.199
+add name=pool-invitados ranges=172.16.40.100-172.16.40.199
 
 /ip dhcp-server
 add name=dhcp-gestion interface=vlan10-gestion address-pool=pool-gestion lease-time=8h disabled=no
@@ -206,20 +207,20 @@ add name=dhcp-admin interface=vlan30-admin address-pool=pool-admin lease-time=8h
 add name=dhcp-invitados interface=vlan40-invitados address-pool=pool-invitados lease-time=2h disabled=no
 
 /ip dhcp-server network
-add address=192.168.10.0/24 gateway=192.168.10.1 dns-server=192.168.10.1 comment="GESTION"
-add address=192.168.20.0/24 gateway=192.168.20.1 dns-server=192.168.20.1 comment="VOZ"
-add address=192.168.30.0/24 gateway=192.168.30.1 dns-server=192.168.30.1 comment="ADMIN"
-add address=192.168.40.0/24 gateway=192.168.40.1 dns-server=192.168.40.1 comment="INVITADOS"
+add address=172.16.10.0/24 gateway=172.16.10.1 dns-server=172.16.10.1 comment="GESTION"
+add address=172.16.20.0/24 gateway=172.16.20.1 dns-server=172.16.20.1 comment="VOZ"
+add address=172.16.30.0/24 gateway=172.16.30.1 dns-server=172.16.30.1 comment="ADMIN"
+add address=172.16.40.0/24 gateway=172.16.40.1 dns-server=172.16.40.1 comment="INVITADOS"
 
 # ---------- Reservas DHCP ----------
 # FreePBX: MAC del adaptador 1 de la VM CMH-FreePBX (VirtualBox)
 /ip dhcp-server lease
-add server=dhcp-voz address=192.168.20.10 mac-address=08:00:27:A5:DA:0A comment="FreePBX (VM CMH-FreePBX)"
+add server=dhcp-voz address=172.16.20.10 mac-address=08:00:27:A5:DA:0A comment="FreePBX (VM CMH-FreePBX)"
 # Laptop host, tarjeta Ethernet Realtek (servidor iperf3 en las pruebas de QoS)
-add server=dhcp-voz address=192.168.20.20 mac-address=A0:36:BC:5F:4A:DE comment="Laptop host / iperf3"
-# El AP MW325R usa IP fija 192.168.20.2, configurada en el propio AP (fuera del rango DHCP)
+add server=dhcp-voz address=172.16.20.20 mac-address=A0:36:BC:5F:4A:DE comment="Laptop host / iperf3"
+# El AP MW325R usa IP fija 172.16.20.2, configurada en el propio AP (fuera del rango DHCP)
 # Laptop de TI en GESTION: quitar el # y poner su MAC real
-# add server=dhcp-gestion address=192.168.10.10 mac-address=AA:BB:CC:DD:EE:FF comment="Laptop de TI"
+# add server=dhcp-gestion address=172.16.10.10 mac-address=AA:BB:CC:DD:EE:FF comment="Laptop de TI"
 
 # ---------- WAN, DNS y NAT ----------
 /ip dhcp-client remove [find]
@@ -242,7 +243,7 @@ add chain=input in-interface-list=WAN action=drop comment="TEMP"
 ### 4.1 Verificación
 - [ ] `/interface bridge port print` → los puertos ether2 a ether5 con la bandera **H** (filtrado por hardware). Si no aparece, `/interface bridge set br-lan protocol-mode=none` y revisar de nuevo.
 - [ ] `/interface bridge vlan print` → VLAN 10, 20, 30 y 40 con su puerto.
-- [ ] Laptop en ether3 recibe **192.168.10.1xx**. En ether4, **192.168.30.1xx**. En ether5, **192.168.40.1xx**.
+- [ ] Laptop en ether3 recibe **172.16.10.1xx**. En ether4, **172.16.30.1xx**. En ether5, **172.16.40.1xx**.
 - [ ] `/ip dhcp-server lease print` → captura de las concesiones por VLAN (evidencia).
 
 ---
@@ -253,14 +254,14 @@ add chain=input in-interface-list=WAN action=drop comment="TEMP"
 2. Entrar a `http://192.168.1.1` (`mwlogin.net` no carga si la laptop tiene otra red activa) y crear la contraseña de administrador (guardarla en `CREDENCIALES-ACTUALES.md`).
 3. **Sistema → Modo de operación → Punto de acceso** (*System → Operation Mode → Access Point*). Guardar y esperar el reinicio. En modo AP el equipo apaga su DHCP y pide IP por DHCP, así que deja de responder en 192.168.1.1.
 4. Conectar un **puerto LAN** del AP a **ether2** y la laptop a **ether3**. Buscar la IP del AP con `/ip dhcp-server lease print` (aparece como `MW325R` en `dhcp-voz`) y entrar por esa IP.
-5. **Network → LAN**: **Static IP** 192.168.20.2, máscara 255.255.255.0, puerta de enlace 192.168.20.1 (en modo AP no pide DNS). Guardar y entrar de nuevo por `http://192.168.20.2`.
+5. **Network → LAN**: **Static IP** 172.16.20.2, máscara 255.255.255.0, puerta de enlace 172.16.20.1 (en modo AP no pide DNS). Guardar y entrar de nuevo por `http://172.16.20.2`.
 6. **Wireless**: SSID **`CMH-Voz`**, seguridad **WPA2-PSK (AES)** con la contraseña de `CREDENCIALES-ACTUALES.md`. **WPS desactivado**. Canal fijo 1, 6 u 11 (el menos ocupado), ancho 20 MHz. Modo g/n si el firmware lo permite.
 
-> Si el firmware del AP no trae el menú **Modo de operación**, la guía oficial de Mercusys indica el método manual: IP fija de la LAN en la red del router principal y fuera de su rango DHCP (192.168.20.2), **servidor DHCP desactivado** y cable desde un puerto LAN del AP al router.
+> Si el firmware del AP no trae el menú **Modo de operación**, la guía oficial de Mercusys indica el método manual: IP fija de la LAN en la red del router principal y fuera de su rango DHCP (172.16.20.2), **servidor DHCP desactivado** y cable desde un puerto LAN del AP al router.
 
 ### 5.1 Verificación
-- [x] Celular conectado a **CMH-Voz** recibe **192.168.20.1xx** del hEX (no del AP). *(20/10: iPhone con 192.168.20.198)*
-- [ ] Desde la laptop de TI (ether3) abre `http://192.168.20.2`.
+- [x] Celular conectado a **CMH-Voz** recibe **172.16.20.1xx** del hEX (no del AP). *(20/10: iPhone con 172.16.20.198)*
+- [ ] Desde la laptop de TI (ether3) abre `http://172.16.20.2`.
 - [ ] Captura: pantalla del AP en modo AP y la lista de clientes Wi-Fi.
 
 ---
@@ -271,9 +272,9 @@ Los pasos exactos están en `CONFIG.md` sección 9. En resumen:
 
 1. Apagar la VM y pasar el adaptador 1 a la tarjeta **Realtek PCIe GbE** (cable).
 2. Conectar la laptop host por cable a un **puerto LAN del AP**.
-3. Encender la VM. Por DHCP recibe **192.168.20.10** gracias a la reserva del script 1. Si el cable se conecta con la VM ya encendida, el vigilante de red de la VM pide la IP nueva en menos de un minuto.
-4. Comprobar con `ip -br -4 addr` y `ip route` una sola ruta por defecto, por **192.168.20.1**.
-5. Celulares conectados a **CMH-Voz**: dominio **192.168.20.10** en Linphone y Tailscale desactivado.
+3. Encender la VM. Por DHCP recibe **172.16.20.10** gracias a la reserva del script 1. Si el cable se conecta con la VM ya encendida, el vigilante de red de la VM pide la IP nueva en menos de un minuto.
+4. Comprobar con `ip -br -4 addr` y `ip route` una sola ruta por defecto, por **172.16.20.1**.
+5. Celulares conectados a **CMH-Voz**: dominio **172.16.20.10** en Linphone y Tailscale desactivado.
 
 ---
 
@@ -281,7 +282,7 @@ Los pasos exactos están en `CONFIG.md` sección 9. En resumen:
 
 Con Safe Mode activo, igual que el script 1, ya desde **ether3**. *(Cargado el 20/10 sin errores.)*
 
-> Después de este script el router solo se administra desde Gestión (ether3, 192.168.10.0/24). La laptop host queda en Voz con la PBX, así que la laptop de TI tiene que ser otra.
+> Después de este script el router solo se administra desde Gestión (ether3, 172.16.10.0/24). La laptop host queda en Voz con la PBX, así que la laptop de TI tiene que ser otra.
 
 ```
 # =====================================================================
@@ -290,13 +291,13 @@ Con Safe Mode activo, igual que el script 1, ya desde **ether3**. *(Cargado el 2
 
 # ---------- Listas de direcciones ----------
 /ip firewall address-list
-add list=net-gestion address=192.168.10.0/24
-add list=net-voz address=192.168.20.0/24
-add list=net-admin address=192.168.30.0/24
-add list=net-invitados address=192.168.40.0/24
-add list=pbx address=192.168.20.10 comment="FreePBX"
-add list=ap address=192.168.20.2 comment="AP Mercusys MW325R"
-add list=iperf-srv address=192.168.20.20 comment="Servidor iperf3 (pruebas QoS)"
+add list=net-gestion address=172.16.10.0/24
+add list=net-voz address=172.16.20.0/24
+add list=net-admin address=172.16.30.0/24
+add list=net-invitados address=172.16.40.0/24
+add list=pbx address=172.16.20.10 comment="FreePBX"
+add list=ap address=172.16.20.2 comment="AP Mercusys MW325R"
+add list=iperf-srv address=172.16.20.20 comment="Servidor iperf3 (pruebas QoS)"
 
 # ---------- Limpiar reglas anteriores ----------
 /ip firewall filter remove [find dynamic=no]
@@ -332,8 +333,8 @@ set www disabled=yes
 set www-ssl disabled=yes
 set api disabled=yes
 set api-ssl disabled=yes
-set ssh address=192.168.10.0/24
-set winbox address=192.168.10.0/24
+set ssh address=172.16.10.0/24
+set winbox address=172.16.10.0/24
 /ip ssh set strong-crypto=yes
 
 # ---------- Descubrimiento y acceso por MAC solo en interfaces de gestion ----------
@@ -356,14 +357,14 @@ set winbox address=192.168.10.0/24
 
 | # | Prueba | Desde | Resultado esperado |
 |---|---|---|---|
-| 1 | `ping 192.168.20.10` | Laptop ADMIN (ether4) | ❌ Falla (ADMIN solo llega a SIP y RTP) |
-| 2 | Registrar un softphone a 192.168.20.10 | Laptop ADMIN (ether4) | ✅ Registrado |
+| 1 | `ping 172.16.20.10` | Laptop ADMIN (ether4) | ❌ Falla (ADMIN solo llega a SIP y RTP) |
+| 2 | Registrar un softphone a 172.16.20.10 | Laptop ADMIN (ether4) | ✅ Registrado |
 | 3 | Llamada entre la laptop ADMIN y un celular en CMH-Voz | Laptop ADMIN | ✅ Audio en los dos sentidos (llamada entre VLAN) |
-| 4 | `ping 192.168.30.1xx` (laptop ADMIN) | Laptop INVITADOS (ether5) | ❌ Falla |
-| 5 | Abrir `http://192.168.20.10` | Laptop GESTION (ether3) | ✅ Abre FreePBX |
-| 6 | Abrir `http://192.168.20.10` | Laptop ADMIN (ether4) | ❌ No abre |
-| 7 | Winbox a 192.168.30.1 | Laptop ADMIN | ❌ No conecta |
-| 8 | Winbox a 192.168.10.1 | Laptop GESTION | ✅ Conecta |
+| 4 | `ping 172.16.30.1xx` (laptop ADMIN) | Laptop INVITADOS (ether5) | ❌ Falla |
+| 5 | Abrir `http://172.16.20.10` | Laptop GESTION (ether3) | ✅ Abre FreePBX |
+| 6 | Abrir `http://172.16.20.10` | Laptop ADMIN (ether4) | ❌ No abre |
+| 7 | Winbox a 172.16.30.1 | Laptop ADMIN | ❌ No conecta |
+| 8 | Winbox a 172.16.10.1 | Laptop GESTION | ✅ Conecta |
 | 9 | Navegar a internet | Todas las VLAN | ✅ |
 | 10 | `/log print where message~"DROP-FWD"` | Router | Se ven los intentos bloqueados (evidencia de ACL) |
 | 11 | `/ipv6 address print` | Router | Sin direcciones IPv6 |
@@ -390,6 +391,39 @@ Después de cada sesión y al congelar la configuración:
 
 ---
 
+## 10. Migración a clase B y WAN por celular (26/10)
+
+El 24/10 el catedrático pidió que la LAN quedara en direccionamiento privado de clase B. El hEX ya estaba operando, así que en lugar de resetearlo se aplica el script `router/04-migracion-claseB.rsc`, que cambia en caliente las puertas de enlace, los pools, las redes y reservas de DHCP, las listas de direcciones de la matriz de ACL, el acceso a Winbox y SSH y el límite de invitados. Los scripts 01, 02 y 03 ya quedaron en 172.16.x para una instalación desde cero.
+
+| VLAN | Antes | Ahora | Gateway |
+|---|---|---|---|
+| 10 GESTION | 192.168.10.0/24 | 172.16.10.0/24 | 172.16.10.1 |
+| 20 VOZ | 192.168.20.0/24 | 172.16.20.0/24 | 172.16.20.1 |
+| 30 ADMIN | 192.168.30.0/24 | 172.16.30.0/24 | 172.16.30.1 |
+| 40 INVITADOS | 192.168.40.0/24 | 172.16.40.0/24 | 172.16.40.1 |
+
+**WAN.** La salida a internet ahora es el celular Xiaomi 11T por anclaje USB. En el hEX aparece como `lte1`, está en la lista `WAN` y recibe IP con un cliente DHCP dinámico. `ether1` queda como WAN alterna por cable. La regla de NAT usa la lista `WAN`, así que funciona con cualquiera de las dos. La cola `q-wan` pasa a `lte1`.
+
+**AP.** El servidor DHCP del MW325R quedó apagado porque competía con el del hEX. Su IP fija pasa a 172.16.20.2 con gateway 172.16.20.1.
+
+**PBX.** La tarjeta en puente de la VM CMH-FreePBX queda sobre la Ethernet Realtek de la laptop host (antes estaba en el Wi-Fi). La PBX recibe 172.16.20.10 por la reserva DHCP.
+
+### 10.1 Orden de la migración
+1. Respaldo previo en el hEX: `/export file=pre-claseB` y `/system backup save name=pre-claseB`.
+2. Laptop en ether3, Winbox **por MAC** y Safe Mode. Importar `04-migracion-claseB.rsc`. Renovar IP (`ipconfig /renew`) y comprobar que la laptop recibe 172.16.10.1xx. Salir de Safe Mode.
+3. AP: desde la laptop host (detrás del AP) cambiar la IP fija a 172.16.20.2, máscara 255.255.255.0, gateway 172.16.20.1.
+4. PBX: renovar la IP de `enp0s3` y revisar que quede en 172.16.20.10 con una sola ruta por defecto. En FreePBX, Firewall → Networks con 172.16.10.0/24 en Trusted y 172.16.20.0/24 y 172.16.30.0/24 en Local (quitar las 192.168 de las VLAN). La lista blanca de fail2ban pasa a 172.16.10.0/24.
+5. Teléfonos: en Linphone cambiar el dominio de la cuenta de la VLAN de Voz a `172.16.20.10`. La cuenta de Tailscale (E1) no cambia.
+6. Verificación: registros en *Reports → Asterisk Info*, llamada entre VLAN y troncal sip2sip en Avail.
+
+### 10.2 Verificación
+- [ ] `/ip address print` muestra las cuatro puertas de enlace 172.16.x.1.
+- [ ] `/ip dhcp-server lease print` muestra la PBX en 172.16.20.10 y los equipos nuevos en .100 a .199.
+- [ ] `/ip firewall address-list print` muestra las redes y hosts en 172.16.x.
+- [ ] La laptop de TI abre Winbox por IP en 172.16.10.1 y ADMIN no puede.
+- [ ] Llamada entre una laptop en ADMIN (4001) y un celular en VOZ con audio en ambos sentidos.
+- [ ] Captura de cada pantalla para el informe (direcciones, DHCP, listas, firewall).
+
 ## Problemas comunes
 
 | Síntoma | Causa probable | Solución |
@@ -399,7 +433,7 @@ Después de cada sesión y al congelar la configuración:
 | Celular en CMH-Voz recibe IP 192.168.0.x o 192.168.1.x | El AP sigue en modo router con DHCP | Revisar el modo AP y que el cable vaya a un puerto **LAN** del AP |
 | Celular en CMH-Voz sin IP | El AP está conectado por su puerto WAN | Moverlo a un puerto LAN |
 | Con el cable al hEX la laptop se queda sin internet | Windows prefiere el cable y ether1 no tiene internet | Conectar internet a ether1, o bajar la prioridad del cable con `Set-NetIPInterface -InterfaceAlias Ethernet -InterfaceMetric 50` |
-| La PBX no queda en 192.168.20.10 | El adaptador 1 sigue en Wi-Fi o la MAC cambió | `CONFIG.md` sección 9. Revisar `macaddress1` de la VM contra la reserva |
+| La PBX no queda en 172.16.20.10 | El adaptador 1 sigue en Wi-Fi o la MAC cambió | `CONFIG.md` sección 9. Revisar `macaddress1` de la VM contra la reserva |
 | Audio en un solo sentido | SIP ALG o firewall | `service-port sip` deshabilitado y reglas M2 y M3 |
 
 ---
