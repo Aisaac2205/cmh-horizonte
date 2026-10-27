@@ -1,5 +1,9 @@
 # Pruebas de entrega. VLAN, ACL, llamadas, QoS y extras
 
+**Qué se ejecuta y qué se muestra.** Las secciones 2 a 5 (VLAN, ACL, llamadas y QoS) se **ejecutan** en vivo el día de la entrega, igual que el 26/10. La sección 6 (extras E1, E3 y E4) ya está implementada y solo se **muestra** con una llamada de ejemplo y su pantalla en FreePBX.
+
+**Resultados del 26/10, ya con clase B.** Matriz de ACL desde Admin 11 de 11 y desde Voz 8 de 8 (`pruebas/resultados/vlan30-*.md` y `vlan20-*.md`). QoS con 0 % de pérdida de voz frente a 9,4 % sin QoS (`pruebas/resultados/qos-20261026.md`).
+
 Guía corta para hacer las pruebas igual hoy y el día de la entrega. Cada prueba dice dónde se hace, qué se hace, qué debe pasar y qué se muestra o captura. Las referencias (§) son del documento del proyecto PF-TEL-001-2026.
 
 Direccionamiento clase B. VLAN 10 Gestión 172.16.10.0/24, VLAN 20 Voz 172.16.20.0/24, VLAN 30 Admin 172.16.30.0/24, VLAN 40 Invitados 172.16.40.0/24. La PBX está en **172.16.20.10**.
@@ -41,7 +45,7 @@ Direccionamiento clase B. VLAN 10 Gestión 172.16.10.0/24, VLAN 20 Voz 172.16.20
 
 ## 3. Pruebas de ACL (criterio B, matriz de comunicación)
 
-**Automáticas.** En cada laptop, desde la carpeta `pruebas` del proyecto:
+**Automáticas.** En cada laptop, desde la carpeta donde esté `Probar-Vlan.ps1` (en una laptop ajena se pasa el archivo por USB o WhatsApp y se corre con `powershell -ExecutionPolicy Bypass -File .\Probar-Vlan.ps1 -Extension 4001`):
 
 ```powershell
 .\Probar-Vlan.ps1 -Extension 4001     # ether4, Admin
@@ -97,17 +101,59 @@ Mínimo cuatro extensiones registradas a la vez, con al menos una laptop y un ce
 
 ## 5. QoS bajo congestión (criterio F, §5.6)
 
-Procedimiento completo en `plan/06_QOS_Y_MEDICIONES.md`. Resumen.
+Se hizo y midió el 26/10 (resultados en `pruebas/resultados/qos-20261026.md`). Para repetirla igual:
 
-1. En Winbox: `/ip firewall filter enable [find comment~"PRUEBA-QOS"]`.
-2. Laptop host: dos ventanas con `iperf3 -s -p 5201` y `iperf3 -s -p 5202`.
-3. Llamada 4001 ↔ 5002 y Wireshark grabando en la laptop de ether4.
-4. Laptop de ether4: `iperf3 -c 172.16.20.20 -p 5201 -u -b 20M -t 90` y en otra ventana el mismo con `-p 5202 -R`.
-5. **Con QoS.** Escuchar la llamada. En Wireshark, *Telefonía → RTP → Flujos RTP* anotar jitter, pérdida y retardo.
-6. **Sin QoS.** `/queue tree disable [find comment="QOS-PRIO"]; /queue tree enable [find comment="QOS-FIFO"]` y repetir los pasos 4 y 5.
-7. Dejar todo como estaba: `/queue tree disable [find comment="QOS-FIFO"]; /queue tree enable [find comment="QOS-PRIO"]` y `/ip firewall filter disable [find comment~"PRUEBA-QOS"]`.
+**Equipos.** Laptop host en el AP (servidor iperf3, 172.16.20.20), laptop del compañero en ether4 (cliente iperf3) y una laptop en ether3 con Winbox para cambiar el router. iperf3 se instala con `winget install ar51an.iPerf3`.
 
-**Debe pasar.** Con QoS la llamada se escucha bien (jitter menor a 30 ms y pérdida menor a 1 %). Sin QoS se corta o se oye robótica. En Wireshark los paquetes RTP llevan DSCP **EF (46)** y el SIP **CS3 (24)**.
+**1. Router, preparar (Winbox desde ether3, terminal).**
+```
+/ip firewall filter enable [find comment~"^PRUEBA-QOS"]
+/ip firewall mangle add chain=forward src-address-list=net-admin dst-address-list=iperf-srv protocol=udp dst-port=5202 action=change-dscp new-dscp=46 passthrough=yes comment="TEMP-PRUEBA-QOS: flujo de voz simulado -> EF" place-before=[find comment="QoS: marca INVITADOS"]
+/queue tree reset-counters-all
+```
+La regla de mangle marca como EF el flujo que imita la llamada, igual que el router marca el RTP real. Windows no deja que iperf3 ponga el DSCP por su cuenta.
+
+**2. Laptop host, servidores (PowerShell, dos ventanas).**
+```
+iperf3 -s -p 5201
+iperf3 -s -p 5202
+```
+Si es la primera vez, en PowerShell de administrador abrir el firewall de Windows:
+```
+New-NetFirewallRule -DisplayName "CMH iperf3 TCP" -Direction Inbound -Protocol TCP -LocalPort 5201,5202 -Action Allow -Profile Any
+New-NetFirewallRule -DisplayName "CMH iperf3 UDP" -Direction Inbound -Protocol UDP -LocalPort 5201,5202 -Action Allow -Profile Any
+```
+
+**3. Ronda con QoS.** Llamada 4001 ↔ 5002 activa. En la laptop de ether4, dos terminales:
+```
+iperf3 -c 172.16.20.20 -p 5201 -u -b 20M -t 75
+iperf3 -c 172.16.20.20 -p 5202 -u -b 69k -l 172 -t 60 -i 10
+```
+La primera satura el enlace de 2 Mbps. La segunda, arrancada 5 segundos después, imita G.711 (50 paquetes por segundo de 172 bytes). Captura de la terminal de la segunda y, en Winbox, `/queue tree print stats where name~"q-voz"`.
+
+**4. Ronda sin QoS.**
+```
+/queue tree disable [find comment="QOS-PRIO"]; /queue tree enable [find comment="QOS-FIFO"]; /queue tree reset-counters-all
+```
+Repetir el paso 3 con las mismas capturas.
+
+**5. Dejar el router como estaba.**
+```
+/queue tree disable [find comment="QOS-FIFO"]; /queue tree enable [find comment="QOS-PRIO"]
+/ip firewall filter disable [find comment~"^PRUEBA-QOS"]
+/ip firewall mangle remove [find comment~"TEMP-PRUEBA-QOS"]
+```
+
+**Resultado del 26/10.**
+
+| | Con QoS | Sin QoS |
+|---|---|---|
+| Pérdida del flujo de voz | 0 % (0 de 3010) | 9,4 % (283 de 3009) |
+| Jitter | 0,148 ms | 0,105 ms |
+| Voz descartada por el router | 0 paquetes | Mezclada con la saturación en la FIFO |
+| Saturación descartada | 117 269 paquetes | 118 866 paquetes |
+
+Para la defensa. El jitter sale bajo en los dos casos porque la cola se mantiene llena y el retardo es parejo. Lo que daña la llamada sin QoS es la pérdida (casi diez veces el límite del 1 %) y el retardo de cola, que con 50 paquetes de 1470 bytes a 2 Mbps se estima en unos 300 ms.
 
 ---
 
