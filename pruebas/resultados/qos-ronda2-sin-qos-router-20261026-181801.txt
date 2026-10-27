@@ -1,0 +1,28 @@
+Flags: X - DISABLED, I - INVALID
+0    ;;; Enlace de prueba hacia VOZ
+     name="q-voz" parent=vlan20-voz packet-mark="" rate=7976 packet-rate=4
+     queued-bytes=0 queued-packets=0 bytes=20973141 packets=23385 dropped=0
+ 
+1  X ;;; QOS-PRIO
+     name="q-voz-ef" parent=q-voz packet-mark=pm-ef rate=0 packet-rate=0
+     queued-bytes=0 queued-packets=0 bytes=0 packets=0 dropped=0
+ 
+2  X ;;; QOS-PRIO
+     name="q-voz-cs3" parent=q-voz packet-mark=pm-cs3 rate=0 packet-rate=0
+     queued-bytes=0 queued-packets=0 bytes=0 packets=0 dropped=0
+ 
+3  X ;;; QOS-PRIO
+     name="q-voz-af21" parent=q-voz packet-mark=pm-af21 rate=0 packet-rate=0
+     queued-bytes=0 queued-packets=0 bytes=0 packets=0 dropped=0
+ 
+4  X ;;; QOS-PRIO
+     name="q-voz-be" parent=q-voz packet-mark=pm-be,pm-guest rate=16032
+     packet-rate=6 queued-bytes=0 queued-packets=0 bytes=0 packets=0 dropped=0
+ 
+5    ;;; QOS-FIFO
+     name="q-voz-fifo" parent=q-voz
+     packet-mark=pm-ef,pm-cs3,pm-af21,pm-be,pm-guest rate=22456 packet-rate=9
+     queued-bytes=0 queued-packets=0 bytes=20973141 packets=23385
+     dropped=118866
+
+
