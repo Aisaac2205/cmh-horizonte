@@ -249,10 +249,20 @@ http://127.0.0.1:18080/admin/config.php?display=did
 
 ### E4. Una función avanzada (4 pts)
 
-**Condición de horario.** Desde cualquier extensión:
-1. Marcar `*271` (fuerza fuera de horario).
-2. Marcar `7000`. Contesta el menú de fuera de horario.
-3. Marcar `*271` otra vez para regresar a horario normal.
+**Condición de horario.** El horario de atención es de lunes a viernes de 7:00 a 19:00 y el sábado de 7:00 a 12:00. Si la demo es dentro de ese horario, el `7000` contesta el menú normal y hay que cerrar el changarro a mano.
+
+**Cerrar el changarro (forzar fuera de horario).** En la laptop A:
+```powershell
+ssh -t -i "$env:USERPROFILE\.ssh\cmh_pbx_ed25519" -p 2222 cmhadmin@127.0.0.1 "sudo asterisk -rx 'database put TC 1 false_sticky'"
+```
+Marcar `7000` desde cualquier extensión. Contesta el menú de fuera de horario.
+
+**Abrir otra vez (volver al horario normal).**
+```powershell
+ssh -t -i "$env:USERPROFILE\.ssh\cmh_pbx_ed25519" -p 2222 cmhadmin@127.0.0.1 "sudo asterisk -rx 'database del TC 1'"
+```
+
+**Desde un teléfono.** Marcar `*271` cambia al estado contrario del que tiene en ese momento. Si está abierto lo cierra y si está cerrado lo abre. Marcar `*271` otra vez lo deja como estaba. Antes de cerrar, llamar al `7000` para saber en qué estado está.
 
 Web:
 ```
