@@ -165,7 +165,7 @@ Para la defensa. El jitter sale bajo en los dos casos porque la cola se mantiene
 |---|---|---|
 | **E1** Red pública (8 pts) | Celular de 5002 con **datos móviles**, sin Wi-Fi, con Tailscale encendido y la cuenta con dominio `100.91.176.16` | 5002 llama a 4001 y 4001 llama a 5002, audio en ambos sentidos. Mostrar *Asterisk Info → Peers* con 5002 en una IP 100.x y el CDR |
 | **E2** SDN | No se implementa | En el informe se explica que la VLAN 10 Gestión cumple el papel de VLAN de administración centralizada |
-| **E3** Troncal SIP (5 pts) | Troncal sip2sip en estado registrada (*Connectivity → Trunks*) | Salida: desde 4001 marcar `9cmh_externo` y suena la cuenta externa. Entrada: desde la cuenta externa llamar a `cmh_troncal@sip2sip.info` y entra al IVR. Mostrar el CDR con la troncal |
+| **E3** Troncal SIP (5 pts) | Troncal sip2sip en estado registrada (*Connectivity → Trunks*) | Salida: desde 4001 marcar `9100` y suena la cuenta externa `cmh-orizonte-ext`. Entrada: desde esa cuenta llamar a `cmh-horizonte@sip2sip.info` y entra al IVR. Mostrar el CDR con la troncal |
 | **E4** Funciones avanzadas (4 pts) | | |
 | Grupo de timbrado | Llamar al `8000` | Suenan 1000 y 1001 a la vez |
 | Cola | Llamar al `8010` | Música de espera y reparte entre 2001 y 2002 |
@@ -179,6 +179,8 @@ Para el grupo 8000 y la cola 8010 hacen falta las extensiones 1000, 1001, 2001 y
 ---
 
 ## 7. Orden para la demostración (unos 20 minutos)
+
+El paso a paso con rutas y comandos para copiar está en [`GUION-DEMO.md`](GUION-DEMO.md).
 
 1. Diagrama y tabla de conexiones (sección 1).
 2. Winbox. VLAN, DHCP, firewall y colas (VLAN-01 y VLAN-03).

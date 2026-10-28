@@ -35,6 +35,7 @@ cmh-horizonte/
 ├── GUIA-CELULARES.md  Extensión de cada integrante, configuración de Tailscale y Linphone, y pruebas por persona
 ├── CONFIG.md        Operación de la PBX: encender, rutas, comandos, respaldos, estado y pendientes
 ├── PRUEBAS-ENTREGA.md  Pruebas de VLAN, ACL, llamadas, QoS y extras para el día de la entrega
+├── GUION-DEMO.md   Guion directo para la demostración frente al catedrático
 ├── CHECKLIST-SABADO.md Orden para armar, probar y capturar en la réplica del 31/10
 ├── capturas/        Capturas de FreePBX, del hEX, del AP y de las sesiones de prueba (sin contraseñas)
 ├── pruebas/         Scripts de prueba y captura (Probar-Vlan, Evidencia-Router, Captura) y sus resultados
