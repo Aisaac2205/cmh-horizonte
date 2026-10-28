@@ -19,7 +19,7 @@ Si la documentación no está cargada a tiempo, el proyecto **no se presenta** (
 
 | Si quieres... | Lee |
 |---|---|
-| Ver todo lo que se configuró, con capturas y qué se hizo en cada una | [`GUIA-DEMO.md`](GUIA-DEMO.md) |
+| Ver todo lo que se configuró, con capturas y qué se hizo en cada una | [`DOCUMENTACION.md`](DOCUMENTACION.md) |
 | Tu extensión, cómo configurar tu celular o laptop y qué pruebas te tocan | [`GUIA-CELULARES.md`](GUIA-CELULARES.md) |
 | Encender la VM, rutas de FreePBX, comandos y reparación rápida | [`CONFIG.md`](CONFIG.md) |
 | Saber cómo vamos frente a la rúbrica y qué falta | [`CONFIG.md`](CONFIG.md), secciones 11 y 12 |
@@ -31,11 +31,10 @@ Si la documentación no está cargada a tiempo, el proyecto **no se presenta** (
 ```
 cmh-horizonte/
 ├── README.md        Esta portada
-├── GUIA-DEMO.md     Documentación de lo realizado (PBX, E1, router y AP) con capturas
+├── DOCUMENTACION.md Documentación completa de lo realizado (PBX, extras, router, AP y sesiones de prueba) con capturas
 ├── GUIA-CELULARES.md  Extensión de cada integrante, configuración de Tailscale y Linphone, y pruebas por persona
 ├── CONFIG.md        Operación de la PBX: encender, rutas, comandos, respaldos, estado y pendientes
-├── PRUEBAS-ENTREGA.md  Pruebas de VLAN, ACL, llamadas, QoS y extras para el día de la entrega
-├── GUION-DEMO.md   Guion directo para la demostración frente al catedrático
+├── PRUEBAS-ENTREGA.md  Guion directo de la demostración: qué abrir, rutas web y comandos para copiar
 ├── CHECKLIST-SABADO.md Orden para armar, probar y capturar en la réplica del 31/10
 ├── capturas/        Capturas de FreePBX, del hEX, del AP y de las sesiones de prueba (sin contraseñas)
 ├── pruebas/         Scripts de prueba y captura (Probar-Vlan, Evidencia-Router, Captura) y sus resultados
@@ -97,4 +96,4 @@ Si la VM va muy lenta, revisa si Windows tiene activo su propio hipervisor (*Int
 - **Ninguna contraseña** en el repositorio, en el informe, en los anexos ni en las capturas (§11 del PDF).
 - Las capturas de evidencia llevan el **reloj de Windows visible**.
 - Se puede usar IA como apoyo, pero **cada integrante debe poder explicar cualquier parte** del proyecto en la defensa (§11 del PDF).
-- Cualquier cambio en la PBX se avisa al grupo y se documenta con captura en `GUIA-DEMO.md`.
+- Cualquier cambio en la PBX se avisa al grupo y se documenta con captura en `DOCUMENTACION.md`.

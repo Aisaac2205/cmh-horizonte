@@ -2,7 +2,7 @@
 **Centro Médico Horizonte, S.A. · PF-TEL-001-2026**
 Última actualización: 20/10/2026
 
-Instrucciones directas para operar la PBX desde la laptop host. Lo realizado, con capturas, está en `GUIA-DEMO.md`. El historial completo de cómo se construyó la VM está en el primer commit del repositorio.
+Instrucciones directas para operar la PBX desde la laptop host. Lo realizado, con capturas, está en `DOCUMENTACION.md`. El historial completo de cómo se construyó la VM está en el primer commit del repositorio.
 
 > **Contraseñas.** Todas están en `CREDENCIALES-ACTUALES.md`, que solo existe en la laptop host. Nunca van al repositorio, al informe ni a las capturas.
 
@@ -93,7 +93,7 @@ O en VirtualBox: **Stop → ACPI Shutdown**. Usar *Power Off* solo si la VM no r
 
 ### 4.1 Recorrido para la demostración, en orden
 
-Abrir cada dirección en el navegador con la sesión iniciada. Todas empiezan con `http://127.0.0.1:18080/admin/`. El orden sigue al de la GUIA-DEMO.
+Abrir cada dirección en el navegador con la sesión iniciada. Todas empiezan con `http://127.0.0.1:18080/admin/`. El orden sigue al de la DOCUMENTACION.
 
 | # | Dirección | Menú | Qué se muestra |
 |---|---|---|---|
@@ -260,7 +260,7 @@ Si el archivo ya existe, moverlo antes o usar otro nombre.
 | A. Investigación y selección | 8 | 🟢 | 🟡 Tablas comparativas | Costos y fuentes en APA |
 | B. Diseño y segmentación | 17 | 🟢 VLAN, DHCP, NAT y firewall cargados en el hEX. AP con `CMH-Voz` (20/10) | 🟡 iPhone en la VLAN 20 | Probar la matriz de ACL con equipos en ether3, ether4 y ether5 |
 | C. PBX virtual | 15 | 🟢 | 🟢 | Nada. Módulos y sistema al día (20/10) |
-| D. Funcionalidades | 18 | 🟢 | 🟢 Sesión de pruebas del 23/10 (GUIA-DEMO, sección 12) | Nada |
+| D. Funcionalidades | 18 | 🟢 | 🟢 Sesión de pruebas del 23/10 (DOCUMENTACION, sección 12) | Nada |
 | E. Terminales | 10 | 🟢 Extensiones asignadas | 🟡 9 extensiones y llamadas entre laptop y celulares (23/10) | Llamadas entre VLAN con el router |
 | F. QoS | 15 | 🟢 Marcado DSCP y colas cargados en el hEX (20/10) | 🔴 | Medir con y sin QoS. Ajustar `q-wan` a la subida real |
 | G. Documentación | 12 | No aplica | 🟡 | Informe, resumen ejecutivo, guía de usuario de 1 página, matriz llena |

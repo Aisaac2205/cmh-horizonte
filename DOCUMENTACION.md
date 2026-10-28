@@ -1,4 +1,4 @@
-# GUÍA DEMO · Documentación de lo realizado
+# Documentación del proyecto
 **Centro Médico Horizonte, S.A. · PF-TEL-001-2026**
 Última actualización: 27/10/2026
 

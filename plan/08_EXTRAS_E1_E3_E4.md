@@ -63,8 +63,8 @@ Resultado: los dispositivos remotos **solo** pueden hablar SIP y RTP con la PBX 
 
 ### Evidencias E1
 - [ ] Captura del celular con datos móviles (sin Wi-Fi) en llamada.
-- [x] `tailscale status` en la VM (muestra el celular conectado). *(hecho 19/10, ver `GUIA-DEMO.md` sección 7 y `CONFIG.md` sección 6)*
-- [x] `asterisk -rx "pjsip show contacts"` → 5002 con dirección `100.x.y.z`. *(hecho 19/10, la 5002 se registró desde 100.68.20.81, ver `GUIA-DEMO.md` sección 7)*
+- [x] `tailscale status` en la VM (muestra el celular conectado). *(hecho 19/10, ver `DOCUMENTACION.md` sección 7 y `CONFIG.md` sección 6)*
+- [x] `asterisk -rx "pjsip show contacts"` → 5002 con dirección `100.x.y.z`. *(hecho 19/10, la 5002 se registró desde 100.68.20.81, ver `DOCUMENTACION.md` sección 7)*
 - [ ] CDR de las llamadas 5002 ↔ 1000. *(19/10: 5002 → 1000 hecha, captura 24. Falta 1000 → 5002)*
 - [ ] Captura de la política de acceso de Tailscale.
 

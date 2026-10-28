@@ -3,7 +3,7 @@
 **Centro Médico Horizonte, S.A. · PF-TEL-001-2026**
 Preparado el 27/10/2026 para la réplica del sábado 31/10.
 
-Todo lo de la PBX ya está listo y capturado. Lo único que falta depende del router armado. Esta lista dice en qué orden hacerlo para que salga a la primera. Las pruebas en detalle están en [`PRUEBAS-ENTREGA.md`](PRUEBAS-ENTREGA.md).
+Todo lo de la PBX ya está listo y capturado. Lo único que falta depende del router armado. Esta lista dice en qué orden hacerlo para que salga a la primera. El guion de la demostración, con rutas y comandos, está en [`PRUEBAS-ENTREGA.md`](PRUEBAS-ENTREGA.md).
 
 ---
 
@@ -42,7 +42,7 @@ ping 172.16.20.10
 ssh -t -i "$env:USERPROFILE\.ssh\cmh_pbx_ed25519" -p 2222 cmhadmin@127.0.0.1 "sudo asterisk -rx 'pjsip show contacts'; sudo asterisk -rx 'pjsip show registrations'"
 ```
 
-Deben salir los teléfonos con *Avail* y la troncal `sip2sip` en *Registered*. Si un teléfono no registra por contraseñas malas, está bloqueado por fail2ban (ver la nota de la sección 1 de `PRUEBAS-ENTREGA.md`).
+Deben salir los teléfonos con *Avail* y la troncal `sip2sip` en *Registered*. Si un teléfono no registra por contraseñas malas, está bloqueado por fail2ban (ver *Si algo falla* al final de `PRUEBAS-ENTREGA.md`).
 
 ---
 
@@ -50,18 +50,20 @@ Deben salir los teléfonos con *Avail* y la troncal `sip2sip` en *Registered*. S
 
 | Paso | Qué | Dónde está el detalle |
 |---|---|---|
-| 1 | Evidencia del router **antes**, con contadores en cero | `PRUEBAS-ENTREGA.md` sección 3, paso 1 |
-| 2 | `Probar-Vlan.ps1` en ether4 (Admin), en la laptop host (Voz) y en ether5 (Invitados) | Sección 3 |
-| 3 | Ronda de llamadas TEL-01 a TEL-11 | Sección 4 |
-| 4 | Evidencia del router **después** | Sección 3, paso 3 |
+| 1 | Contadores del firewall en cero | `PRUEBAS-ENTREGA.md` sección 0 |
+| 2 | Diagrama, IP de cada laptop y Winbox | Secciones 1 y 2 |
+| 3 | `Probar-Vlan.ps1` en ether4 (Admin), en la laptop host (Voz) y en ether5 (Invitados) | Sección 3 |
+| 4 | Llamadas TEL-01, TEL-04, TEL-06 y TEL-11 | Sección 4 |
 | 5 | QoS con y sin prioridad | Sección 5 |
 | 6 | Extras E1, E3 y una función del E4 | Sección 6 |
+| 7 | CDR y contadores del firewall | Sección 7 |
+| 8 | Opcional, texto del router con `Evidencia-Router.ps1 -Usuario cmh-ti` (solo en la laptop de Isaac, que tiene la llave) | Encabezado del script |
 
 ---
 
 ## 4. Capturas pendientes
 
-Las capturas del hEX que hay en `capturas/` son del 20/10, todavía con 192.168.x. Se reemplazan con **el mismo nombre de archivo**, así la `GUIA-DEMO.md` las muestra sola sin editarla.
+Las capturas del hEX que hay en `capturas/` son del 20/10, todavía con 192.168.x. Se reemplazan con **el mismo nombre de archivo**, así la `DOCUMENTACION.md` las muestra sola sin editarla.
 
 **Cómo capturar.** En la laptop conectada a **ether3** (Gestión), abrir la pantalla en Winbox y en PowerShell, desde la carpeta `pruebas`:
 

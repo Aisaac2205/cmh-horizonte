@@ -6,7 +6,7 @@
   Espera unos segundos para que se pueda pasar a la ventana que se quiere capturar
   (Alt+Tab), toma solo esa ventana y la guarda como PNG con el nombre indicado.
   Si el archivo ya existe lo reemplaza, asi las capturas viejas de clase C se
-  cambian por las nuevas sin tocar la GUIA-DEMO.
+  cambian por las nuevas sin tocar la DOCUMENTACION.
 
 .EXAMPLE
   .\Captura.ps1 34-hex-direcciones
