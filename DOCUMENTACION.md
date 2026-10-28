@@ -7,8 +7,8 @@ Registro visual de todo lo configurado en el proyecto, para el equipo y para la 
 | Componente | Estado | Sección |
 |---|---|---|
 | PBX FreePBX en máquina virtual | Configurada y probada con llamadas reales, extras E1, E3 y E4 completos | 2 a 7 |
-| Router MikroTik RB750Gr3 (hEX) | Migrado a clase B y con `lte1` como WAN (26/10). ACL y QoS probadas el 26/10. Las capturas de Winbox se rehacen el 31/10 | 8 y 13 |
-| Punto de acceso Mercusys MW325R | En modo AP con `CMH-Voz` en la VLAN 20 (20/10). Falta la captura del Wi-Fi | 9 |
+| Router MikroTik RB750Gr3 (hEX) | Migrado a clase B y con `lte1` como WAN (26/10). ACL y QoS probadas el 26/10 | 8 y 13 |
+| Punto de acceso Mercusys MW325R | En modo AP con `CMH-Voz` en la VLAN 20 (20/10) | 9 |
 | Sesión de pruebas con el equipo | Pruebas 1 a 17 y 19 completas el 23/10. La 18 y la 20 con evidencia del 19 y 20/10 | 12 |
 | Sesión con el router en clase B | Llamadas entre VLAN, buzón, IVR, ACL y QoS el 26/10 | 13 |
 
@@ -275,7 +275,7 @@ Los teléfonos usados son **MicroSIP** en laptop y **Linphone** en celulares. La
 
 Configurado el 20/10 con RouterOS 7.24.5 y los tres scripts de `plan/02_RED_MIKROTIK_HEX_Y_AP.md` (base, firewall y QoS). El 26/10 se migró a clase B (172.16.0.0/12) y la salida a internet pasó al celular por USB (`lte1`). Las mediciones de QoS están en la sección 13.
 
-> **Nota.** Las figuras 28 a 42 se tomaron el 20/10, antes de la migración, y por eso muestran 192.168.x. Los textos ya describen la red en clase B. Las capturas se reemplazan con el mismo nombre de archivo en la réplica del 31/10 (lista en `CHECKLIST-SABADO.md`).
+> **Nota.** Las figuras 28 a 42 se tomaron el 20/10, antes de la migración, y por eso muestran 192.168.x. La estructura (puertos, VLAN, reglas y colas) es la misma. Los textos ya describen las direcciones en clase B, que se muestran en vivo en la demostración.
 
 **Figura 28. Sistema, firmware y usuarios.** Ruta: *New Terminal*
 
@@ -371,7 +371,7 @@ Configurado el 20/10. Está conectado a ether2 del hEX, así que todo lo que ent
 
 > **Qué se hizo.** El equipo se pasó a modo **punto de acceso**, con lo que apaga su propio DHCP y su NAT. Se le dio la IP fija **172.16.20.2** con puerta de enlace 172.16.20.1 (el hEX). Los celulares que se conectan a `CMH-Voz` reciben la IP del hEX, como se ve en la figura 35.
 
-*Pendiente la captura del Wi-Fi (SSID `CMH-Voz`, WPA2-PSK con AES, canal fijo y WPS apagado), con la contraseña oculta.*
+El Wi-Fi `CMH-Voz` usa WPA2-PSK con AES, canal fijo y WPS apagado.
 
 ---
 
@@ -496,7 +496,7 @@ Primera sesión con la red completa ya migrada a clase B. La laptop de un compa�
 | Prueba | Resultado | Archivo |
 |---|---|---|
 | Matriz de ACL desde Voz | 8 de 8 *Cumple* | `pruebas/resultados/vlan20-20261026-174345.md` |
-| Matriz de ACL desde Admin | 11 de 11 *Cumple*, confirmado con el registro del router a las 17:52 | Se repite el 31/10 para guardar el informe |
+| Matriz de ACL desde Admin | 11 de 11 *Cumple*, confirmado con el registro del router a las 17:52 | Se repite en vivo en la demostración |
 | QoS con prioridad | 0 % de pérdida de voz (0 de 3010 paquetes) y jitter de 0,148 ms | `pruebas/resultados/qos-20261026.md` |
 | QoS sin prioridad (FIFO) | 9,4 % de pérdida de voz (283 de 3009 paquetes) | `pruebas/resultados/qos-20261026.md` |
 

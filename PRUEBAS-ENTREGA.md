@@ -1,6 +1,6 @@
 # Pruebas de entrega. Guion de la demostración
 
-Leer de arriba hacia abajo mientras el ingeniero observa. Cada paso dice en qué equipo, qué abrir y qué pegar.
+Es el único archivo que hay que seguir el día de la demostración. Leer de arriba hacia abajo. Cada paso dice en qué equipo, qué abrir y qué pegar.
 
 **Web de la PBX.** Desde la laptop host, en el navegador. Todas las rutas empiezan con
 ```
@@ -13,6 +13,18 @@ http://127.0.0.1:18080/admin/
 
 ## 0. Antes de que llegue el inge
 
+**Qué llevar.** hEX con su fuente, AP Mercusys con su fuente, 3 cables de red, el Xiaomi con su cable USB, las laptops y los dos celulares con Linphone.
+
+**Conectar en este orden.**
+1. Xiaomi al USB del hEX, con datos móviles y *Anclaje USB* activado.
+2. Encender el hEX y esperar un minuto.
+3. Cable de ether2 del hEX a un puerto LAN del AP. Encender el AP.
+4. Laptop A a otro puerto LAN del AP, con el Wi-Fi apagado.
+5. Laptop B a ether4 y laptop C a ether3, con el Wi-Fi apagado. En cada una `ipconfig /renew`.
+6. Celulares al Wi-Fi `CMH-Voz`.
+
+**Quién lleva qué.**
+
 | Laptop | Puerto | Lleva abierto |
 |---|---|---|
 | **A** Isaac (host) | LAN del AP | VM encendida, navegador en la web de la PBX, Linphone **5001**, 2 PowerShell para iperf3 |
@@ -23,18 +35,18 @@ http://127.0.0.1:18080/admin/
 
 Si solo hay dos laptops, la B empieza en ether3 para el paso 2 y se pasa a ether4 en el paso 3. En el paso 5 vuelve a ether3 solo para cambiar las colas.
 
-Encender la VM en la laptop A y esperar 4 minutos:
+Encender la VM en la laptop A y esperar 4 minutos (antes de eso los teléfonos no registran).
 ```powershell
 & "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe" startvm CMH-FreePBX --type headless
 ```
 
-Comprobar que todo registró (laptop A):
+Comprobar que todo registró, en la laptop A.
 ```powershell
 ssh -t -i "$env:USERPROFILE\.ssh\cmh_pbx_ed25519" -p 2222 cmhadmin@127.0.0.1 "sudo asterisk -rx 'pjsip show contacts'; sudo asterisk -rx 'pjsip show registrations'"
 ```
 Deben salir 4001, 5001, 3001 y 5002 en *Avail* y `sip2sip` en *Registered*.
 
-Contadores del firewall en cero (Winbox, laptop C):
+Contadores del firewall en cero, en Winbox de la laptop C.
 ```
 /ip firewall filter reset-counters-all
 ```
@@ -297,12 +309,12 @@ Debe verse:
 
 | Id | Dónde | Qué hacer | Debe pasar | Qué mostrar |
 |---|---|---|---|---|
-| VLAN-01 | Winbox desde ether3 | *Bridge → VLANs* | VLAN 10, 20, 30 y 40 con su puerto sin etiqueta | Captura de la tabla |
-| VLAN-02 | Cada puerto | Conectar una laptop y `ipconfig` | IP del rango de la VLAN del puerto (tabla de la sección 1) | Captura de `ipconfig` en cada puerto |
-| VLAN-03 | Winbox | *IP → DHCP Server → Leases* | PBX en .10, laptop host en .20, el resto en .100 a .199 | Captura de leases |
-| VLAN-04 | Laptop en ether4 | Linphone 4001 se registra en 172.16.20.10 | Registrada en verde. Prueba el enrutamiento entre VLAN 30 y 20 | Captura de Linphone y de *Reports → Asterisk Info → Peers* |
-| VLAN-05 | Celular en CMH-Voz | Ver la IP en el Wi-Fi del celular | 172.16.20.1xx | Captura del celular |
-| VLAN-06 | Laptop en ether5 | `ipconfig` y navegar | 172.16.40.1xx con internet, velocidad limitada a 5 Mbps | Captura de `ipconfig` y de un speedtest |
+| VLAN-01 | Winbox desde ether3 | *Bridge → VLANs* | VLAN 10, 20, 30 y 40 con su puerto sin etiqueta | La tabla en Winbox |
+| VLAN-02 | Cada puerto | Conectar una laptop y `ipconfig` | IP del rango de la VLAN del puerto (tabla de la sección 1) | `ipconfig` en cada puerto |
+| VLAN-03 | Winbox | *IP → DHCP Server → Leases* | PBX en .10, laptop host en .20, el resto en .100 a .199 | Los leases en Winbox |
+| VLAN-04 | Laptop en ether4 | Linphone 4001 se registra en 172.16.20.10 | Registrada en verde. Prueba el enrutamiento entre VLAN 30 y 20 | Linphone en verde y *Reports → Asterisk Info → Peers* |
+| VLAN-05 | Celular en CMH-Voz | Ver la IP en el Wi-Fi del celular | 172.16.20.1xx | La IP en el celular |
+| VLAN-06 | Laptop en ether5 | `ipconfig` y navegar | 172.16.40.1xx con internet, velocidad limitada a 5 Mbps | `ipconfig` y un speedtest |
 
 ### Matriz de ACL (criterio B)
 
@@ -333,5 +345,13 @@ Debe verse:
 | TEL-10 | Escuchar el buzón | Desde 3001 marcar `*97` y el PIN | Se escucha el mensaje de TEL-08 |
 | TEL-11 | IVR | Desde un celular marcar `7000` | Bienvenida en español. 1 Recepción, 2 Consulta Externa, 3 a la 3001, 4 a la 4001, 0 operadora. Una tecla inválida repite el menú y sin respuesta vuelve a preguntar |
 
-Resultados del 26/10 (ACL, llamadas y QoS) y todas las capturas en [`DOCUMENTACION.md`](DOCUMENTACION.md), sección 13.
+Resultados del 26/10 (ACL, llamadas y QoS) en [`DOCUMENTACION.md`](DOCUMENTACION.md), sección 13.
 
+---
+
+## Al terminar
+
+Apagar la VM antes de desconectar, para no dañar la base de datos.
+```powershell
+& "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe" controlvm CMH-FreePBX acpipowerbutton
+```
