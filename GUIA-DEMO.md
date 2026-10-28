@@ -1,15 +1,16 @@
 # GUÍA DEMO · Documentación de lo realizado
 **Centro Médico Horizonte, S.A. · PF-TEL-001-2026**
-Última actualización: 23/10/2026
+Última actualización: 27/10/2026
 
 Registro visual de todo lo configurado en el proyecto, para el equipo y para la defensa. Cada captura indica su ruta dentro del sistema y explica qué se hizo y por qué. El avance se agrega por componente.
 
 | Componente | Estado | Sección |
 |---|---|---|
 | PBX FreePBX en máquina virtual | Configurada y probada con llamadas reales, extras E1, E3 y E4 completos | 2 a 7 |
-| Router MikroTik RB750Gr3 (hEX) | VLAN, DHCP, NAT, firewall y QoS cargados (20/10). Faltan las pruebas y las mediciones | 8 |
+| Router MikroTik RB750Gr3 (hEX) | Migrado a clase B y con `lte1` como WAN (26/10). ACL y QoS probadas el 26/10. Las capturas de Winbox se rehacen el 31/10 | 8 y 13 |
 | Punto de acceso Mercusys MW325R | En modo AP con `CMH-Voz` en la VLAN 20 (20/10). Falta la captura del Wi-Fi | 9 |
 | Sesión de pruebas con el equipo | Pruebas 1 a 17 y 19 completas el 23/10. La 18 y la 20 con evidencia del 19 y 20/10 | 12 |
+| Sesión con el router en clase B | Llamadas entre VLAN, buzón, IVR, ACL y QoS el 26/10 | 13 |
 
 > Las capturas están en la carpeta `capturas/` y no muestran contraseñas. Para verlas dentro de este documento se recomienda un visor de Markdown, por ejemplo GitHub o VS Code (**Ctrl+Shift+V**). Las extensiones de cada integrante y las pruebas por persona están en `GUIA-CELULARES.md`.
 
@@ -161,7 +162,7 @@ Registro visual de todo lo configurado en el proyecto, para el equipo y para la 
 
 ![Redes Trusted y Local](capturas/15-firewall-redes.png)
 
-> **Qué se hizo.** Se activó el firewall de FreePBX y se definieron las redes de confianza. En **Trusted** (acceso total) quedaron la laptop que administra la VM (10.0.2.2) y la VLAN 10 de Gestión. En **Local** (solo teléfonos) quedaron la VLAN 20 de Voz, la VLAN 30 Administrativa, Tailscale y las redes de prueba. Cualquier otra red cae en la zona *Internet*, sin acceso.
+> **Qué se hizo.** Se activó el firewall de FreePBX y se definieron las redes de confianza. En **Trusted** (acceso total) quedaron la laptop que administra la VM (10.0.2.2) y la VLAN 10 de Gestión (172.16.10.0/24). En **Local** (solo teléfonos) quedaron la VLAN 20 de Voz (172.16.20.0/24), la VLAN 30 Administrativa (172.16.30.0/24), Tailscale y las redes de prueba. Cualquier otra red cae en la zona *Internet*, sin acceso. La captura es del 27/10, después de quitar las redes 192.168.x del diseño anterior.
 
 **Figura 20. Servicios permitidos por zona.** Ruta: *Connectivity → Firewall → Services*
 
@@ -220,7 +221,7 @@ Los teléfonos usados son **MicroSIP** en laptop y **Linphone** en celulares. La
 
 ![Redes de Tailscale y de prueba](capturas/23-e1-firewall-redes.png)
 
-> **Qué se hizo.** La red de Tailscale (**100.64.0.0/10**) está en zona Local. Se agregó también la red **192.168.1.0/24** para pruebas fuera del router. Con el router instalado, los teléfonos entran por las VLAN 20 y 30, que ya están en la lista.
+> **Qué se hizo.** La red de Tailscale (**100.64.0.0/10**) está en zona Local. Se agregaron también la red **192.168.1.0/24** y el hotspot del iPhone (172.20.10.0/28) para pruebas fuera del router. Con el router instalado, los teléfonos entran por las VLAN 20 y 30 en clase B (172.16.20.0/24 y 172.16.30.0/24), que ya están en la lista.
 
 **Figura 27. Llamada de prueba desde datos móviles.** Ruta: *Reports → CDR Reports*
 
@@ -272,7 +273,9 @@ Los teléfonos usados son **MicroSIP** en laptop y **Linphone** en celulares. La
 
 ## 8. Router MikroTik RB750Gr3 (hEX)
 
-Configurado el 20/10 con RouterOS 7.24.5 y los tres scripts de `plan/02_RED_MIKROTIK_HEX_Y_AP.md` (base, firewall y QoS). Las capturas son de Winbox, conectado desde la VLAN 10 de Gestión. Faltan las mediciones de QoS con y sin prioridad.
+Configurado el 20/10 con RouterOS 7.24.5 y los tres scripts de `plan/02_RED_MIKROTIK_HEX_Y_AP.md` (base, firewall y QoS). El 26/10 se migró a clase B (172.16.0.0/12) y la salida a internet pasó al celular por USB (`lte1`). Las mediciones de QoS están en la sección 13.
+
+> **Nota.** Las figuras 28 a 42 se tomaron el 20/10, antes de la migración, y por eso muestran 192.168.x. Los textos ya describen la red en clase B. Las capturas se reemplazan con el mismo nombre de archivo en la réplica del 31/10 (lista en `CHECKLIST-SABADO.md`).
 
 **Figura 28. Sistema, firmware y usuarios.** Ruta: *New Terminal*
 
@@ -475,3 +478,26 @@ Configurado el 20/10. Está conectado a ether2 del hEX, así que todo lo que ent
 ![Registro de intentos fallidos de la 1001](capturas/53-intentos-fallidos-1001-20oct.png)
 
 > **Qué se ve.** Es el archivo que vigila fail2ban. El 20/10, a las 12:34 y 12:47, un celular intentó registrarse como la **1001** con una contraseña equivocada. Cada intento queda como *Failed to authenticate* con la IP de origen. Al pasar de 5 intentos en 10 minutos, fail2ban bloqueó ese equipo durante 30 minutos. Es la misma protección que pide la prueba 20.
+
+---
+
+## 13. Sesión con el router en clase B (26/10)
+
+Primera sesión con la red completa ya migrada a clase B. La laptop de un compañero se conectó a **ether4** (VLAN 30 Administrativa) con la extensión **4001**, la laptop host quedó en la VLAN de Voz con la **5001** y dos celulares en el Wi-Fi `CMH-Voz` con la **3001** y la **5002**. La salida a internet fue el Xiaomi 11T por USB.
+
+**Figura 50. Llamadas del 26/10.** Ruta: *Reports → CDR Reports*, del 26/10 a las 00:00 al 26/10 a las 23:59
+
+![CDR del 26/10 con llamadas entre VLAN](capturas/54-sesion-cdr-26oct.png)
+
+> **Qué se ve.** Todas las llamadas entre la **4001** (Administración, VLAN 30) y las extensiones de la VLAN de Voz se contestaron, lo que prueba el enrutamiento entre VLAN y las reglas M2 y M3 del router. Entre las 16:44 y las 16:48 están la espera y las transferencias (filas *Return* y *Hangup*), a las 16:47 una llamada sin contestar que terminó en el buzón, a las 16:49 y 16:50 las consultas con **\*97** y a las 16:52 el recorrido del **IVR** (*BackGround* en `ivr-1`) que terminó en la 1000. Las dos llamadas largas de las 18:09 y 18:14 (2:58 y 2:22) son las que se mantuvieron activas durante la prueba de QoS.
+
+**Resultados medidos ese día.**
+
+| Prueba | Resultado | Archivo |
+|---|---|---|
+| Matriz de ACL desde Voz | 8 de 8 *Cumple* | `pruebas/resultados/vlan20-20261026-174345.md` |
+| Matriz de ACL desde Admin | 11 de 11 *Cumple*, confirmado con el registro del router a las 17:52 | Se repite el 31/10 para guardar el informe |
+| QoS con prioridad | 0 % de pérdida de voz (0 de 3010 paquetes) y jitter de 0,148 ms | `pruebas/resultados/qos-20261026.md` |
+| QoS sin prioridad (FIFO) | 9,4 % de pérdida de voz (283 de 3009 paquetes) | `pruebas/resultados/qos-20261026.md` |
+
+Con prioridad, el router descartó más de cien mil paquetes de la saturación y ninguno de voz. Sin prioridad, la voz perdió casi diez veces el límite del 1 % que pide el PDF.

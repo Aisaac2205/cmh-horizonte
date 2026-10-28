@@ -2,7 +2,9 @@
 
 **Qué se ejecuta y qué se muestra.** Las secciones 2 a 5 (VLAN, ACL, llamadas y QoS) se **ejecutan** en vivo el día de la entrega, igual que el 26/10. La sección 6 (extras E1, E3 y E4) ya está implementada y solo se **muestra** con una llamada de ejemplo y su pantalla en FreePBX.
 
-**Resultados del 26/10, ya con clase B.** Matriz de ACL desde Admin 11 de 11 y desde Voz 8 de 8 (`pruebas/resultados/vlan30-*.md` y `vlan20-*.md`). QoS con 0 % de pérdida de voz frente a 9,4 % sin QoS (`pruebas/resultados/qos-20261026.md`).
+**Resultados del 26/10, ya con clase B.** Matriz de ACL desde Admin 11 de 11 (confirmada con el registro del router, el informe se guarda en la réplica del 31/10) y desde Voz 8 de 8 (`pruebas/resultados/vlan20-20261026-174345.md`). QoS con 0 % de pérdida de voz frente a 9,4 % sin QoS (`pruebas/resultados/qos-20261026.md`).
+
+El orden de armado y la lista de capturas pendientes para la réplica del 31/10 están en [`CHECKLIST-SABADO.md`](CHECKLIST-SABADO.md).
 
 Guía corta para hacer las pruebas igual hoy y el día de la entrega. Cada prueba dice dónde se hace, qué se hace, qué debe pasar y qué se muestra o captura. Las referencias (§) son del documento del proyecto PF-TEL-001-2026.
 

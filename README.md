@@ -34,7 +34,10 @@ cmh-horizonte/
 ├── GUIA-DEMO.md     Documentación de lo realizado (PBX, E1, router y AP) con capturas
 ├── GUIA-CELULARES.md  Extensión de cada integrante, configuración de Tailscale y Linphone, y pruebas por persona
 ├── CONFIG.md        Operación de la PBX: encender, rutas, comandos, respaldos, estado y pendientes
-├── capturas/        27 capturas de FreePBX que usa la guía (sin contraseñas)
+├── PRUEBAS-ENTREGA.md  Pruebas de VLAN, ACL, llamadas, QoS y extras para el día de la entrega
+├── CHECKLIST-SABADO.md Orden para armar, probar y capturar en la réplica del 31/10
+├── capturas/        Capturas de FreePBX, del hEX, del AP y de las sesiones de prueba (sin contraseñas)
+├── pruebas/         Scripts de prueba y captura (Probar-Vlan, Evidencia-Router, Captura) y sus resultados
 └── plan/            Plan del grupo, validado contra el PDF
     ├── 00  Índice, roles y cronograma
     ├── 01  Diseño de la solución (investigación, VLAN, IP, numeración)
@@ -57,12 +60,12 @@ cmh-horizonte/
 - **Teléfonos.** MicroSIP en laptops y Linphone en celulares.
 - **Extras.** E1 acceso desde red pública con Tailscale, E3 troncal SIP con sip2sip y E4 funciones avanzadas. E2 (SDN) no se implementa.
 
-## Estado al 20/10
+## Estado al 27/10
 
-- **La PBX está completa.** Extensiones, IVR, buzones, firewall, respaldos y sistema al día. Ya hubo llamadas reales del equipo por Tailscale.
+- **La PBX está completa.** Extensiones, IVR, buzones, firewall, respaldos y sistema al día. Redes del firewall y de SIP ya en clase B.
 - **Extras listos:** E1 (Tailscale), E3 (troncal sip2sip, entrante al IVR y saliente con 9100) y E4 (5 de 5, incluido el buzón por correo).
-- **Router y AP:** configurados el 20/10 (VLAN, DHCP, NAT, firewall, QoS y Wi-Fi `CMH-Voz`). Falta probar el firewall entre VLAN, las llamadas entre VLAN y medir la QoS.
-- **Por hacer:** sesión de pruebas con el router y la matriz (`plan/09`), informe y presentación.
+- **Router y AP:** migrados a clase B (172.16.0.0/12) el 26/10, con el celular por USB como WAN. Llamadas entre VLAN, matriz de ACL (8 de 8 desde Voz y 11 de 11 desde Admin) y QoS bajo congestión (0 % de pérdida de voz con QoS y 9,4 % sin QoS) probadas.
+- **Por hacer:** réplica del 31/10 con las capturas de Winbox en clase B ([`CHECKLIST-SABADO.md`](CHECKLIST-SABADO.md)), informe y presentación.
 
 El detalle por criterio está en [`CONFIG.md`, sección 11](CONFIG.md#11-estado-frente-al-pdf).
 
