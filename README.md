@@ -34,8 +34,8 @@ cmh-horizonte/
 ├── DOCUMENTACION.md Documentación completa de lo realizado (PBX, extras, router, AP y sesiones de prueba) con capturas
 ├── GUIA-CELULARES.md  Extensión de cada integrante, configuración de Tailscale y Linphone, y pruebas por persona
 ├── CONFIG.md        Operación de la PBX: encender, rutas, comandos, respaldos, estado y pendientes
-├── ESCENARIO-3-LAPTOPS.md  Guion de la demostración con 3 laptops. Qué conectar, qué abrir y comandos para copiar
-├── ESCENARIO-4-LAPTOPS.md  Lo mismo con 4 laptops
+├── ESCENARIO-4-LAPTOPS.md  Guion de la demostración con 4 laptops. Qué conectar, qué abrir y comandos para copiar
+├── ESCENARIO-5-LAPTOPS.md  Lo mismo con 5 laptops
 ├── capturas/        Capturas de FreePBX, del hEX, del AP y de las sesiones de prueba (sin contraseñas)
 ├── pruebas/         Scripts de prueba y captura (Probar-Vlan, Evidencia-Router, Captura) y sus resultados
 └── plan/            Plan del grupo, validado contra el PDF
@@ -65,7 +65,7 @@ cmh-horizonte/
 - **La PBX está completa.** Extensiones, IVR, buzones, firewall, respaldos y sistema al día. Redes del firewall y de SIP ya en clase B.
 - **Extras listos:** E1 (Tailscale), E3 (troncal sip2sip, entrante al IVR y saliente con 9100) y E4 (5 de 5, incluido el buzón por correo).
 - **Router y AP:** migrados a clase B (172.16.0.0/12) el 26/10, con el celular por USB como WAN. Llamadas entre VLAN, matriz de ACL (8 de 8 desde Voz y 11 de 11 desde Admin) y QoS bajo congestión (0 % de pérdida de voz con QoS y 9,4 % sin QoS) probadas.
-- **Demostración:** seguir [`ESCENARIO-3-LAPTOPS.md`](ESCENARIO-3-LAPTOPS.md) o [`ESCENARIO-4-LAPTOPS.md`](ESCENARIO-4-LAPTOPS.md), según cuántas laptops haya, de arriba hacia abajo.
+- **Demostración:** seguir [`ESCENARIO-4-LAPTOPS.md`](ESCENARIO-4-LAPTOPS.md) o [`ESCENARIO-5-LAPTOPS.md`](ESCENARIO-5-LAPTOPS.md), según cuántas laptops haya, de arriba hacia abajo.
 
 El detalle por criterio está en [`CONFIG.md`, sección 11](CONFIG.md#11-estado-frente-al-pdf).
 

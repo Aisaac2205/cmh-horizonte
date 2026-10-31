@@ -1,6 +1,6 @@
 # Matriz de pruebas. Todas las pruebas
 
-El guion para el día de la demostración está en `ESCENARIO-3-LAPTOPS.md` y `ESCENARIO-4-LAPTOPS.md`.
+El guion para el día de la demostración está en `ESCENARIO-4-LAPTOPS.md` y `ESCENARIO-5-LAPTOPS.md`.
 
 **Datos de Linphone para todos.** Usuario y usuario de autenticación igual al número de extensión, contraseña desde `CREDENCIALES-ACTUALES.md` (copiar y pegar), dominio `172.16.20.10`, transporte UDP, AVPF y presencia apagados, códecs PCMU primero, PCMA, G722 y opus. En Windows permitir Linphone en redes privadas **y públicas**.
 

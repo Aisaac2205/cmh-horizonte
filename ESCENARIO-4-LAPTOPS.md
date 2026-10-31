@@ -1,6 +1,6 @@
 # Demostración con 4 laptops
 
-Equipo en esta versión. Isaac, Regi, José y Romeo.
+Equipo en esta versión. Isaac, José, Regi y Leo.
 
 Este es el único guion para el día de la demostración. Se lee de arriba hacia abajo. Cada paso dice quién lo hace, qué hace y qué debe pasar.
 
@@ -16,29 +16,29 @@ Este es el único guion para el día de la demostración. Se lee de arriba hacia
 
 | Equipo | Quién | Cómo se conecta | Qué lleva abierto | Extensión |
 |---|---|---|---|---|
-| **A** laptop host | Isaac | Cable al puerto LAN del AP. Usa el puerto de red de su laptop | La VM encendida, la web de la PBX, **MicroSIP** y 2 PowerShell para iperf3 | **1000** |
+| **A** laptop host | Isaac | Cable al puerto LAN del AP. Usa el puerto de red de su laptop | La VM encendida, la web de la PBX, Linphone y 2 PowerShell para iperf3 | **5001** |
 | **B** laptop | José (reemplaza a Anthony, de Lima) | Cable a **ether4** del hEX, con el puerto de red de su laptop. Red Admin | Linphone y PowerShell | **4001** |
 | **C** laptop | Regi | Adaptador y cable a **ether3** del hEX. Red Gestión | Winbox | Ninguna |
-| **D** laptop | Romeo | Wi-Fi `CMH-Voz`, sin cable. Red Voz | Linphone | **5001** |
+| **D** laptop | Leo | Adaptador y cable a **ether5** del hEX. Red Invitados | Navegador y PowerShell | Ninguna |
 | **Celular 1** | Un compañero con celular | Wi-Fi `CMH-Voz` | Linphone | **3001** |
 | **Celular 2** | iPhone de Isaac, lo puede tener otro compañero | Wi-Fi `CMH-Voz` | Linphone y Tailscale | **5002** |
 
-Isaac y José tienen puerto de red en su laptop, Romeo va por Wi-Fi y solo Regi usa un adaptador. Isaac usa MicroSIP con la extensión 1000 para dejar libre el 5001 a Romeo. La 4001 es la extensión de Anthony (Lima) y José la usa como su reemplazo. Sin la laptop de Romeo, usar `ESCENARIO-3-LAPTOPS.md`.
+Isaac y José tienen puerto de red en su laptop. Regi y Leo usan los 2 adaptadores. La 4001 es la extensión de Anthony (Lima) y José la usa como su reemplazo. Si además llega Romeo con laptop, usar `ESCENARIO-5-LAPTOPS.md`.
 
 ---
 
 ## 2. Qué llevar y cómo conectar
 
-**Qué llevar.** El hEX con su fuente, el AP Mercusys con su fuente, el Xiaomi con su cable USB, 4 cables de red, 2 adaptadores Ethernet (Regi usa uno, el otro es de repuesto), las laptops y los celulares con Linphone.
+**Qué llevar.** El hEX con su fuente, el AP Mercusys con su fuente, el Xiaomi con su cable USB, 5 cables de red, 2 adaptadores Ethernet (uno para Regi y otro para Leo), las laptops y los celulares con Linphone.
 
 **Instalar antes (esta noche o mañana temprano).** Cada laptop con extensión necesita Linphone para Windows. Se descarga de linphone.org (editor Belledonne Communications). Winbox se descarga de mikrotik.com y iperf3 para Windows de iperf.fr.
 
 | Equipo | Instalar |
 |---|---|
-| **A** (Isaac) | MicroSIP e iperf3, que ya los tiene |
-| **B** (José) | Linphone e iperf3 |
-| **C** (Regi) | Winbox |
-| **D** (Romeo) | Linphone |
+| **A** (Isaac) | Linphone e iperf3 |
+| **B** | Linphone e iperf3 |
+| **C** | Winbox |
+| **D** (Leo) | Nada. Usa el navegador y PowerShell |
 
 **Conectar en este orden.**
 1. Xiaomi al puerto USB del hEX, con datos móviles y *Anclaje USB* activado.
@@ -47,7 +47,7 @@ Isaac y José tienen puerto de red en su laptop, Romeo va por Wi-Fi y solo Regi 
 4. **A** (Isaac). Cable de su laptop a otro puerto LAN del AP. Wi-Fi apagado.
 5. **B** (José). Cable a **ether4**, en el puerto de su laptop. Wi-Fi apagado. Escribir `ipconfig /renew`.
 6. **C** (Regi). Adaptador y cable a **ether3**. Wi-Fi apagado. Escribir `ipconfig /renew`.
-7. **D** (Romeo). Se conecta al Wi-Fi `CMH-Voz`. No lleva cable.
+7. **D** (Leo). Adaptador y cable a **ether5**. Wi-Fi apagado. Escribir `ipconfig /renew`.
 
 **Celulares.** Conectarse al Wi-Fi `CMH-Voz`.
 
@@ -55,7 +55,7 @@ Isaac y José tienen puerto de red en su laptop, Romeo va por Wi-Fi y solo Regi 
 
 ## 3. Antes de empezar (10 minutos)
 
-**Configurar Linphone en la PC.** Se hace una vez en cada laptop que usa Linphone (B y D). Los nombres de los menús pueden cambiar un poco según la versión.
+**Configurar Linphone en la PC.** Se hace una vez en cada laptop que usa Linphone (A y B). Los nombres de los menús pueden cambiar un poco según la versión.
 
 1. Abrir Linphone. Si ya tiene una cuenta vieja (con otro dominio, como `100.91.176.16` o `192.168.x.x`), **borrarla**. Una cuenta vieja guarda la contraseña vieja y la autenticación falla.
 2. Elegir *Usar una cuenta SIP* y llenar los datos de la tabla.
@@ -74,8 +74,6 @@ Isaac y José tienen puerto de red en su laptop, Romeo va por Wi-Fi y solo Regi 
 
 **La IP de la laptop no se configura.** Se queda en automático (DHCP) y el router le da la de su red. El dominio de Linphone es siempre `172.16.20.10`, aunque la laptop esté en otra red (Admin, Gestión o Voz). Si va con cable, el Wi-Fi va apagado. En Windows hay que permitir Linphone en redes privadas y públicas.
 
-**MicroSIP (laptop A).** Usuario `1000`, contraseña de `CREDENCIALES-ACTUALES.md`, y servidor y dominio `172.16.20.10`. Si todavía tiene otra IP de las pruebas en casa, cambiarla.
-
 **Paso 3.1. A (Isaac) enciende la VM.** Después esperar 4 minutos. Antes de eso los teléfonos no se registran.
 ```powershell
 & "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe" startvm CMH-FreePBX --type headless
@@ -85,7 +83,7 @@ Isaac y José tienen puerto de red en su laptop, Romeo va por Wi-Fi y solo Regi 
 ```powershell
 ssh -t -i "$env:USERPROFILE\.ssh\cmh_pbx_ed25519" -p 2222 cmhadmin@127.0.0.1 "sudo asterisk -rx 'pjsip show contacts'; sudo asterisk -rx 'pjsip show registrations'"
 ```
-Deben salir 1000, 4001, 5001, 3001 y 5002 en *Avail* y `sip2sip` en *Registered*.
+Deben salir 4001, 5001, 3001 y 5002 en *Avail* y `sip2sip` en *Registered*.
 
 **Paso 3.3. C (Regi) abre Winbox y pone los contadores en cero.** Conectar a `172.16.10.1` con el usuario `cmh-ti`. Si no entra, elegir el router por su MAC en la pestaña *Neighbors*. Abrir *New Terminal* y pegar:
 ```
@@ -111,7 +109,7 @@ ipconfig | findstr IPv4
 | A (Isaac) | 172.16.20.20 (red Voz) |
 | B (José) | 172.16.30.1xx (red Admin) |
 | C (Regi) | 172.16.10.1xx (red Gestión) |
-| D (Romeo) | 172.16.20.1xx (red Voz, por Wi-Fi) |
+| D (Leo) | 172.16.40.1xx (red Invitados) |
 | Celular | 172.16.20.1xx (en *Ajustes, Wi-Fi, CMH-Voz*) |
 
 **Decir.** Usamos direcciones clase B 172.16.0.0/12, una red /24 por cada VLAN. El tercer número es el número de la VLAN. La VLAN 10 es la de administración. Internet entra por el celular conectado al USB del hEX.
@@ -147,13 +145,12 @@ Antes de llamar, cada quien revisa que su extensión esté en verde en Linphone.
 | Prueba | Quién y qué hace | Debe pasar |
 |---|---|---|
 | **TEL-01** entre redes | **B** (José) marca `5002` y contesta el Celular 2. Después el Celular 2 marca `4001` | Audio en los dos sentidos |
-| **TEL-02** laptop con laptop | **B** (José) marca `5001` y contesta **D** (Romeo). Después **D** marca `1000` y contesta **A** (Isaac) en MicroSIP | Audio en los dos sentidos en las dos llamadas |
+| **TEL-02** laptop con laptop | **B** (José) marca `5001` y contesta **A** (Isaac) | Audio en los dos sentidos entre una laptop de Admin y una de Voz |
 | **TEL-04** espera | **B** está en llamada con el Celular 2. Toca el botón de pausa y luego lo retoma | El Celular 2 escucha la música de CMH |
 | **TEL-06** transferencia ciega | El Celular 2 marca `4001`. **B** toca *Transferir*, escribe `3001` y transfiere (o marca `##3001`) | El Celular 1 queda hablando con el Celular 2 |
 | **TEL-07** transferencia atendida | El Celular 2 marca `4001`. **B** consulta a `3001`, avisa y completa (o marca `*2`) | El Celular 1 queda hablando con el Celular 2 |
 | **TEL-08 y TEL-10** buzón | **B** marca `3001` y nadie contesta. Deja un mensaje. Después el Celular 1 marca `*97` y su PIN | Se escucha el mensaje |
 | **TEL-11** IVR | El Celular 2 marca `7000`, escucha el menú y marca `4` | Bienvenida en español y suena la 4001 |
-| **IVR a la operadora** | El Celular 2 marca `7000` y luego `0` | Suena MicroSIP en la laptop **A** (extensión 1000) |
 
 Opciones del IVR. 1 Recepción, 2 Consulta Externa, 3 Enfermería (3001), 4 Administración (4001), 0 operadora.
 
@@ -193,14 +190,11 @@ Debe verse así.
 
 ## 8. Prueba 5. Invitados
 
-**C** (Regi) cambia su cable de lugar un momento.
+**D** (Leo) está conectado desde el inicio a **ether5**, así que nadie mueve cables.
 
-1. **C** saca el cable de ether3 y lo pone en **ether5**. Escribe `ipconfig /renew`.
-2. Escribe `ipconfig | findstr IPv4`. Debe dar **172.16.40.1xx**.
-3. Abre una página de internet. **Debe cargar.**
-4. Escribe `ping 172.16.20.10`. **Debe fallar.**
-5. Regresa el cable a **ether3** y escribe `ipconfig /renew`.
-6. Vuelve a abrir Winbox por la MAC en *Neighbors*. Se había cerrado al cambiar de cable.
+1. **D** escribe `ipconfig | findstr IPv4`. Debe dar **172.16.40.1xx**.
+2. Abre una página de internet. **Debe cargar.**
+3. Escribe `ping 172.16.20.10`. **Debe fallar.**
 
 **Decir.** Los invitados tienen internet con velocidad limitada a 5 Mbps y no ven nada de la red interna.
 
