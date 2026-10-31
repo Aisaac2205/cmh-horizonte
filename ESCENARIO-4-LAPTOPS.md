@@ -1,6 +1,6 @@
 # Demostración con 4 laptops
 
-Equipo en esta versión. Isaac, Regi, Anthony y Romeo.
+Equipo en esta versión. Isaac, Regi, José y Romeo.
 
 Este es el único guion para el día de la demostración. Se lee de arriba hacia abajo. Cada paso dice quién lo hace, qué hace y qué debe pasar.
 
@@ -17,26 +17,26 @@ Este es el único guion para el día de la demostración. Se lee de arriba hacia
 | Equipo | Quién | Cómo se conecta | Qué lleva abierto | Extensión |
 |---|---|---|---|---|
 | **A** laptop host | Isaac | Cable al puerto LAN del AP. Usa el puerto de red de su laptop | La VM encendida, la web de la PBX, **MicroSIP** y 2 PowerShell para iperf3 | **1000** |
-| **B** laptop | Anthony (Lima) | Adaptador y cable a **ether4** del hEX. Red Admin | Linphone y PowerShell | **4001** |
+| **B** laptop | José (reemplaza a Anthony, de Lima) | Cable a **ether4** del hEX, con el puerto de red de su laptop. Red Admin | Linphone y PowerShell | **4001** |
 | **C** laptop | Regi | Adaptador y cable a **ether3** del hEX. Red Gestión | Winbox | Ninguna |
 | **D** laptop | Romeo | Wi-Fi `CMH-Voz`, sin cable. Red Voz | Linphone | **5001** |
 | **Celular 1** | Un compañero con celular | Wi-Fi `CMH-Voz` | Linphone | **3001** |
 | **Celular 2** | iPhone de Isaac, lo puede tener otro compañero | Wi-Fi `CMH-Voz` | Linphone y Tailscale | **5002** |
 
-Solo hay 2 adaptadores de red y los usan Anthony y Regi. La laptop de Isaac ya tiene puerto de red y la de Romeo va por Wi-Fi. Isaac usa MicroSIP con la extensión 1000 para dejar libre el 5001 a Romeo. La 4001 es la extensión de Anthony (Lima). Si Anthony no llega, la 4001 la toma quien se una. Usar `ESCENARIO-3-LAPTOPS.md`.
+Isaac y José tienen puerto de red en su laptop, Romeo va por Wi-Fi y solo Regi usa un adaptador. Isaac usa MicroSIP con la extensión 1000 para dejar libre el 5001 a Romeo. La 4001 es la extensión de Anthony (Lima) y José la usa como su reemplazo. Sin la laptop de Romeo, usar `ESCENARIO-3-LAPTOPS.md`.
 
 ---
 
 ## 2. Qué llevar y cómo conectar
 
-**Qué llevar.** El hEX con su fuente, el AP Mercusys con su fuente, el Xiaomi con su cable USB, 4 cables de red, 2 adaptadores Ethernet, las laptops y los celulares con Linphone.
+**Qué llevar.** El hEX con su fuente, el AP Mercusys con su fuente, el Xiaomi con su cable USB, 4 cables de red, 2 adaptadores Ethernet (Regi usa uno, el otro es de repuesto), las laptops y los celulares con Linphone.
 
 **Instalar antes (esta noche o mañana temprano).** Cada laptop con extensión necesita Linphone para Windows. Se descarga de linphone.org (editor Belledonne Communications). Winbox se descarga de mikrotik.com y iperf3 para Windows de iperf.fr.
 
 | Equipo | Instalar |
 |---|---|
 | **A** (Isaac) | MicroSIP e iperf3, que ya los tiene |
-| **B** (Anthony) | Linphone e iperf3 |
+| **B** (José) | Linphone e iperf3 |
 | **C** (Regi) | Winbox |
 | **D** (Romeo) | Linphone |
 
@@ -45,7 +45,7 @@ Solo hay 2 adaptadores de red y los usan Anthony y Regi. La laptop de Isaac ya t
 2. Encender el hEX y esperar un minuto.
 3. Cable de **ether2** del hEX a un puerto LAN del AP. Encender el AP.
 4. **A** (Isaac). Cable de su laptop a otro puerto LAN del AP. Wi-Fi apagado.
-5. **B** (Anthony). Adaptador y cable a **ether4**. Wi-Fi apagado. Escribir `ipconfig /renew`.
+5. **B** (José). Cable a **ether4**, en el puerto de su laptop. Wi-Fi apagado. Escribir `ipconfig /renew`.
 6. **C** (Regi). Adaptador y cable a **ether3**. Wi-Fi apagado. Escribir `ipconfig /renew`.
 7. **D** (Romeo). Se conecta al Wi-Fi `CMH-Voz`. No lleva cable.
 
@@ -109,7 +109,7 @@ ipconfig | findstr IPv4
 | Equipo | Debe dar |
 |---|---|
 | A (Isaac) | 172.16.20.20 (red Voz) |
-| B (Anthony) | 172.16.30.1xx (red Admin) |
+| B (José) | 172.16.30.1xx (red Admin) |
 | C (Regi) | 172.16.10.1xx (red Gestión) |
 | D (Romeo) | 172.16.20.1xx (red Voz, por Wi-Fi) |
 | Celular | 172.16.20.1xx (en *Ajustes, Wi-Fi, CMH-Voz*) |
@@ -146,8 +146,8 @@ Antes de llamar, cada quien revisa que su extensión esté en verde en Linphone.
 
 | Prueba | Quién y qué hace | Debe pasar |
 |---|---|---|
-| **TEL-01** entre redes | **B** (Anthony) marca `5002` y contesta el Celular 2. Después el Celular 2 marca `4001` | Audio en los dos sentidos |
-| **TEL-02** laptop con laptop | **B** (Anthony) marca `5001` y contesta **D** (Romeo). Después **D** marca `1000` y contesta **A** (Isaac) en MicroSIP | Audio en los dos sentidos en las dos llamadas |
+| **TEL-01** entre redes | **B** (José) marca `5002` y contesta el Celular 2. Después el Celular 2 marca `4001` | Audio en los dos sentidos |
+| **TEL-02** laptop con laptop | **B** (José) marca `5001` y contesta **D** (Romeo). Después **D** marca `1000` y contesta **A** (Isaac) en MicroSIP | Audio en los dos sentidos en las dos llamadas |
 | **TEL-04** espera | **B** está en llamada con el Celular 2. Toca el botón de pausa y luego lo retoma | El Celular 2 escucha la música de CMH |
 | **TEL-06** transferencia ciega | El Celular 2 marca `4001`. **B** toca *Transferir*, escribe `3001` y transfiere (o marca `##3001`) | El Celular 1 queda hablando con el Celular 2 |
 | **TEL-07** transferencia atendida | El Celular 2 marca `4001`. **B** consulta a `3001`, avisa y completa (o marca `*2`) | El Celular 1 queda hablando con el Celular 2 |
@@ -172,11 +172,11 @@ Aquí se prueba que el router bloquea lo que debe bloquear. No se usa ningún sc
 | # | Quién | Qué hace | Debe pasar |
 |---|---|---|---|
 | 1 | **C** (Regi) | Abre en el navegador `http://172.16.20.10` | Carga el login de la PBX. Desde Gestión sí se puede entrar |
-| 2 | **B** (Anthony) | Llama de `4001` a `5001` o a `5002` | Funciona. El router deja pasar el SIP y el audio |
-| 3 | **B** (Anthony) | Escribe `ping 172.16.20.10` | Sin respuesta |
-| 4 | **B** (Anthony) | Escribe `ping 172.16.20.2` (el AP) | Sin respuesta |
-| 5 | **B** (Anthony) | Abre en el navegador `http://172.16.20.10` | No carga |
-| 6 | **B** (Anthony) | Intenta entrar al router con Winbox, a `172.16.10.1` | No conecta |
+| 2 | **B** (José) | Llama de `4001` a `5001` o a `5002` | Funciona. El router deja pasar el SIP y el audio |
+| 3 | **B** (José) | Escribe `ping 172.16.20.10` | Sin respuesta |
+| 4 | **B** (José) | Escribe `ping 172.16.20.2` (el AP) | Sin respuesta |
+| 5 | **B** (José) | Abre en el navegador `http://172.16.20.10` | No carga |
+| 6 | **B** (José) | Intenta entrar al router con Winbox, a `172.16.10.1` | No conecta |
 | 7 | **Celular 1** | Abre en el navegador `http://172.16.20.10` | No carga. La web de la PBX solo se abre desde Gestión |
 
 Ahora **C** (Regi) mira los contadores en Winbox.
@@ -193,7 +193,7 @@ Debe verse así.
 
 ## 8. Prueba 5. Invitados
 
-Hay solo 2 adaptadores y ya los usan B y C, así que **C** (Regi) cambia su cable de lugar un momento.
+**C** (Regi) cambia su cable de lugar un momento.
 
 1. **C** saca el cable de ether3 y lo pone en **ether5**. Escribe `ipconfig /renew`.
 2. Escribe `ipconfig | findstr IPv4`. Debe dar **172.16.40.1xx**.
@@ -227,7 +227,7 @@ iperf3 -s -p 5202
 
 ### Ronda 1. Con QoS
 
-1. **B** (Anthony) y el **Celular 2** hacen una llamada `4001` ↔ `5002` y la ponen en altavoz.
+1. **B** (José) y el **Celular 2** hacen una llamada `4001` ↔ `5002` y la ponen en altavoz.
 2. **B** abre una PowerShell y satura el enlace.
    ```powershell
    iperf3 -c 172.16.20.20 -p 5201 -u -b 20M -t 75

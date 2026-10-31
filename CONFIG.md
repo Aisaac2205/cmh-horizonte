@@ -131,12 +131,12 @@ Abrir cada dirección en el navegador con la sesión iniciada. Todas empiezan co
 | Extensión | Integrante | Buzón |
 |---|---|---|
 | 1000 | Isaac Sarceño (MicroSIP en la laptop host) | Sí |
-| 1001 | José Arnaldo | No |
+| 1001 | Anthony | No |
 | 2001 | Leonardo Zepeda | Sí |
 | 2002 | Omar Godoy (Android) | No |
 | 3001 | Ernesto Grijalva | Sí |
 | 3002 | Reginaldo | No |
-| 4001 | Anthony | Sí |
+| 4001 | José Arnaldo | Sí |
 | 5001 | Romeo | No |
 | 5002 | Isaac Sarceño (iPhone, E1) | No |
 

@@ -10,12 +10,12 @@
 | Ext. | Integrante | Dispositivo | Aplicación | Conexión | VLAN |
 |---|---|---|---|---|---|
 | 1000 | Isaac Sarceño | Laptop host | MicroSIP | Cable a un puerto LAN del AP | 20 VOZ |
-| 1001 | José Arnaldo | Celular | Linphone | Wi-Fi CMH-Voz | 20 VOZ |
+| 1001 | Anthony | Celular | Linphone | Wi-Fi CMH-Voz | 20 VOZ |
 | 2001 | Leonardo Zepeda | Celular | Linphone / Zoiper | Wi-Fi CMH-Voz | 20 VOZ |
 | 2002 | Omar Godoy | Celular (Android) | Linphone | Wi-Fi CMH-Voz | 20 VOZ |
 | 3001 | Ernesto Grijalva | Celular | Zoiper | Wi-Fi CMH-Voz | 20 VOZ |
 | 3002 | Reginaldo | Celular | Linphone | Wi-Fi CMH-Voz | 20 VOZ |
-| 4001 | Anthony | Laptop (o celular) | MicroSIP o Linphone | Cable ether4 | 30 ADMIN |
+| 4001 | José Arnaldo | Laptop (o celular) | MicroSIP o Linphone | Cable ether4 | 30 ADMIN |
 | 5001 | Romeo | Laptop (o celular) | MicroSIP o Linphone | Cable ether3 | 10 GESTION |
 | 5002 | Isaac Sarceño | Celular (datos móviles) | Linphone + Tailscale | Internet | E1 |
 
