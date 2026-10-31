@@ -30,6 +30,14 @@ Solo hay 2 adaptadores de red y los usan Regi y Romeo. La laptop de Isaac ya tie
 
 **Qué llevar.** El hEX con su fuente, el AP Mercusys con su fuente, el Xiaomi con su cable USB, 4 cables de red, 2 adaptadores Ethernet, las laptops y los celulares con Linphone.
 
+**Instalar antes (esta noche o mañana temprano).** Cada laptop con extensión necesita Linphone para Windows. Se descarga de linphone.org (editor Belledonne Communications). Winbox se descarga de mikrotik.com y iperf3 para Windows de iperf.fr.
+
+| Equipo | Instalar |
+|---|---|
+| **A** (Isaac) | Linphone e iperf3 |
+| **B** | Linphone e iperf3 |
+| **C** | Winbox |
+
 **Conectar en este orden.**
 1. Xiaomi al puerto USB del hEX, con datos móviles y *Anclaje USB* activado.
 2. Encender el hEX y esperar un minuto.
