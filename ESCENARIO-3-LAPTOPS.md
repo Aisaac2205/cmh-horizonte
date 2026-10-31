@@ -52,7 +52,24 @@ Solo hay 2 adaptadores de red y los usan Regi y Romeo. La laptop de Isaac ya tie
 
 ## 3. Antes de empezar (10 minutos)
 
-**Datos de Linphone para todos.** El usuario y el usuario de autenticación son el número de extensión. La contraseña está en `CREDENCIALES-ACTUALES.md` (copiar y pegar). El dominio es `172.16.20.10` y el transporte es UDP. En Windows hay que permitir Linphone en redes privadas y públicas.
+**Configurar Linphone en la PC.** Se hace una vez en cada laptop que usa Linphone (A y B). Los nombres de los menús pueden cambiar un poco según la versión.
+
+1. Abrir Linphone. Si ya tiene una cuenta vieja (con otro dominio, como `100.91.176.16` o `192.168.x.x`), **borrarla**. Una cuenta vieja guarda la contraseña vieja y la autenticación falla.
+2. Elegir *Usar una cuenta SIP* y llenar los datos de la tabla.
+3. Esperar a que la cuenta salga en **verde**.
+4. Probar marcando `*43`. Debe oírse la propia voz con un pequeño retraso.
+
+| Dato | Qué poner |
+|---|---|
+| Usuario | El número de extensión, por ejemplo `4001` |
+| Usuario de autenticación | El mismo número |
+| Contraseña | La de esa extensión en `CREDENCIALES-ACTUALES.md` (copiar y pegar) |
+| Dominio o servidor SIP | `172.16.20.10` |
+| Transporte | UDP |
+| AVPF y presencia | Apagados |
+| Códecs | PCMU primero, luego PCMA, G722 y opus |
+
+**La IP de la laptop no se configura.** Se queda en automático (DHCP) y el router le da la de su red. El dominio de Linphone es siempre `172.16.20.10`, aunque la laptop esté en otra red (Admin, Gestión o Voz). Si va con cable, el Wi-Fi va apagado. En Windows hay que permitir Linphone en redes privadas y públicas.
 
 **Paso 3.1. A (Isaac) enciende la VM.** Después esperar 4 minutos. Antes de eso los teléfonos no se registran.
 ```powershell
