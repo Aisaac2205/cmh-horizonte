@@ -33,6 +33,8 @@ http://127.0.0.1:18080/admin/
 | Celular 1 | Wi-Fi `CMH-Voz` | Linphone **3001** |
 | Celular 2 | Wi-Fi `CMH-Voz` | Linphone **5002** (y la cuenta de Tailscale para el E1) |
 
+Con 3 o con 4 laptops, el reparto está en `ESCENARIOS-PRUEBAS.md`.
+
 Si solo hay dos laptops, la B empieza en ether3 para el paso 2 y se pasa a ether4 en el paso 3. En el paso 5 vuelve a ether3 solo para cambiar las colas.
 
 Encender la VM en la laptop A y esperar 4 minutos (antes de eso los teléfonos no registran).
@@ -123,6 +125,8 @@ Opcional, una laptop en **ether5** (Invitados):
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\Probar-Vlan.ps1
 ```
+
+**Si el inge no quiere ver el script.** Hacer la matriz a mano con el paso 2 de `ESCENARIOS-PRUEBAS.md` y dejar el script solo como respaldo.
 
 **Decir.** El script prueba cada regla y compara lo esperado contra lo obtenido. Desde Admin llega a la PBX por SIP, pero no le hace ping ni entra a su web ni al router.
 
