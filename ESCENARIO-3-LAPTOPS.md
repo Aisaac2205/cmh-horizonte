@@ -17,12 +17,12 @@ Este es el único guion para el día de la demostración. Se lee de arriba hacia
 | Equipo | Quién | Cómo se conecta | Qué lleva abierto | Extensión |
 |---|---|---|---|---|
 | **A** laptop host | Isaac | Cable al puerto LAN del AP. Usa el puerto de red de su laptop | La VM encendida, la web de la PBX, Linphone y 2 PowerShell para iperf3 | **5001** |
-| **B** laptop | Regi | Adaptador y cable a **ether4** del hEX. Red Admin | Linphone y PowerShell | **4001** |
+| **B** laptop | Regi, o quien se una | Adaptador y cable a **ether4** del hEX. Red Admin | Linphone y PowerShell | **4001** |
 | **C** laptop | Romeo | Adaptador y cable a **ether3** del hEX. Red Gestión | Winbox | Ninguna |
 | **Celular 1** | Un compañero con celular | Wi-Fi `CMH-Voz` | Linphone | **3001** |
 | **Celular 2** | iPhone de Isaac, lo puede tener otro compañero | Wi-Fi `CMH-Voz` | Linphone y Tailscale | **5002** |
 
-Solo hay 2 adaptadores de red y los usan Regi y Romeo. La laptop de Isaac ya tiene puerto de red. Si llega Anthony, usar `ESCENARIO-4-LAPTOPS.md`.
+Solo hay 2 adaptadores de red y los usan Regi y Romeo. La laptop de Isaac ya tiene puerto de red. La 4001 es la extensión de Anthony (Lima). Si él no viene, la usa quien se una. Si llega Anthony, usar `ESCENARIO-4-LAPTOPS.md`.
 
 ---
 
